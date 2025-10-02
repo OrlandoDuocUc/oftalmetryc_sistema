@@ -1,0 +1,338 @@
+==============================================================================
+                    ESTRUCTURA ACTUAL - BASE DE DATOS OFTALMETRYC
+                           Sistema de Gestión Oftalmológica
+==============================================================================
+
+📊 RESUMEN GENERAL:
+- Total de tablas: 10
+- Arquitectura: PostgreSQL
+- Enfoque: Sistema mixto (Comercial + Médico)
+- Estado: Producción en Render
+
+==============================================================================
+🏢 MÓDULO COMERCIAL - TABLAS PRINCIPALES
+==============================================================================
+
+1️⃣ TABLA: rol
+   📋 Propósito: Gestión de roles y permisos de usuarios
+   🔑 Clave primaria: rol_id (BIGSERIAL)
+   
+   📝 CAMPOS:
+   - rol_id           BIGSERIAL PRIMARY KEY
+   - nombre           VARCHAR(50) NOT NULL
+   - descripcion      TEXT
+   - estado           CHAR(1) DEFAULT 'A' NOT NULL
+   - fecha_creacion   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   
+   📊 DATOS ACTUALES:
+   - Administrador: Acceso completo al sistema
+   - Vendedor: Acceso a ventas y productos  
+   - Médico: Acceso al módulo médico
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2️⃣ TABLA: usuario  
+   📋 Propósito: Gestión de usuarios del sistema
+   🔑 Clave primaria: usuario_id (BIGSERIAL)
+   🔗 FK: rol_id → rol(rol_id)
+   
+   📝 CAMPOS:
+   - usuario_id       BIGSERIAL PRIMARY KEY
+   - rol_id          BIGINT REFERENCES rol(rol_id)
+   - username        VARCHAR(50) UNIQUE NOT NULL
+   - password        VARCHAR(255) NOT NULL
+   - nombre          VARCHAR(100) NOT NULL
+   - ap_pat          VARCHAR(100) NOT NULL
+   - ap_mat          VARCHAR(100)
+   - email           VARCHAR(100)
+   - fecha_creacion  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   - estado          CHAR(1) DEFAULT 'A' NOT NULL
+   
+   📊 DATOS ACTUALES:
+   - admin/admin123: Usuario administrador principal
+   - orlando/orlando123: Usuario vendedor
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3️⃣ TABLA: categoria
+   📋 Propósito: Categorización de productos ópticos
+   🔑 Clave primaria: categoria_id (BIGSERIAL)
+   
+   📝 CAMPOS:
+   - categoria_id     BIGSERIAL PRIMARY KEY
+   - nombre          VARCHAR(100) NOT NULL
+   - descripcion     TEXT
+   - estado          CHAR(1) DEFAULT 'A' NOT NULL
+   - fecha_creacion  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   
+   📊 DATOS ACTUALES:
+   - Lentes: Lentes oftálmicos y de contacto
+   - Armazones: Armazones para anteojos
+   - Accesorios: Accesorios para cuidado visual
+   - Medicamentos: Medicamentos oftálmicos
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4️⃣ TABLA: producto
+   📋 Propósito: Catálogo de productos ópticos
+   🔑 Clave primaria: producto_id (BIGSERIAL)
+   🔗 FK: categoria_id → categoria(categoria_id)
+   
+   📝 CAMPOS:
+   - producto_id      BIGSERIAL PRIMARY KEY
+   - categoria_id     BIGINT REFERENCES categoria(categoria_id)
+   - nombre          VARCHAR(200) NOT NULL
+   - descripcion     TEXT
+   - stock           INTEGER DEFAULT 0
+   - precio_unitario DECIMAL(10,2) NOT NULL
+   - fecha_creacion  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   - estado          CHAR(1) DEFAULT 'A' NOT NULL
+   
+   📊 PRODUCTOS EJEMPLO:
+   - Lentes Bifocales: $45.000
+   - Lentes Progresivos: $85.000
+   - Armazón Titanio: $35.000
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5️⃣ TABLA: cliente
+   📋 Propósito: Gestión de clientes comerciales
+   🔑 Clave primaria: cliente_id (BIGSERIAL)
+   ⚠️  NOTA: Usa "rut" pero para Ecuador debería ser "cedula"
+   
+   📝 CAMPOS:
+   - cliente_id       BIGSERIAL PRIMARY KEY
+   - rut             VARCHAR(20) UNIQUE NOT NULL
+   - nombre          VARCHAR(100) NOT NULL
+   - apellido        VARCHAR(100) NOT NULL
+   - telefono        VARCHAR(20)
+   - email           VARCHAR(100)
+   - direccion       TEXT
+   - fecha_creacion  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   - estado          CHAR(1) DEFAULT 'A' NOT NULL
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+6️⃣ TABLA: venta
+   📋 Propósito: Registro de ventas de productos
+   🔑 Clave primaria: venta_id (BIGSERIAL)
+   🔗 FK: producto_id → producto(producto_id)
+   🔗 FK: usuario_id → usuario(usuario_id)
+   🔗 FK: cliente_id → cliente(cliente_id)
+   
+   📝 CAMPOS:
+   - venta_id        BIGSERIAL PRIMARY KEY
+   - producto_id     BIGINT REFERENCES producto(producto_id)
+   - usuario_id      BIGINT REFERENCES usuario(usuario_id)
+   - cliente_id      BIGINT REFERENCES cliente(cliente_id)
+   - cantidad        INTEGER NOT NULL
+   - total           DECIMAL(10,2) NOT NULL
+   - fecha           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+==============================================================================
+🏥 MÓDULO MÉDICO - TABLAS ESPECIALIZADAS
+==============================================================================
+
+7️⃣ TABLA: pacientes
+   📋 Propósito: Gestión de pacientes médicos
+   🔑 Clave primaria: id (SERIAL)
+   ⚠️  NOTA: Separada de "cliente" - podría unificarse
+   
+   📝 CAMPOS:
+   - id                    SERIAL PRIMARY KEY
+   - rut                   VARCHAR(12) UNIQUE NOT NULL
+   - nombre               VARCHAR(100) NOT NULL
+   - apellido             VARCHAR(100) NOT NULL
+   - fecha_nacimiento     DATE
+   - telefono             VARCHAR(20)
+   - email                VARCHAR(100)
+   - direccion            TEXT
+   - ocupacion            VARCHAR(100)
+   - contacto_emergencia  VARCHAR(100)
+   - telefono_emergencia  VARCHAR(20)
+   - observaciones        TEXT
+   - created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   - updated_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+8️⃣ TABLA: consultas_medicas
+   📋 Propósito: Registro de consultas oftalmológicas
+   🔑 Clave primaria: id (SERIAL)
+   🔗 FK: paciente_id → pacientes(id)
+   
+   📝 CAMPOS:
+   - id                      SERIAL PRIMARY KEY
+   - paciente_id            INTEGER REFERENCES pacientes(id) ON DELETE CASCADE
+   - fecha_consulta         TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   - medico                 VARCHAR(100)
+   - motivo_consulta        TEXT
+   - anamnesis              TEXT
+   - antecedentes_personales TEXT
+   - antecedentes_familiares TEXT
+   - medicamentos_actuales  TEXT
+   - alergias               TEXT
+   - diagnostico            TEXT
+   - plan_tratamiento       TEXT
+   - observaciones_generales TEXT
+   - proxima_cita           DATE
+   - estado                 VARCHAR(20) DEFAULT 'activa'
+   - created_at             TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   - updated_at             TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+9️⃣ TABLA: examenes_basicos
+   📋 Propósito: Registro de exámenes oftalmológicos básicos
+   🔑 Clave primaria: id (SERIAL)
+   🔗 FK: consulta_id → consultas_medicas(id)
+   
+   📝 CAMPOS (MUY EXTENSOS):
+   
+   🎯 AGUDEZA VISUAL SIN CORRECCIÓN:
+   - od_sc_lejos, oi_sc_lejos, ao_sc_lejos    VARCHAR(10)
+   - od_sc_cerca, oi_sc_cerca, ao_sc_cerca    VARCHAR(10)
+   
+   🎯 AGUDEZA VISUAL CON CORRECCIÓN:
+   - od_cc_lejos, oi_cc_lejos, ao_cc_lejos    VARCHAR(10)
+   - od_cc_cerca, oi_cc_cerca, ao_cc_cerca    VARCHAR(10)
+   
+   🎯 REFRACCIÓN OBJETIVA:
+   - od_esfera_obj, od_cilindro_obj, od_eje_obj    DECIMAL(4,2)/INTEGER
+   - oi_esfera_obj, oi_cilindro_obj, oi_eje_obj    DECIMAL(4,2)/INTEGER
+   
+   🎯 REFRACCIÓN SUBJETIVA:
+   - od_esfera_subj, od_cilindro_subj, od_eje_subj, od_add    DECIMAL(4,2)
+   - oi_esfera_subj, oi_cilindro_subj, oi_eje_subj, oi_add    DECIMAL(4,2)
+   
+   🎯 PRESIÓN INTRAOCULAR:
+   - pio_od, pio_oi                          INTEGER
+   - metodo_pio                              VARCHAR(50)
+   
+   🎯 EVALUACIÓN PUPILAR:
+   - od_pupila_tamano, oi_pupila_tamano      DECIMAL(3,1)
+   - od_reaccion_luz, oi_reaccion_luz        VARCHAR(20)
+   - defecto_pupilar_aferente                BOOLEAN
+   
+   🎯 MOTILIDAD OCULAR:
+   - motilidad_normal                        BOOLEAN
+   - limitacion_movimientos                  TEXT
+   - nistagmo                                BOOLEAN
+   - tipo_nistagmo                           VARCHAR(50)
+   
+   🎯 VISIÓN DE COLORES:
+   - ishihara_resultado                      VARCHAR(10)
+   - tipo_discromatopsia                     VARCHAR(30)
+   
+   - observaciones                           TEXT
+   - created_at                              TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔟 TABLA: diagnosticos
+   📋 Propósito: Catálogo de diagnósticos CIE-10 oftalmológicos
+   🔑 Clave primaria: id (SERIAL)
+   
+   📝 CAMPOS:
+   - id             SERIAL PRIMARY KEY
+   - codigo_cie10   VARCHAR(10) NOT NULL
+   - descripcion    VARCHAR(200) NOT NULL
+   - categoria      VARCHAR(100)
+   - created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   
+   📊 DIAGNÓSTICOS PRECARGADOS:
+   - H52.0: Hipermetropía
+   - H52.1: Miopía
+   - H52.2: Astigmatismo
+   - H52.4: Presbicia
+   - H25: Catarata senil
+   - H40.1: Glaucoma primario de ángulo abierto
+   - H10.9: Conjuntivitis no especificada
+   - Z01.0: Examen de los ojos y de la visión
+
+==============================================================================
+📊 ÍNDICES DE OPTIMIZACIÓN
+==============================================================================
+
+🚀 ÍNDICES CREADOS:
+- idx_usuario_username ON usuario(username)
+- idx_producto_categoria ON producto(categoria_id)
+- idx_venta_fecha ON venta(fecha)
+- idx_pacientes_rut ON pacientes(rut)
+- idx_consultas_paciente ON consultas_medicas(paciente_id)
+- idx_consultas_fecha ON consultas_medicas(fecha_consulta)
+
+==============================================================================
+⚙️ TRIGGERS Y FUNCIONES
+==============================================================================
+
+🔄 FUNCIÓN: actualizar_timestamp()
+   📋 Propósito: Actualiza automáticamente el campo updated_at
+
+🎯 TRIGGERS ACTIVOS:
+- trg_pacientes_updated_at ON pacientes
+- trg_consultas_updated_at ON consultas_medicas
+
+==============================================================================
+🚨 ANÁLISIS Y OBSERVACIONES CRÍTICAS
+==============================================================================
+
+✅ FORTALEZAS:
+- Estructura médica muy completa y profesional
+- Módulo comercial básico pero funcional
+- Índices bien definidos para optimización
+- Triggers automáticos para timestamps
+- Campos específicos de oftalmología muy detallados
+
+⚠️ ÁREAS DE MEJORA IDENTIFICADAS:
+
+1. DUPLICACIÓN DE DATOS:
+   - Tabla "cliente" y "pacientes" tienen campos similares
+   - Deberían unificarse o relacionarse mejor
+
+2. INCONSISTENCIA DE NOMENCLATURA:
+   - Algunas PK usan "id", otras "tabla_id"
+   - Campos "rut" deberían ser "cedula" para Ecuador
+   - Mezcla de created_at/fecha_creacion
+
+3. RELACIONES FALTANTES:
+   - No hay relación directa cliente ↔ paciente
+   - Falta tabla de detalle_venta (venta solo maneja 1 producto)
+   - No hay tabla de historial médico consolidado
+
+4. CAMPOS FALTANTES:
+   - Usuario sin foto de perfil
+   - Productos sin imágenes
+   - Pacientes sin foto de identificación
+   - Consultas sin archivos adjuntos
+
+5. VALIDACIONES:
+   - Falta validación de formato de cédula ecuatoriana
+   - No hay restricciones de edad mínima/máxima
+   - Campos de precio sin validación de rangos
+
+==============================================================================
+📈 RECOMENDACIONES PRIORITARIAS
+==============================================================================
+
+🥇 ALTA PRIORIDAD:
+1. Unificar sistema de personas (cliente/paciente)
+2. Corregir nomenclatura de "rut" → "cedula"
+3. Crear tabla detalle_venta para múltiples productos
+4. Estandarizar nombres de campos
+
+🥈 MEDIA PRIORIDAD:
+5. Agregar campos de imágenes/archivos
+6. Crear tabla de historial médico unificado
+7. Implementar validaciones de negocio
+
+🥉 BAJA PRIORIDAD:
+8. Módulo de citas médicas
+9. Sistema de notificaciones
+10. Reportes avanzados
+
+==============================================================================
+
+FECHA DE ANÁLISIS: 2 de octubre de 2025
+SISTEMA: Oftalmetryc v1.0
+ANALISTA: Análisis automatizado de estructura BD

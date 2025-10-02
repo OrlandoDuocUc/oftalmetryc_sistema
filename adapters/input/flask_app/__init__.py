@@ -6,7 +6,7 @@ from adapters.input.flask_app.controllers.user_controller import user_html
 from adapters.input.flask_app.controllers.product_controller import product_html
 from adapters.input.flask_app.controllers.sale_controller import sale_html
 from .routes import bp  # Agregar la importación del blueprint principal
-from .medical_routes import medical_bp  # Importar las rutas médicas
+from .medical_routes import medical_bp  # Importar las rutas médicas (incluye ficha clínica)
 from app.infraestructure.utils.currency_utils import format_currency_simple
 from config.settings import config_by_name
 
@@ -31,6 +31,6 @@ def create_app(config_name='development'):
     app.register_blueprint(product_html)
     app.register_blueprint(sale_html)
     app.register_blueprint(bp)  # Registrar el blueprint principal con todas las rutas
-    app.register_blueprint(medical_bp)  # Registrar las rutas médicas
+    app.register_blueprint(medical_bp)  # Registrar las rutas médicas (incluye ficha clínica)
     
     return app

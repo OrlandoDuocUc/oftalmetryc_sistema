@@ -64,6 +64,96 @@ class ExamenBasico(Base):
     ishihara_resultado = Column(String(10))  # 21/21, defecto, etc.
     tipo_discromatopsia = Column(String(30))
     
+    # NUEVOS CAMPOS FICHA CLÍNICA DIGITAL
+    
+    # Agudeza Visual Expandida
+    av_distancia_od = Column(String(10))
+    av_distancia_oi = Column(String(10))
+    av_c_c_od = Column(String(10))  # Sin corrección
+    av_c_c_oi = Column(String(10))
+    av_s_c_od = Column(String(10))  # Con corrección
+    av_s_c_oi = Column(String(10))
+    av_ph_od = Column(String(10))   # Pin Hole
+    av_ph_oi = Column(String(10))
+    av_proxima_od = Column(String(10))
+    av_proxima_oi = Column(String(10))
+    av_ao_distancia = Column(String(10))
+    av_ao_proxima = Column(String(10))
+    dominante_od = Column(String(10))
+    dominante_oi = Column(String(10))
+    av_otros = Column(Text)
+    
+    # Lensometría
+    lensometria_od = Column(String(50))
+    lensometria_oi = Column(String(50))
+    
+    # Queratometría
+    queratometria_od = Column(String(50))
+    queratometria_oi = Column(String(50))
+    
+    # Autorefractor Expandido
+    ar_esf_od = Column(String(10))
+    ar_cyl_od = Column(String(10))
+    ar_eje_od = Column(String(10))
+    ar_av_od = Column(String(10))
+    ar_esf_oi = Column(String(10))
+    ar_cyl_oi = Column(String(10))
+    ar_eje_oi = Column(String(10))
+    ar_av_oi = Column(String(10))
+    
+    # Subjetivo Expandido
+    sub_esf_od = Column(String(10))
+    sub_cyl_od = Column(String(10))
+    sub_eje_od = Column(String(10))
+    sub_av_od = Column(String(10))
+    sub_esf_oi = Column(String(10))
+    sub_cyl_oi = Column(String(10))
+    sub_eje_oi = Column(String(10))
+    sub_av_oi = Column(String(10))
+    
+    # RX Final Completo
+    rx_esf_od = Column(String(10))
+    rx_cyl_od = Column(String(10))
+    rx_eje_od = Column(String(10))
+    rx_avl_od = Column(String(10))
+    rx_avc_od = Column(String(10))
+    rx_dp_od = Column(String(10))
+    rx_np_od = Column(String(10))
+    rx_add_od = Column(String(10))
+    rx_alt_od = Column(String(10))
+    rx_ao_od = Column(String(10))
+    rx_esf_oi = Column(String(10))
+    rx_cyl_oi = Column(String(10))
+    rx_eje_oi = Column(String(10))
+    rx_avl_oi = Column(String(10))
+    rx_avc_oi = Column(String(10))
+    rx_dp_oi = Column(String(10))
+    rx_np_oi = Column(String(10))
+    rx_add_oi = Column(String(10))
+    rx_alt_oi = Column(String(10))
+    rx_ao_oi = Column(String(10))
+    
+    # Lentes de Contacto
+    lc_poder_od = Column(String(10))
+    lc_curva_base_od = Column(String(10))
+    lc_diametro_od = Column(String(10))
+    lc_material_od = Column(String(50))
+    lc_poder_oi = Column(String(10))
+    lc_curva_base_oi = Column(String(10))
+    lc_diametro_oi = Column(String(10))
+    lc_material_oi = Column(String(50))
+    
+    # Test Adicionales Expandidos
+    hirschberg_od = Column(Integer)
+    hirschberg_oi = Column(Integer)
+    test_ishihara = Column(String(50))
+    presion_intraocular_od = Column(String(20))
+    presion_intraocular_oi = Column(String(20))
+    cover_test_pfc = Column(String(50))
+    cover_test_foria = Column(String(50))
+    mov_oculares = Column(String(100))
+    test_adicionales_otros = Column(Text)
+
     observaciones = Column(Text)
     created_at = Column(DateTime, default=func.now(), nullable=False)
 
