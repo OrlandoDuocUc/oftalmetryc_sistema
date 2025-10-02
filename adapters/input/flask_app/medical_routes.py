@@ -56,8 +56,13 @@ def consultas():
 @medical_bp.route('/consultas/nueva')
 @login_required
 def nueva_consulta():
-    """Vista para nueva consulta"""
-    return render_template('medical/nueva_consulta.html')
+    """REDIRECCIÓN: /consultas/nueva → /ficha-clinica
+    
+    Esta ruta era confusa y duplicaba funcionalidad.
+    Ahora redirige a la ruta principal unificada.
+    """
+    from flask import redirect, url_for
+    return redirect(url_for('medical.ficha_clinica'))
 
 @medical_bp.route('/consultas/<int:consulta_id>')
 @login_required
