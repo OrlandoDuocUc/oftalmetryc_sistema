@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: optica-almonacid
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python boot.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: optica-db
+          property: connectionString
+  
+  - type: pserv
+    name: optica-db
+    env: postgresql
+    plan: free
+    region: oregon
+    postgresMajorVersion: 15

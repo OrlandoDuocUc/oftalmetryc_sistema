@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultas Médicas - Oftalmetryc</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #ecf0f1;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            border: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table thead {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .search-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .status-badge {
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        
+        .status-activa {
+            background: linear-gradient(135deg, var(--warning-color), #f7dc6f);
+            color: white;
+        }
+        
+        .status-completada {
+            background: linear-gradient(135deg, var(--success-color), #58d68d);
+            color: white;
+        }
+        
+        .status-cancelada {
+            background: linear-gradient(135deg, var(--accent-color), #ec7063);
+            color: white;
+        }
+        
+        .filter-tabs {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .filter-tabs .nav-link {
+            border-radius: 20px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-tabs .nav-link.active {
+            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-eye me-2"></i>Oftalmetryc
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/productos">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/registrar-venta">Registrar Venta</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/historial-ventas">Historial</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-eye me-1"></i>Módulo Médico
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
+                            <li><a class="dropdown-item" href="/pacientes"><i class="fas fa-users me-2"></i>Pacientes</a></li>
+                            <li><a class="dropdown-item active" href="/consultas"><i class="fas fa-calendar-check me-2"></i>Consultas</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/consultas/nueva"><i class="fas fa-plus-circle me-2"></i>Nueva Consulta</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <a class="nav-link text-danger" href="/logout">Cerrar sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0 text-dark">
+                <i class="fas fa-calendar-check me-2"></i>Consultas Médicas
+            </h1>
+            <a href="/consultas/nueva" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Nueva Consulta
+            </a>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <ul class="nav nav-pills" id="consultasTabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-filter="todas" href="#" onclick="filterConsultas('todas')">
+                        <i class="fas fa-list me-2"></i>Todas las Consultas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-filter="activa" href="#" onclick="filterConsultas('activa')">
+                        <i class="fas fa-clock me-2"></i>Activas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-filter="completada" href="#" onclick="filterConsultas('completada')">
+                        <i class="fas fa-check-circle me-2"></i>Completadas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-filter="hoy" href="#" onclick="filterConsultas('hoy')">
+                        <i class="fas fa-calendar-day me-2"></i>Hoy
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Search Container -->
+        <div class="search-container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="searchInput" 
+                               placeholder="Buscar por paciente, médico o diagnóstico...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="medicoFilter">
+                        <option value="">Todos los médicos</option>
+                        <option value="Dr. Smith">Dr. Smith</option>
+                        <option value="Dra. García">Dra. García</option>
+                        <option value="Dr. Pérez">Dr. Pérez</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" id="fechaFilter">
+                </div>
+            </div>
+        </div>
+
+        <!-- Consultas List -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i>Lista de Consultas
+                    <span class="badge bg-light text-dark ms-2" id="totalConsultas">0</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha/Hora</th>
+                                <th>Paciente</th>
+                                <th>Médico</th>
+                                <th>Motivo Consulta</th>
+                                <th>Estado</th>
+                                <th>Próxima Cita</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="consultasTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                    <p class="mt-2 text-muted">Cargando consultas...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards (Mobile) -->
+        <div class="row d-md-none mt-4">
+            <div class="col-6 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary" id="statsActivas">0</h5>
+                        <p class="card-text small">Activas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-success" id="statsCompletadas">0</h5>
+                        <p class="card-text small">Completadas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consulta Detail Modal -->
+    <div class="modal fade" id="consultaModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-clipboard-check me-2"></i>Detalle de Consulta
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="consultaModalBody">
+                    <!-- Consulta details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-warning" id="editConsultaBtn">
+                        <i class="fas fa-edit me-2"></i>Editar
+                    </button>
+                    <button type="button" class="btn btn-success" id="completeConsultaBtn">
+                        <i class="fas fa-check me-2"></i>Completar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allConsultas = [];
+        let currentFilter = 'todas';
+
+        // Load consultas on page load
+        document.addEventListener('DOMContentLoaded', loadConsultas);
+
+        async function loadConsultas() {
+            try {
+                const response = await fetch('/api/consultas');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allConsultas = data.data;
+                    displayConsultas(allConsultas);
+                    updateStats();
+                    document.getElementById('totalConsultas').textContent = data.total;
+                } else {
+                    showError('Error al cargar consultas');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión');
+            }
+        }
+
+        function displayConsultas(consultas) {
+            const tbody = document.getElementById('consultasTableBody');
+            
+            if (consultas.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">
+                            <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                            <p>No se encontraron consultas</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = consultas.map(consulta => `
+                <tr onclick="viewConsulta(${consulta.id})" style="cursor: pointer;">
+                    <td>
+                        <div>
+                            <strong>${formatDateTime(consulta.fecha_consulta)}</strong>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <strong>${consulta.paciente_nombre || 'N/A'}</strong>
+                            <br><small class="text-muted">${consulta.paciente_rut || 'N/A'}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">${consulta.medico || 'No asignado'}</span>
+                    </td>
+                    <td>
+                        <div class="text-truncate" style="max-width: 200px;" title="${consulta.motivo_consulta || 'Sin motivo'}">
+                            ${consulta.motivo_consulta || 'Sin motivo especificado'}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${consulta.estado}">
+                            ${getEstadoIcon(consulta.estado)} ${capitalizeFirst(consulta.estado)}
+                        </span>
+                    </td>
+                    <td>
+                        ${consulta.proxima_cita ? 
+                            `<small class="text-primary">
+                                <i class="fas fa-calendar me-1"></i>
+                                ${formatDate(consulta.proxima_cita)}
+                            </small>` : 
+                            '<small class="text-muted">Sin programar</small>'
+                        }
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="event.stopPropagation(); viewConsulta(${consulta.id})" title="Ver Detalle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-success" onclick="event.stopPropagation(); newExamen(${consulta.id})" title="Examen Oftalmológico">
+                                <i class="fas fa-eye-dropper"></i>
+                            </button>
+                            ${consulta.estado !== 'completada' ? `
+                                <button class="btn btn-outline-warning" onclick="event.stopPropagation(); editConsulta(${consulta.id})" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterConsultas(filter) {
+            currentFilter = filter;
+            
+            // Update active tab
+            document.querySelectorAll('#consultasTabs .nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+            
+            let filtered = allConsultas;
+            
+            switch(filter) {
+                case 'activa':
+                    filtered = allConsultas.filter(c => c.estado === 'activa');
+                    break;
+                case 'completada':
+                    filtered = allConsultas.filter(c => c.estado === 'completada');
+                    break;
+                case 'hoy':
+                    const today = new Date().toISOString().split('T')[0];
+                    filtered = allConsultas.filter(c => 
+                        c.fecha_consulta && c.fecha_consulta.startsWith(today)
+                    );
+                    break;
+                default:
+                    filtered = allConsultas;
+            }
+            
+            displayConsultas(filtered);
+        }
+
+        function updateStats() {
+            const activas = allConsultas.filter(c => c.estado === 'activa').length;
+            const completadas = allConsultas.filter(c => c.estado === 'completada').length;
+            
+            document.getElementById('statsActivas').textContent = activas;
+            document.getElementById('statsCompletadas').textContent = completadas;
+        }
+
+        function getEstadoIcon(estado) {
+            switch(estado) {
+                case 'activa': return '<i class="fas fa-clock"></i>';
+                case 'completada': return '<i class="fas fa-check-circle"></i>';
+                case 'cancelada': return '<i class="fas fa-times-circle"></i>';
+                default: return '<i class="fas fa-question-circle"></i>';
+            }
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return 'No registrada';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-CL') + '<br>' + 
+                   '<small class="text-muted">' + date.toLocaleTimeString('es-CL', {hour: '2-digit', minute: '2-digit'}) + '</small>';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'No programada';
+            return new Date(dateString).toLocaleDateString('es-CL');
+        }
+
+        async function viewConsulta(consultaId) {
+            try {
+                const response = await fetch(`/api/consultas/${consultaId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const consulta = data.data;
+                    document.getElementById('consultaModalBody').innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary"><i class="fas fa-user me-2"></i>Información del Paciente</h6>
+                                <table class="table table-sm">
+                                    <tr><td><strong>Nombre:</strong></td><td>${consulta.paciente_nombre || 'N/A'}</td></tr>
+                                    <tr><td><strong>RUT:</strong></td><td>${consulta.paciente_rut || 'N/A'}</td></tr>
+                                    <tr><td><strong>Edad:</strong></td><td>${consulta.paciente_edad || 'N/A'} años</td></tr>
+                                </table>
+                                
+                                <h6 class="text-primary mt-3"><i class="fas fa-clipboard me-2"></i>Información de la Consulta</h6>
+                                <table class="table table-sm">
+                                    <tr><td><strong>Fecha:</strong></td><td>${formatDate(consulta.fecha_consulta)}</td></tr>
+                                    <tr><td><strong>Médico:</strong></td><td>${consulta.medico || 'No asignado'}</td></tr>
+                                    <tr><td><strong>Estado:</strong></td><td>
+                                        <span class="status-badge status-${consulta.estado}">
+                                            ${capitalizeFirst(consulta.estado)}
+                                        </span>
+                                    </td></tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-primary"><i class="fas fa-notes-medical me-2"></i>Detalles Médicos</h6>
+                                <div class="mb-3">
+                                    <strong>Motivo de Consulta:</strong>
+                                    <p class="text-muted">${consulta.motivo_consulta || 'No especificado'}</p>
+                                </div>
+                                
+                                ${consulta.anamnesis ? `
+                                    <div class="mb-3">
+                                        <strong>Anamnesis:</strong>
+                                        <p class="text-muted">${consulta.anamnesis}</p>
+                                    </div>
+                                ` : ''}
+                                
+                                ${consulta.diagnostico ? `
+                                    <div class="mb-3">
+                                        <strong>Diagnóstico:</strong>
+                                        <p class="text-muted">${consulta.diagnostico}</p>
+                                    </div>
+                                ` : ''}
+                                
+                                ${consulta.plan_tratamiento ? `
+                                    <div class="mb-3">
+                                        <strong>Plan de Tratamiento:</strong>
+                                        <p class="text-muted">${consulta.plan_tratamiento}</p>
+                                    </div>
+                                ` : ''}
+                                
+                                ${consulta.proxima_cita ? `
+                                    <div class="mb-3">
+                                        <strong>Próxima Cita:</strong>
+                                        <p class="text-primary">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            ${formatDate(consulta.proxima_cita)}
+                                        </p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('editConsultaBtn').onclick = () => editConsulta(consultaId);
+                    document.getElementById('completeConsultaBtn').onclick = () => completeConsulta(consultaId);
+                    
+                    new bootstrap.Modal(document.getElementById('consultaModal')).show();
+                } else {
+                    showError('Error al cargar información de la consulta');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión');
+            }
+        }
+
+        function editConsulta(consultaId) {
+            window.location.href = `/consultas/${consultaId}/editar`;
+        }
+
+        function newExamen(consultaId) {
+            window.location.href = `/consultas/${consultaId}/examen-oftalmologico`;
+        }
+
+        async function completeConsulta(consultaId) {
+            if (confirm('¿Está seguro de marcar esta consulta como completada?')) {
+                try {
+                    const response = await fetch(`/api/consultas/${consultaId}/completar`, {
+                        method: 'PUT'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showSuccess('Consulta marcada como completada');
+                        loadConsultas(); // Reload data
+                        bootstrap.Modal.getInstance(document.getElementById('consultaModal')).hide();
+                    } else {
+                        showError(result.message || 'Error al completar consulta');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError('Error de conexión');
+                }
+            }
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', debounce(searchConsultas, 300));
+
+        function searchConsultas() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const medicoFilter = document.getElementById('medicoFilter').value;
+            const fechaFilter = document.getElementById('fechaFilter').value;
+            
+            let filtered = allConsultas;
+            
+            if (query) {
+                filtered = filtered.filter(consulta => 
+                    (consulta.paciente_nombre && consulta.paciente_nombre.toLowerCase().includes(query)) ||
+                    (consulta.paciente_rut && consulta.paciente_rut.toLowerCase().includes(query)) ||
+                    (consulta.medico && consulta.medico.toLowerCase().includes(query)) ||
+                    (consulta.motivo_consulta && consulta.motivo_consulta.toLowerCase().includes(query)) ||
+                    (consulta.diagnostico && consulta.diagnostico.toLowerCase().includes(query))
+                );
+            }
+            
+            if (medicoFilter) {
+                filtered = filtered.filter(consulta => consulta.medico === medicoFilter);
+            }
+            
+            if (fechaFilter) {
+                filtered = filtered.filter(consulta => 
+                    consulta.fecha_consulta && consulta.fecha_consulta.startsWith(fechaFilter)
+                );
+            }
+            
+            displayConsultas(filtered);
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function showError(message) {
+            alert(message); // Simple error display - you can enhance this
+        }
+
+        function showSuccess(message) {
+            alert(message); // Simple success display - you can enhance this
+        }
+    </script>
+</body>
+</html>

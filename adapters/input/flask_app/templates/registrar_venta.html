@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Venta - Oftalmetryc</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Oftalmetryc</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% if session['rol'] == 'Administrador' %}
+                    <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/productos">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/registrar-venta">Registrar Venta</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/historial-ventas">Historial</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/usuarios">Usuarios</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-eye me-1"></i>Módulo Médico
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
+                            <li><a class="dropdown-item" href="/pacientes"><i class="fas fa-users me-2"></i>Pacientes</a></li>
+                            <li><a class="dropdown-item" href="/consultas"><i class="fas fa-calendar-check me-2"></i>Consultas</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/consultas/nueva"><i class="fas fa-plus-circle me-2"></i>Nueva Consulta</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/registrar-venta">Registrar Venta</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/historial-ventas">Historial</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-eye me-1"></i>Módulo Médico
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
+                            <li><a class="dropdown-item" href="/pacientes"><i class="fas fa-users me-2"></i>Pacientes</a></li>
+                            <li><a class="dropdown-item" href="/consultas"><i class="fas fa-calendar-check me-2"></i>Consultas</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/consultas/nueva"><i class="fas fa-plus-circle me-2"></i>Nueva Consulta</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+                <a class="nav-link text-danger" href="/logout">Cerrar sesión</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4" style="font-family: 'Segoe UI', sans-serif; font-weight: bold; color: #2c3e50; letter-spacing: 2px;">Registrar Nueva Venta</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Carrito de Compras -->
+        {% if session.get('carrito') and session['carrito']|length > 0 %}
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Carrito de Compras</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Subtotal</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="carrito-tbody">
+                            {% for item in session['carrito'] %}
+                            <tr data-producto-id="{{ item.producto_id }}">
+                                <td>{{ item.nombre }}</td>
+                                <td>{{ item.cantidad }}</td>
+                                <td>{{ item.precio_unitario|currency }}</td>
+                                <td>{{ item.subtotal|currency }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDelCarrito({{ item.producto_id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-info">
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total General:</strong></td>
+                                <td><strong>{{ session.get('total_carrito', 0)|currency }}</strong></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-success" onclick="finalizarVenta()">
+                        <i class="fas fa-check"></i> Finalizar Venta
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="limpiarCarrito()">
+                        <i class="fas fa-trash"></i> Limpiar Carrito
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Formulario para agregar productos -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-plus"></i> Agregar Producto al Carrito</h5>
+            </div>
+            <div class="card-body">
+                <form id="form-producto" onsubmit="agregarAlCarrito(event)">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="producto_id" class="form-label">Producto *</label>
+                            <select class="form-select" id="producto_id" name="producto_id" required onchange="actualizarPrecio()">
+                                <option value="">Seleccione un producto</option>
+                                {% for p in products %}
+                                <option value="{{ p.producto_id }}" data-precio="{{ p.precio_unitario }}" data-stock="{{ p.stock }}" data-nombre="{{ p.nombre }}">
+                                    {{ p.nombre }} - Stock: {{ p.stock }} - {{ p.precio_unitario|currency }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cantidad" class="form-label">Cantidad *</label>
+                            <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" required onchange="calcularTotal()">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="precio_unitario" class="form-label">Precio Unitario</label>
+                            <input type="number" class="form-control" id="precio_unitario" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="total" class="form-label">Subtotal *</label>
+                            <input type="number" class="form-control" id="total" name="total" min="0" step="0.01" required readonly>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-cart-plus"></i> Agregar al Carrito
+                        </button>
+                        <a href="/" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Información del Cliente -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user"></i> Información del Cliente (Opcional)</h5>
+            </div>
+            <div class="card-body">
+                <form id="form-cliente">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="cliente_nombres" class="form-label">Nombres</label>
+                            <input type="text" class="form-control" id="cliente_nombres" name="cliente_nombres" placeholder="Nombres del cliente">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="cliente_ap_pat" class="form-label">Apellido Paterno</label>
+                            <input type="text" class="form-control" id="cliente_ap_pat" name="cliente_ap_pat" placeholder="Apellido paterno">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="cliente_ap_mat" class="form-label">Apellido Materno</label>
+                            <input type="text" class="form-control" id="cliente_ap_mat" name="cliente_ap_mat" placeholder="Apellido materno">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="cliente_telefono" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="cliente_telefono" name="cliente_telefono" placeholder="Teléfono del cliente">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cliente_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="cliente_email" name="cliente_email" placeholder="Email del cliente">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="cliente_direccion" class="form-label">Dirección</label>
+                            <textarea class="form-control" id="cliente_direccion" name="cliente_direccion" rows="2" placeholder="Dirección del cliente"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function actualizarPrecio() {
+            const select = document.getElementById('producto_id');
+            const precioInput = document.getElementById('precio_unitario');
+            const cantidadInput = document.getElementById('cantidad');
+            
+            if (select.value) {
+                const option = select.options[select.selectedIndex];
+                const precio = option.getAttribute('data-precio');
+                precioInput.value = precio;
+                calcularTotal();
+            } else {
+                precioInput.value = '';
+                document.getElementById('total').value = '';
+            }
+        }
+        
+        function calcularTotal() {
+            const cantidad = document.getElementById('cantidad').value;
+            const precio = document.getElementById('precio_unitario').value;
+            const totalInput = document.getElementById('total');
+            
+            if (cantidad && precio) {
+                const total = parseFloat(cantidad) * parseFloat(precio);
+                totalInput.value = total.toFixed(2);
+            } else {
+                totalInput.value = '';
+            }
+        }
+        
+        function agregarAlCarrito(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const productoId = formData.get('producto_id');
+            const cantidad = formData.get('cantidad');
+            const total = formData.get('total');
+            
+            if (!productoId || !cantidad || !total) {
+                alert('Por favor complete todos los campos');
+                return;
+            }
+            
+            const select = document.getElementById('producto_id');
+            const option = select.options[select.selectedIndex];
+            const nombre = option.getAttribute('data-nombre');
+            const precio = option.getAttribute('data-precio');
+            
+            // Enviar al servidor para agregar al carrito
+            fetch('/agregar-al-carrito', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    producto_id: parseInt(productoId),
+                    cantidad: parseInt(cantidad),
+                    total: parseFloat(total),
+                    nombre: nombre,
+                    precio_unitario: parseFloat(precio)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Recargar la página para mostrar el carrito actualizado
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Error al agregar al carrito');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al agregar al carrito');
+            });
+        }
+        
+        function eliminarDelCarrito(productoId) {
+            if (confirm('¿Está seguro de que desea eliminar este producto del carrito?')) {
+                fetch('/eliminar-del-carrito', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        producto_id: productoId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert(data.message || 'Error al eliminar del carrito');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar del carrito');
+                });
+            }
+        }
+        
+        function limpiarCarrito() {
+            if (confirm('¿Está seguro de que desea limpiar todo el carrito?')) {
+                fetch('/limpiar-carrito', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert(data.message || 'Error al limpiar el carrito');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al limpiar el carrito');
+                });
+            }
+        }
+        
+        function finalizarVenta() {
+            // Obtener datos del cliente
+            const clienteData = {
+                nombres: document.getElementById('cliente_nombres').value,
+                ap_pat: document.getElementById('cliente_ap_pat').value,
+                ap_mat: document.getElementById('cliente_ap_mat').value,
+                telefono: document.getElementById('cliente_telefono').value,
+                email: document.getElementById('cliente_email').value,
+                direccion: document.getElementById('cliente_direccion').value
+            };
+            
+            fetch('/finalizar-venta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(clienteData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Venta registrada exitosamente');
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert(data.message || 'Error al finalizar la venta');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al finalizar la venta');
+            });
+        }
+    </script>
+</body>
+</html> 

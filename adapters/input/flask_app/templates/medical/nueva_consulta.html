@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Consulta - Oftalmetryc</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #ecf0f1;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            border: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .required-field::after {
+            content: " *";
+            color: var(--accent-color);
+        }
+        
+        .patient-selector {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .patient-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .patient-card:hover {
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .patient-card.selected {
+            border-color: var(--secondary-color);
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(52, 152, 219, 0.05));
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-eye me-2"></i>Oftalmetryc
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/productos">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/registrar-venta">Registrar Venta</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/historial-ventas">Historial</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-eye me-1"></i>Módulo Médico
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
+                            <li><a class="dropdown-item" href="/pacientes"><i class="fas fa-users me-2"></i>Pacientes</a></li>
+                            <li><a class="dropdown-item" href="/consultas"><i class="fas fa-calendar-check me-2"></i>Consultas</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item active" href="/consultas/nueva"><i class="fas fa-plus-circle me-2"></i>Nueva Consulta</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <a class="nav-link text-danger" href="/logout">Cerrar sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0 text-dark">
+                <i class="fas fa-plus-circle me-2"></i>Nueva Consulta Médica
+            </h1>
+            <a href="/consultas" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Volver a Consultas
+            </a>
+        </div>
+
+        <!-- Patient Selector -->
+        <div class="patient-selector">
+            <h5 class="mb-3">
+                <i class="fas fa-user-search me-2"></i>Seleccionar Paciente
+            </h5>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="patientSearch" 
+                               placeholder="Buscar paciente por nombre, apellido o RUT...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <a href="/pacientes/nuevo" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-user-plus me-2"></i>Nuevo Paciente
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Selected Patient Display -->
+            <div id="selectedPatientDisplay" class="mt-3" style="display: none;">
+                <div class="alert alert-info">
+                    <strong><i class="fas fa-user-check me-2"></i>Paciente Seleccionado:</strong>
+                    <span id="selectedPatientInfo"></span>
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="clearPatientSelection()">
+                        <i class="fas fa-times"></i> Cambiar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Patient Search Results -->
+            <div id="patientResults" class="mt-3"></div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-clipboard-check me-2"></i>Información de la Consulta
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Información sobre campos obligatorios -->
+                <div class="alert alert-info border-0 mb-4" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-info-circle text-primary me-3" style="font-size: 1.5em;"></i>
+                        <div>
+                            <h6 class="alert-heading mb-1">Campos Obligatorios</h6>
+                            <p class="mb-0">Los campos marcados con <span class="text-danger">*</span> son obligatorios para guardar la consulta.</p>
+                            <small class="text-muted">
+                                <strong>Mínimo requerido:</strong> Motivo de consulta, Fecha y hora, Médico
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="newConsultaForm">
+                    <input type="hidden" id="selectedPatientId" name="paciente_id">
+                    
+                    <!-- Información General -->
+                    <div class="mb-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-info-circle me-2"></i>Información General
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="fecha_consulta" class="form-label required-field">Fecha y Hora *</label>
+                                <input type="datetime-local" class="form-control" id="fecha_consulta" 
+                                       name="fecha_consulta" required>
+                                <div class="invalid-feedback">
+                                    La fecha y hora son obligatorias.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="medico" class="form-label required-field">Médico *</label>
+                                <select class="form-select" id="medico" name="medico" required>
+                                    <option value="">Seleccione un médico</option>
+                                    <option value="Dr. González">Dr. González</option>
+                                    <option value="Dra. Martínez">Dra. Martínez</option>
+                                    <option value="Dr. López">Dr. López</option>
+                                    <option value="Dra. Silva">Dra. Silva</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Motivo de Consulta -->
+                    <div class="mb-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-question-circle me-2"></i>Motivo de Consulta
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="motivo_consulta" class="form-label required-field">Motivo de Consulta *</label>
+                                <textarea class="form-control" id="motivo_consulta" name="motivo_consulta" 
+                                          rows="3" required placeholder="Describe el motivo principal de la consulta..."></textarea>
+                                <div class="invalid-feedback">
+                                    El motivo de consulta es obligatorio.
+                                </div>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>Campo obligatorio - Describe brevemente por qué viene el paciente
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Anamnesis -->
+                    <div class="mb-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-history me-2"></i>Anamnesis
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="anamnesis" class="form-label">Historia Actual</label>
+                                <textarea class="form-control" id="anamnesis" name="anamnesis" 
+                                          rows="4" placeholder="Historia de la enfermedad actual, síntomas, evolución..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Antecedentes -->
+                    <div class="mb-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-file-medical me-2"></i>Antecedentes
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="antecedentes_personales" class="form-label">Antecedentes Personales</label>
+                                <textarea class="form-control" id="antecedentes_personales" name="antecedentes_personales" 
+                                          rows="3" placeholder="Enfermedades previas, cirugías, tratamientos..."></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="antecedentes_familiares" class="form-label">Antecedentes Familiares</label>
+                                <textarea class="form-control" id="antecedentes_familiares" name="antecedentes_familiares" 
+                                          rows="3" placeholder="Enfermedades familiares relevantes..."></textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="medicamentos_actuales" class="form-label">Medicamentos Actuales</label>
+                                <textarea class="form-control" id="medicamentos_actuales" name="medicamentos_actuales" 
+                                          rows="3" placeholder="Lista de medicamentos que consume actualmente..."></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="alergias" class="form-label">Alergias</label>
+                                <textarea class="form-control" id="alergias" name="alergias" 
+                                          rows="3" placeholder="Alergias conocidas a medicamentos, sustancias..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Evaluación Inicial -->
+                    <div class="mb-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-stethoscope me-2"></i>Evaluación Inicial
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="diagnostico" class="form-label">Diagnóstico Presuntivo</label>
+                                <textarea class="form-control" id="diagnostico" name="diagnostico" 
+                                          rows="3" placeholder="Diagnóstico inicial o presuntivo..."></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="plan_tratamiento" class="form-label">Plan de Tratamiento</label>
+                                <textarea class="form-control" id="plan_tratamiento" name="plan_tratamiento" 
+                                          rows="3" placeholder="Plan inicial de tratamiento..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seguimiento -->
+                    <div class="mb-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-calendar-plus me-2"></i>Seguimiento
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="proxima_cita" class="form-label">Próxima Cita</label>
+                                <input type="date" class="form-control" id="proxima_cita" name="proxima_cita">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="estado" class="form-label">Estado de la Consulta</label>
+                                <select class="form-select" id="estado" name="estado">
+                                    <option value="activa">Activa</option>
+                                    <option value="completada">Completada</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="observaciones_generales" class="form-label">Observaciones Generales</label>
+                                <textarea class="form-control" id="observaciones_generales" name="observaciones_generales" 
+                                          rows="3" placeholder="Observaciones adicionales..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Guardar Consulta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Guardando...</span>
+                    </div>
+                    <p class="mb-0">Guardando consulta médica...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allPacientes = [];
+        let selectedPatient = null;
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPacientes();
+            setDefaultDateTime();
+            
+            // Check if patient ID is in URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            const patientId = urlParams.get('paciente');
+            if (patientId) {
+                selectPatientById(patientId);
+            }
+        });
+
+        function setDefaultDateTime() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('fecha_consulta').value = now.toISOString().slice(0, 16);
+        }
+
+        async function loadPacientes() {
+            try {
+                const response = await fetch('/api/pacientes');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allPacientes = data.data;
+                } else {
+                    showError('Error al cargar pacientes');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión');
+            }
+        }
+
+        async function selectPatientById(patientId) {
+            try {
+                const response = await fetch(`/api/pacientes/${patientId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    selectPatient(data.data);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Patient search functionality
+        document.getElementById('patientSearch').addEventListener('input', debounce(searchPatients, 300));
+
+        function searchPatients() {
+            const query = document.getElementById('patientSearch').value.toLowerCase().trim();
+            const resultsDiv = document.getElementById('patientResults');
+            
+            if (query.length < 2) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+
+            const filtered = allPacientes.filter(patient => 
+                patient.nombre.toLowerCase().includes(query) ||
+                patient.apellido.toLowerCase().includes(query) ||
+                patient.rut.toLowerCase().includes(query) ||
+                patient.nombre_completo.toLowerCase().includes(query)
+            );
+
+            if (filtered.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-search me-2"></i>No se encontraron pacientes que coincidan con "${query}"
+                    </div>
+                `;
+                return;
+            }
+
+            resultsDiv.innerHTML = filtered.slice(0, 5).map(patient => `
+                <div class="patient-card" onclick="selectPatient(${JSON.stringify(patient).replace(/"/g, '&quot;')})">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">${patient.nombre_completo}</h6>
+                            <p class="mb-1 text-muted">
+                                <i class="fas fa-id-card me-1"></i>${patient.rut}
+                            </p>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>
+                                ${calculateAge(patient.fecha_nacimiento)} años
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            ${patient.telefono ? `
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-phone me-1"></i>${patient.telefono}
+                                </small>
+                            ` : ''}
+                            ${patient.email ? `
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-envelope me-1"></i>${patient.email}
+                                </small>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectPatient(patient) {
+            selectedPatient = patient;
+            document.getElementById('selectedPatientId').value = patient.id;
+            
+            // Show selected patient
+            document.getElementById('selectedPatientInfo').innerHTML = `
+                <strong>${patient.nombre_completo}</strong> - ${patient.rut}
+            `;
+            document.getElementById('selectedPatientDisplay').style.display = 'block';
+            
+            // Clear search
+            document.getElementById('patientSearch').value = '';
+            document.getElementById('patientResults').innerHTML = '';
+        }
+
+        function clearPatientSelection() {
+            selectedPatient = null;
+            document.getElementById('selectedPatientId').value = '';
+            document.getElementById('selectedPatientDisplay').style.display = 'none';
+        }
+
+        function calculateAge(birthDate) {
+            if (!birthDate) return 'N/A';
+            const today = new Date();
+            const birth = new Date(birthDate);
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+
+        // Form validation and submission
+        document.getElementById('newConsultaForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!selectedPatient) {
+                showError('Debe seleccionar un paciente');
+                return;
+            }
+            
+            if (!this.checkValidity()) {
+                e.stopPropagation();
+                this.classList.add('was-validated');
+                return;
+            }
+
+            // Show loading modal
+            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            loadingModal.show();
+
+            try {
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData);
+                
+                // Agregar paciente_id si hay un paciente seleccionado
+                if (selectedPatient) {
+                    data.paciente_id = selectedPatient.id;
+                }
+                
+                // Limpiar campos vacíos para evitar errores
+                Object.keys(data).forEach(key => {
+                    if (data[key] === '') {
+                        delete data[key];
+                    }
+                });
+                
+                console.log('Datos a enviar:', data); // Para debug
+                
+                const response = await fetch('/api/consultas', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                loadingModal.hide();
+
+                if (result.success) {
+                    showSuccessAlert('Consulta creada exitosamente');
+                    
+                    // Redirect to consultation details
+                    setTimeout(() => {
+                        window.location.href = `/consultas/${result.data.id}`;
+                    }, 1500);
+                } else {
+                    showErrorAlert(result.message || 'Error al crear la consulta');
+                }
+            } catch (error) {
+                loadingModal.hide();
+                console.error('Error:', error);
+                showErrorAlert('Error de conexión. Intente nuevamente.');
+            }
+        });
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function showSuccessAlert(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        function showErrorAlert(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-circle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        function showError(message) {
+            showErrorAlert(message);
+        }
+    </script>
+</body>
+</html>

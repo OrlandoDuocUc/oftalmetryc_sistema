@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boleta de Venta - Oftalmetryc</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .boleta-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .boleta-header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .boleta-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+        .boleta-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0;
+        }
+        .boleta-section {
+            margin-bottom: 20px;
+        }
+        .boleta-section h5 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        .boleta-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .boleta-total {
+            border-top: 2px solid #333;
+            padding-top: 10px;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+        <div class="boleta-container">
+            <!-- Header de la boleta -->
+                            <div class="boleta-header">
+                <h1 class="boleta-title">OFTALMETRYC</h1>
+                <p class="boleta-subtitle">Especialistas en Salud Visual</p>
+
+            <!-- Información del cliente -->
+            <div class="boleta-section">
+                <h5><i class="fas fa-user"></i> Cliente</h5>
+                <div class="boleta-row">
+                    <span><strong>Nombre:</strong></span>
+                    <span>{{ cliente_info.nombre_completo if cliente_info else 'Sin cliente' }}</span>
+                </div>
+                {% if cliente_info and cliente_info.telefono %}
+                <div class="boleta-row">
+                    <span><strong>Teléfono:</strong></span>
+                    <span>{{ cliente_info.telefono }}</span>
+                </div>
+                {% endif %}
+                {% if cliente_info and cliente_info.email %}
+                <div class="boleta-row">
+                    <span><strong>Email:</strong></span>
+                    <span>{{ cliente_info.email }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Detalles de la venta -->
+            <div class="boleta-section">
+                <h5><i class="fas fa-shopping-cart"></i> Detalles de la Venta</h5>
+                
+                {% if productos_venta and productos_venta|length > 1 %}
+                <!-- Tabla para múltiples productos -->
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for producto in productos_venta %}
+                            <tr>
+                                <td>{{ producto.nombre }}</td>
+                                <td>{{ producto.cantidad }}</td>
+                                <td>{{ producto.precio_unitario|currency }}</td>
+                                <td>{{ producto.subtotal|currency }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <!-- Formato simple para un solo producto -->
+                {% if productos_venta and productos_venta|length == 1 %}
+                {% set producto = productos_venta[0] %}
+                <div class="boleta-row">
+                    <span><strong>Producto:</strong></span>
+                    <span>{{ producto.nombre }}</span>
+                </div>
+                <div class="boleta-row">
+                    <span><strong>Cantidad:</strong></span>
+                    <span>{{ producto.cantidad }}</span>
+                </div>
+                <div class="boleta-row">
+                    <span><strong>Precio Unitario:</strong></span>
+                    <span>{{ producto.precio_unitario|currency }}</span>
+                </div>
+                <div class="boleta-row">
+                    <span><strong>Subtotal:</strong></span>
+                    <span>{{ producto.subtotal|currency }}</span>
+                </div>
+                {% else %}
+                <!-- Fallback si no hay productos -->
+                <div class="boleta-row">
+                    <span><strong>Producto:</strong></span>
+                    <span>Producto no encontrado</span>
+                </div>
+                <div class="boleta-row">
+                    <span><strong>Cantidad:</strong></span>
+                    <span>{{ venta.cantidad }}</span>
+                </div>
+                <div class="boleta-row">
+                    <span><strong>Subtotal:</strong></span>
+                    <span>{{ venta.total|currency }}</span>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <!-- Información del vendedor -->
+            <div class="boleta-section">
+                <h5><i class="fas fa-user-tie"></i> Vendedor</h5>
+                <div class="boleta-row">
+                    <span><strong>Nombre:</strong></span>
+                    <span>{{ vendedor_info.nombre_completo if vendedor_info else 'Vendedor no encontrado' }}</span>
+                </div>
+            </div>
+
+            <!-- Total -->
+            <div class="boleta-total">
+                <div class="boleta-row">
+                    <span><strong>TOTAL:</strong></span>
+                    <span><strong>{{ total_general|currency }}</strong></span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-4">
+                                <p class="boleta-note">
+                    Gracias por su compra. Para consultas contacte a Oftalmetryc.
+                </p>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="text-center mt-4 mb-4">
+            <button class="btn btn-primary me-2" onclick="window.print()">
+                <i class="fas fa-print"></i> Imprimir Boleta
+            </button>
+            <a href="/" class="btn btn-secondary me-2">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="/registrar-venta" class="btn btn-success me-2">
+                <i class="fas fa-plus"></i> Nueva Venta
+            </a>
+            <a href="/historial-ventas" class="btn btn-info">
+                <i class="fas fa-history"></i> Ver Historial
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-print cuando se carga la página (opcional)
+        // window.onload = function() {
+        //     window.print();
+        // }
+    </script>
+</body>
+</html> 
