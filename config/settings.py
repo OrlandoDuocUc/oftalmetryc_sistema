@@ -23,7 +23,7 @@ class BaseConfig:
         SQLALCHEMY_DATABASE_URI = DATABASE_URL
         print(f"🗄️ [BaseConfig] Usando DATABASE_URL: {DATABASE_URL[:50]}...")
     else:
-        SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:password@localhost:5432/optica_db'
+        SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:admin@localhost:5432/oftalmetryc_db'
         print("🏠 [BaseConfig] Usando base de datos local por defecto")
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False

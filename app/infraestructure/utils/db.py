@@ -43,3 +43,17 @@ engine = create_engine(
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+def get_connection():
+    """Obtiene una conexión directa a la base de datos"""
+    import psycopg2
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        return conn
+    except Exception as e:
+        print(f"❌ Error conectando a BD: {e}")
+        return None
+
+def get_session():
+    """Obtiene una sesión de SQLAlchemy"""
+    return SessionLocal()

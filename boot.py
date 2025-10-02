@@ -20,9 +20,21 @@ try:
     # Verificar la configuración de la base de datos en la app
     print(f"🗄️ SQLAlchemy URI configurado: {app.config.get('SQLALCHEMY_DATABASE_URI', 'No configurado')[:50]}...")
     
-    # INICIALIZAR BASE DE DATOS EN RENDER
+    # INICIALIZAR BASE DE DATOS EN RENDER CON MIGRACIONES AUTOMÁTICAS
     if env == 'production' and database_url:
         print("🚀 Inicializando base de datos en Render...")
+        try:
+            # Ejecutar migraciones automáticas
+            from setup_render import setup_render_environment
+            migration_success = setup_render_environment()
+            if migration_success:
+                print("✅ Migraciones aplicadas correctamente")
+            else:
+                print("⚠️ Advertencia: Error en migraciones")
+        except Exception as e:
+            print(f"⚠️ Advertencia en migraciones: {e}")
+            
+        # Fallback: Intentar inicialización manual
         try:
             from init_render_db import init_render_database
             init_success = init_render_database()
