@@ -184,7 +184,7 @@ def ficha_clinica():
 def api_buscar_pacientes_ficha():
     """API: Buscar pacientes para ficha clínica"""
     from flask import request, jsonify
-    from app.infraestructure.utils.db_session import get_session
+    from app.infraestructure.utils.db_session import get_db_session
     from app.domain.models.paciente import Paciente
     
     try:
@@ -195,7 +195,7 @@ def api_buscar_pacientes_ficha():
         if not ci and not nombre:
             return jsonify({'error': 'Debe proporcionar CI o nombre para buscar'}), 400
         
-        db_session = get_session()
+        db_session = get_db_session()
         query = db_session.query(Paciente)
         
         if ci:
@@ -245,7 +245,7 @@ def api_buscar_pacientes_ficha():
 def api_guardar_ficha():
     """API: Guardar datos de ficha clínica"""
     from flask import request, jsonify
-    from app.infraestructure.utils.db_session import get_session
+    from app.infraestructure.utils.db_session import get_db_session
     from app.domain.models.examen_basico import ExamenBasico
     from app.infraestructure.utils.models import ConsultaMedica
     from datetime import datetime
@@ -257,7 +257,7 @@ def api_guardar_ficha():
         if not paciente_id:
             return jsonify({'error': 'ID de paciente requerido'}), 400
         
-        db_session = get_session()
+        db_session = get_db_session()
         
         # Crear nueva consulta médica
         nueva_consulta = ConsultaMedica(

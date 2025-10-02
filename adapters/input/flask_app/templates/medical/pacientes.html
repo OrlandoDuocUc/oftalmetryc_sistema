@@ -1,6 +1,72 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
+    <style>
+        :root {
+            --primary-blue: #007bff;
+            --primary-blue-dark: #0056b3;
+            --navbar-blue: #1e3a8a;
+            --card-blue: #f8faff;
+            --text-blue: #1e40af;
+            --border-blue: #3b82f6;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--navbar-blue) 0%, var(--primary-blue) 100%) !important;
+        }
+        
+        .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: #e3f2fd !important;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .dropdown-menu {
+            border: 1px solid var(--border-blue);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--card-blue);
+            color: var(--text-blue);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-blue-dark);
+            border-color: var(--primary-blue-dark);
+        }
+        
+        .card {
+            border: 1px solid var(--border-blue);
+            background-color: var(--card-blue);
+        }
+        
+        .card-header {
+            background-color: var(--primary-blue);
+            color: white;
+            border-bottom: 1px solid var(--border-blue);
+        }
+        
+        .table-primary {
+            background-color: var(--card-blue);
+        }
+        
+        h1, h2, h3 {
+            color: var(--text-blue);
+        }
+    </style>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pacientes - Oftalmetryc</title>
@@ -101,11 +167,11 @@
                             <i class="fas fa-eye me-1"></i>Módulo Médico
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
+                            <li><li style="font-weight: bold; background-color: var(--card-blue);"><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
                             <li><a class="dropdown-item active" href="/pacientes"><i class="fas fa-users me-2"></i>Pacientes</a></li>
-                            <li><a class="dropdown-item" href="/consultas"><i class="fas fa-calendar-check me-2"></i>Consultas</a></li>
+                            <li><a class="dropdown-item" href="/consultas"><i class="fas fa-calendar-check me-2"></i>Historial Consultas</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/consultas/nueva"><i class="fas fa-plus-circle me-2"></i>Nueva Consulta</a></li>
+                            
                         </ul>
                     </li>
                 </ul>
