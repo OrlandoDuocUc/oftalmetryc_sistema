@@ -34,7 +34,7 @@ class RecetaOftalmologica(Base):
     
     observaciones_receta = Column(Text)
     fecha_entrega = Column(Date)
-    vendedor_id = Column(BigInteger, ForeignKey('usuario.usuario_id'))
+    vendedor_id = Column(Integer, ForeignKey('usuarios.usuario_id'))
     estado = Column(String(20), default='pendiente')  # pendiente, en_proceso, entregado
     
     created_at = Column(DateTime, default=func.now(), nullable=False)

@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+
+{% block title %}Ficha Clínica - Oftalmetryc{% endblock %}
+
+{% block extra_css %}
+/* ESTILOS ESPECÍFICOS DE FICHA CLÍNICA */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .form-row {
+            margin-bottom: 15px;
+        }
+        
+        .btn-group-custom {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .required-field {
+            color: red;
+        }
+        
+        .eye-diagram {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- HEADER DE LA PÁGINA -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-file-medical me-3"></i>Ficha Clínica Oftalmológica</h1>
+                <p class="mb-0">Registro completo de consulta médica especializada</p>
+            </div>
+            <a href="/consultas-nuevo" class="btn btn-light btn-lg">
+                <i class="fas fa-list me-2"></i>Ver Historial
+            </a>
+        </div>
+    </div>
+
+    <form id="fichaClinicaForm">
+        <!-- DATOS DEL PACIENTE -->
+        <div class="form-section">
+            <h4 class="section-title">
+                <i class="fas fa-user me-2"></i>Datos del Paciente
+            </h4>
+            <div class="row">
+                <div class="col-md-6 form-row">
+                    <label for="pacienteMedicoId" class="form-label">Seleccionar Paciente <span class="required-field">*</span></label>
+                    <select class="form-select" id="pacienteMedicoId" required>
+                        <option value="">Seleccione un paciente...</option>
+                    </select>
+                </div>
+                <div class="col-md-6 form-row">
+                    <label for="numeroConsulta" class="form-label">Número de Consulta <span class="required-field">*</span></label>
+                    <input type="text" class="form-control" id="numeroConsulta" readonly>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 form-row">
+                    <label for="fechaConsulta" class="form-label">Fecha de Consulta <span class="required-field">*</span></label>
+                    <input type="datetime-local" class="form-control" id="fechaConsulta" required>
+                </div>
+                <div class="col-md-8 form-row">
+                    <label for="motivoConsulta" class="form-label">Motivo de Consulta <span class="required-field">*</span></label>
+                    <input type="text" class="form-control" id="motivoConsulta" placeholder="Motivo principal de la consulta" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- MOTIVO DE CONSULTA E HISTORIA ACTUAL -->
+        <div class="form-section">
+            <h4 class="section-title">
+                <i class="fas fa-question-circle me-2"></i>Historia Actual
+            </h4>
+            <div class="form-row">
+                <label for="historiaActual" class="form-label">Historia Actual de la Enfermedad</label>
+                <textarea class="form-control" id="historiaActual" rows="4" 
+                          placeholder="Describe la evolución y características del problema actual..."></textarea>
+            </div>
+        </div>
+
+        <!-- ANAMNESIS -->
+        <div class="form-section">
+            <h4 class="section-title">
+                <i class="fas fa-history me-2"></i>Anamnesis
+            </h4>
+            <div class="row">
+                <div class="col-md-6 form-row">
+                    <label for="antecedentesMedicos" class="form-label">Antecedentes Médicos</label>
+                    <textarea class="form-control" id="antecedentesMedicos" rows="3" 
+                              placeholder="Diabetes, hipertensión, alergias, etc."></textarea>
+                </div>
+                <div class="col-md-6 form-row">
+                    <label for="antecedentesOftalmologicos" class="form-label">Antecedentes Oftalmológicos</label>
+                    <textarea class="form-control" id="antecedentesOftalmologicos" rows="3" 
+                              placeholder="Cirugías previas, tratamientos, etc."></textarea>
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="medicamentosActuales" class="form-label">Medicamentos Actuales</label>
+                <textarea class="form-control" id="medicamentosActuales" rows="2" 
+                          placeholder="Lista de medicamentos que el paciente está tomando"></textarea>
+            </div>
+        </div>
+
+        <!-- EXAMEN FÍSICO -->
+        <div class="form-section">
+            <h4 class="section-title">
+                <i class="fas fa-eye me-2"></i>Examen Físico Oftalmológico
+            </h4>
+            
+            <!-- AGUDEZA VISUAL SEGÚN BASE DE DATOS -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h5 class="text-primary mb-3">Agudeza Visual</h5>
+                </div>
+                <!-- Ojo Derecho -->
+                <div class="col-md-3 form-row">
+                    <label for="av_od_sc" class="form-label">OD Sin Corrección</label>
+                    <input type="text" class="form-control" id="av_od_sc" placeholder="20/20">
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="av_od_cc" class="form-label">OD Con Corrección</label>
+                    <input type="text" class="form-control" id="av_od_cc" placeholder="20/20">
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="av_od_ph" class="form-label">OD Pin Hole</label>
+                    <input type="text" class="form-control" id="av_od_ph" placeholder="20/20">
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="av_od_cerca" class="form-label">OD Cerca</label>
+                    <input type="text" class="form-control" id="av_od_cerca" placeholder="J1">
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Ojo Izquierdo -->
+                <div class="col-md-3 form-row">
+                    <label for="av_oi_sc" class="form-label">OI Sin Corrección</label>
+                    <input type="text" class="form-control" id="av_oi_sc" placeholder="20/20">
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="av_oi_cc" class="form-label">OI Con Corrección</label>
+                    <input type="text" class="form-control" id="av_oi_cc" placeholder="20/20">
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="av_oi_ph" class="form-label">OI Pin Hole</label>
+                    <input type="text" class="form-control" id="av_oi_ph" placeholder="20/20">
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="av_oi_cerca" class="form-label">OI Cerca</label>
+                    <input type="text" class="form-control" id="av_oi_cerca" placeholder="J1">
+                </div>
+            </div>
+
+            <!-- REFRACCIÓN -->
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <h5 class="text-primary mb-3">Refracción</h5>
+                </div>
+                <!-- Ojo Derecho -->
+                <div class="col-md-2 form-row">
+                    <label for="esfera_od" class="form-label">Esfera OD</label>
+                    <input type="text" class="form-control" id="esfera_od" placeholder="+/-0.00">
+                </div>
+                <div class="col-md-2 form-row">
+                    <label for="cilindro_od" class="form-label">Cilindro OD</label>
+                    <input type="text" class="form-control" id="cilindro_od" placeholder="+/-0.00">
+                </div>
+                <div class="col-md-2 form-row">
+                    <label for="eje_od" class="form-label">Eje OD</label>
+                    <input type="text" class="form-control" id="eje_od" placeholder="0-180°">
+                </div>
+                <!-- Ojo Izquierdo -->
+                <div class="col-md-2 form-row">
+                    <label for="esfera_oi" class="form-label">Esfera OI</label>
+                    <input type="text" class="form-control" id="esfera_oi" placeholder="+/-0.00">
+                </div>
+                <div class="col-md-2 form-row">
+                    <label for="cilindro_oi" class="form-label">Cilindro OI</label>
+                    <input type="text" class="form-control" id="cilindro_oi" placeholder="+/-0.00">
+                </div>
+                <div class="col-md-2 form-row">
+                    <label for="eje_oi" class="form-label">Eje OI</label>
+                    <input type="text" class="form-control" id="eje_oi" placeholder="0-180°">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-3 form-row">
+                    <label for="adicion_od" class="form-label">Adición OD</label>
+                    <input type="text" class="form-control" id="adicion_od" placeholder="+0.00">
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="adicion_oi" class="form-label">Adición OI</label>
+                    <input type="text" class="form-control" id="adicion_oi" placeholder="+0.00">
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="distancia_pupilar" class="form-label">Distancia Pupilar</label>
+                    <input type="text" class="form-control" id="distancia_pupilar" placeholder="62mm">
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="tipo_lente" class="form-label">Tipo de Lente</label>
+                    <select class="form-select" id="tipo_lente">
+                        <option value="">Seleccionar</option>
+                        <option value="monofocal">Monofocal</option>
+                        <option value="bifocal">Bifocal</option>
+                        <option value="progresivo">Progresivo</option>
+                    </select>
+                </div>
+            </div>
+                </div>
+                <div class="col-md-6 form-row">
+                    <label for="fondoOjoOD" class="form-label">Ojo Derecho</label>
+                    <textarea class="form-control" id="fondoOjoOD" rows="3" 
+                              placeholder="Descripción del fondo de ojo derecho"></textarea>
+                </div>
+                <div class="col-md-6 form-row">
+                    <label for="fondoOjoOI" class="form-label">Ojo Izquierdo</label>
+                    <textarea class="form-control" id="fondoOjoOI" rows="3" 
+                              placeholder="Descripción del fondo de ojo izquierdo"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- DIAGNÓSTICO Y TRATAMIENTO -->
+        <div class="form-section">
+            <h4 class="section-title">
+                <i class="fas fa-stethoscope me-2"></i>Diagnóstico y Tratamiento
+            </h4>
+            <div class="row">
+                <div class="col-md-6 form-row">
+                    <label for="diagnostico" class="form-label">Diagnóstico <span class="required-field">*</span></label>
+                    <textarea class="form-control" id="diagnostico" rows="4" 
+                              placeholder="Diagnóstico principal y secundarios..." required></textarea>
+                </div>
+                <div class="col-md-6 form-row">
+                    <label for="tratamiento" class="form-label">Plan de Tratamiento</label>
+                    <textarea class="form-control" id="tratamiento" rows="4" 
+                              placeholder="Medicamentos, procedimientos, recomendaciones..."></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 form-row">
+                    <label for="proximaConsulta" class="form-label">Próxima Consulta</label>
+                    <input type="date" class="form-control" id="proximaConsulta">
+                </div>
+                <div class="col-md-6 form-row">
+                    <label for="observaciones" class="form-label">Observaciones Adicionales</label>
+                    <textarea class="form-control" id="observaciones" rows="2" 
+                              placeholder="Notas adicionales sobre la consulta"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="btn-group-custom">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <a href="/dashboard-medico" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                    </a>
+                    <a href="/consultas-nuevo" class="btn btn-outline-info">
+                        <i class="fas fa-list me-2"></i>Ver Historial
+                    </a>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-outline-warning me-2" onclick="guardarBorrador()">
+                        <i class="fas fa-save me-2"></i>Guardar Borrador
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Guardar Ficha Clínica
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Cargar lista de pacientes médicos al inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarPacientesMedicos();
+        generarNumeroConsulta();
+        
+        // Establecer fecha actual
+        const ahora = new Date();
+        const fechaLocal = new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        document.getElementById('fechaConsulta').value = fechaLocal;
+    });
+
+    // Función para cargar pacientes médicos
+    async function cargarPacientesMedicos() {
+        try {
+            const response = await fetch('/api/pacientes-medicos');
+            if (response.ok) {
+                const data = await response.json();
+                const select = document.getElementById('pacienteMedicoId');
+                
+                data.data.forEach(paciente => {
+                    const cliente = paciente.cliente || {};
+                    const nombreCompleto = `${cliente.nombres || ''} ${cliente.ap_pat || ''} ${cliente.ap_mat || ''}`.trim();
+                    const option = document.createElement('option');
+                    option.value = paciente.paciente_medico_id;
+                    option.textContent = `${nombreCompleto} - Ficha: ${paciente.numero_ficha}`;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error al cargar pacientes:', error);
+        }
+    }
+
+    // Función para generar número de consulta automático
+    function generarNumeroConsulta() {
+        const fecha = new Date();
+        const timestamp = fecha.getTime();
+        const numeroConsulta = `CONS-${timestamp}`;
+        document.getElementById('numeroConsulta').value = numeroConsulta;
+    }
+
+    // Función para guardar la ficha clínica
+    document.getElementById('fichaClinicaForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const fichaData = {
+            paciente_medico_id: document.getElementById('pacienteMedicoId').value,
+            numero_consulta: document.getElementById('numeroConsulta').value,
+            fecha_consulta: document.getElementById('fechaConsulta').value,
+            motivo_consulta: document.getElementById('motivoConsulta').value,
+            historia_actual: document.getElementById('historiaActual').value,
+            
+            // Agudeza Visual
+            av_od_sc: document.getElementById('av_od_sc').value,
+            av_od_cc: document.getElementById('av_od_cc').value,
+            av_od_ph: document.getElementById('av_od_ph').value,
+            av_od_cerca: document.getElementById('av_od_cerca').value,
+            av_oi_sc: document.getElementById('av_oi_sc').value,
+            av_oi_cc: document.getElementById('av_oi_cc').value,
+            av_oi_ph: document.getElementById('av_oi_ph').value,
+            av_oi_cerca: document.getElementById('av_oi_cerca').value,
+            
+            // Refracción
+            esfera_od: document.getElementById('esfera_od').value,
+            cilindro_od: document.getElementById('cilindro_od').value,
+            eje_od: document.getElementById('eje_od').value,
+            adicion_od: document.getElementById('adicion_od').value,
+            esfera_oi: document.getElementById('esfera_oi').value,
+            cilindro_oi: document.getElementById('cilindro_oi').value,
+            eje_oi: document.getElementById('eje_oi').value,
+            adicion_oi: document.getElementById('adicion_oi').value,
+            
+            // Datos generales
+            distancia_pupilar: document.getElementById('distancia_pupilar').value,
+            tipo_lente: document.getElementById('tipo_lente').value,
+            
+            estado: 'en_proceso'
+        };
+
+        try {
+            const response = await fetch('/api/fichas-clinicas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(fichaData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                mostrarAlerta('Ficha clínica guardada exitosamente', 'success');
+                
+                // Redirigir después de un breve delay
+                setTimeout(() => {
+                    window.location.href = '/consultas-nuevo';
+                }, 2000);
+            } else {
+                const error = await response.json();
+                mostrarAlerta(`Error al guardar: ${error.message}`, 'danger');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarAlerta('Error de conexión al guardar la ficha clínica', 'danger');
+        }
+    });
+
+    // Función para guardar borrador
+    async function guardarBorrador() {
+        mostrarAlerta('Funcionalidad de borrador en desarrollo', 'info');
+    }
+
+    // Función para mostrar alertas
+    function mostrarAlerta(mensaje, tipo) {
+        const alertaHTML = `
+            <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        // Insertar alerta al inicio del contenido
+        const container = document.querySelector('.container');
+        container.insertAdjacentHTML('afterbegin', alertaHTML);
+        
+        // Auto-ocultar después de 5 segundos
+        setTimeout(() => {
+            const alerta = container.querySelector('.alert');
+            if (alerta) {
+                alerta.remove();
+            }
+        }, 5000);
+    }
+</script>
+{% endblock %}

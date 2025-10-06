@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Pacientes - Oftalmetryc{% endblock %}
+
+{% block extra_css %}
+/* ESTILOS ESPECÍFICOS DE PACIENTES */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .search-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .patients-table {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .patient-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .patient-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .patient-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .btn-action {
+            border-radius: 20px;
+            padding: 6px 15px;
+            font-size: 0.85rem;
+            margin: 2px;
+        }
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- HEADER DE LA PÁGINA -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-users me-3"></i>Gestión de Pacientes</h1>
+                <p class="mb-0">Administración y seguimiento de pacientes del módulo médico</p>
+            </div>
+            <a href="/pacientes/nuevo" class="btn btn-light btn-lg">
+                <i class="fas fa-user-plus me-2"></i>Nuevo Paciente
+            </a>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE BÚSQUEDA Y FILTROS -->
+    <div class="search-section">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="searchPaciente" class="form-label fw-bold">
+                        <i class="fas fa-search me-2"></i>Buscar Paciente
+                    </label>
+                    <input type="text" class="form-control" id="searchPaciente" 
+                           placeholder="Buscar por nombre, apellido o RUT...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="filterEstado" class="form-label fw-bold">Estado</label>
+                    <select class="form-select" id="filterEstado">
+                        <option value="">Todos</option>
+                        <option value="activo">Activos</option>
+                        <option value="inactivo">Inactivos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="form-label fw-bold">Acciones</label>
+                    <div class="d-grid">
+                        <button class="btn btn-primary" onclick="buscarPacientes()">
+                            <i class="fas fa-search me-2"></i>Buscar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LISTA DE PACIENTES -->
+    <div class="patients-table">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5><i class="fas fa-list me-2"></i>Lista de Pacientes</h5>
+            <span class="badge bg-primary" id="totalPacientesCount">0 pacientes</span>
+        </div>
+        
+        <div id="pacientesList">
+            <!-- Los pacientes se cargarán aquí dinámicamente -->
+            <div class="text-center py-5">
+                <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+                <p class="text-muted mt-3">Cargando pacientes...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ver Detalles -->
+<div class="modal fade" id="modalDetallesPaciente" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user me-2"></i>Detalles del Paciente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detallesPacienteContent">
+                <!-- Contenido se carga dinámicamente -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let pacientesData = [];
+
+    // Cargar pacientes al inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarPacientes();
+    });
+
+    // Función para cargar pacientes desde la API
+    async function cargarPacientes() {
+        try {
+            const response = await fetch('/api/pacientes-medicos');
+            if (response.ok) {
+                const data = await response.json();
+                pacientesData = data.data;
+                mostrarPacientes(pacientesData);
+                updatePacientesCount(pacientesData.length);
+            } else {
+                mostrarError('Error al cargar pacientes');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarError('Error de conexión al cargar pacientes');
+        }
+    }
+
+    // Función para mostrar pacientes en la interfaz
+    function mostrarPacientes(pacientes) {
+        const container = document.getElementById('pacientesList');
+        
+        if (pacientes.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-user-slash fa-3x text-muted"></i>
+                    <h5 class="text-muted mt-3">No se encontraron pacientes</h5>
+                    <p class="text-muted">Agrega el primer paciente haciendo clic en "Nuevo Paciente"</p>
+                </div>
+            `;
+            return;
+        }
+
+        const pacientesHTML = pacientes.map(paciente => {
+            // Obtener iniciales del nombre del cliente asociado (si existe)
+            const cliente = paciente.cliente || {};
+            const nombres = cliente.nombres || 'Paciente';
+            const apellidoPat = cliente.ap_pat || '';
+            const apellidoMat = cliente.ap_mat || '';
+            const iniciales = `${nombres.charAt(0)}${apellidoPat.charAt(0)}`;
+            const fechaNacimiento = cliente.fecha_nacimiento ? 
+                new Date(cliente.fecha_nacimiento).toLocaleDateString() : 'No registrada';
+            
+            return `
+                <div class="patient-card">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="patient-avatar">
+                                ${iniciales}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h6 class="mb-1">${nombres} ${apellidoPat} ${apellidoMat}</h6>
+                            <p class="text-muted mb-1">
+                                <small>
+                                    <i class="fas fa-file-medical me-1"></i>Ficha: ${paciente.numero_ficha} | 
+                                    <i class="fas fa-id-card me-1"></i>RUT: ${cliente.rut || 'No registrado'}
+                                </small>
+                            </p>
+                            <p class="text-muted mb-0">
+                                <small>
+                                    <i class="fas fa-calendar me-1"></i>Registro: ${new Date(paciente.fecha_registro).toLocaleDateString()} | 
+                                    <i class="fas fa-notes-medical me-1"></i>Antecedentes: ${paciente.antecedentes_medicos ? 'Sí' : 'No'}
+                                </small>
+                            </p>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-primary btn-action" onclick="verDetalles(${paciente.paciente_medico_id})">
+                                <i class="fas fa-eye"></i> Ver
+                            </button>
+                            <button class="btn btn-outline-success btn-action" onclick="nuevaConsulta(${paciente.paciente_medico_id})">
+                                <i class="fas fa-plus"></i> Consulta
+                            </button>
+                            <button class="btn btn-outline-info btn-action" onclick="editarPaciente(${paciente.paciente_medico_id})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = pacientesHTML;
+    }
+
+    // Función de búsqueda
+    function buscarPacientes() {
+        const searchTerm = document.getElementById('searchPaciente').value.toLowerCase();
+        const estadoFilter = document.getElementById('filterEstado').value;
+        
+        let pacientesFiltrados = pacientesData;
+
+        // Filtrar por término de búsqueda
+        if (searchTerm) {
+            pacientesFiltrados = pacientesFiltrados.filter(paciente => {
+                const cliente = paciente.cliente || {};
+                return (
+                    (cliente.nombres && cliente.nombres.toLowerCase().includes(searchTerm)) ||
+                    (cliente.ap_pat && cliente.ap_pat.toLowerCase().includes(searchTerm)) ||
+                    (cliente.ap_mat && cliente.ap_mat.toLowerCase().includes(searchTerm)) ||
+                    (cliente.rut && cliente.rut.toLowerCase().includes(searchTerm)) ||
+                    (paciente.numero_ficha && paciente.numero_ficha.toLowerCase().includes(searchTerm))
+                );
+            });
+        }
+
+        // Filtrar por estado (si es necesario)
+        if (estadoFilter) {
+            // Implementar filtro de estado si existe en el modelo
+        }
+
+        mostrarPacientes(pacientesFiltrados);
+        updatePacientesCount(pacientesFiltrados.length);
+    }
+
+    // Busqueda en tiempo real
+    document.getElementById('searchPaciente').addEventListener('input', buscarPacientes);
+    document.getElementById('filterEstado').addEventListener('change', buscarPacientes);
+
+    // Función para actualizar contador
+    function updatePacientesCount(count) {
+        document.getElementById('totalPacientesCount').textContent = `${count} paciente${count !== 1 ? 's' : ''}`;
+    }
+
+    // Función para ver detalles del paciente
+    async function verDetalles(pacienteMedicoId) {
+        try {
+            const response = await fetch(`/api/pacientes-medicos/${pacienteMedicoId}`);
+            if (response.ok) {
+                const data = await response.json();
+                const paciente = data.data;
+                const cliente = paciente.cliente || {};
+                
+                const detallesHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Información Personal</h6>
+                            <p><strong>Nombre completo:</strong> ${cliente.nombres || ''} ${cliente.ap_pat || ''} ${cliente.ap_mat || ''}</p>
+                            <p><strong>RUT:</strong> ${cliente.rut || 'No registrado'}</p>
+                            <p><strong>Fecha de nacimiento:</strong> ${cliente.fecha_nacimiento ? new Date(cliente.fecha_nacimiento).toLocaleDateString() : 'No registrada'}</p>
+                            <p><strong>Número de Ficha:</strong> ${paciente.numero_ficha}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Información Médica</h6>
+                            <p><strong>Antecedentes Médicos:</strong> ${paciente.antecedentes_medicos || 'Ninguno'}</p>
+                            <p><strong>Antecedentes Oculares:</strong> ${paciente.antecedentes_oculares || 'Ninguno'}</p>
+                            <p><strong>Alergias:</strong> ${paciente.alergias || 'Ninguna'}</p>
+                            <p><strong>Medicamentos Actuales:</strong> ${paciente.medicamentos_actuales || 'Ninguno'}</p>
+                        </div>
+                        <div class="col-12">
+                            <h6>Contacto de Emergencia</h6>
+                            <p><strong>Contacto:</strong> ${paciente.contacto_emergencia || 'No registrado'}</p>
+                            <p><strong>Teléfono de emergencia:</strong> ${paciente.telefono_emergencia || 'No registrado'}</p>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('detallesPacienteContent').innerHTML = detallesHTML;
+                new bootstrap.Modal(document.getElementById('modalDetallesPaciente')).show();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarError('Error al cargar detalles del paciente');
+        }
+    }
+
+    // Función para nueva consulta
+    function nuevaConsulta(pacienteMedicoId) {
+        window.location.href = `/pacientes-medicos/${pacienteMedicoId}/historial`;
+    }
+
+    // Función para editar paciente
+    function editarPaciente(pacienteMedicoId) {
+        window.location.href = `/pacientes-medicos/${pacienteMedicoId}/editar`;
+    }
+
+    // Función para mostrar errores
+    function mostrarError(mensaje) {
+        document.getElementById('pacientesList').innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning"></i>
+                <h5 class="text-warning mt-3">Error</h5>
+                <p class="text-muted">${mensaje}</p>
+                <button class="btn btn-primary" onclick="cargarPacientes()">Reintentar</button>
+            </div>
+        `;
+    }
+</script>
+{% endblock %}

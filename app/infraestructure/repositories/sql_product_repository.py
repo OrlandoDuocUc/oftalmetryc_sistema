@@ -10,9 +10,9 @@ class SQLProductRepository:
     def get_all(self, include_deleted=False):
         # Usar consulta SQL directa para evitar cacheo
         if include_deleted:
-            result = self.db.execute(text("SELECT * FROM producto"))
+            result = self.db.execute(text("SELECT * FROM productos"))
         else:
-            result = self.db.execute(text("SELECT * FROM producto WHERE estado IN ('A', 'a', 'activo', 'ACTIVO')"))
+            result = self.db.execute(text("SELECT * FROM productos WHERE estado = true"))
         
         # Convertir resultados a objetos Product
         products = []
@@ -33,7 +33,7 @@ class SQLProductRepository:
         return self.db.query(Product).filter_by(producto_id=product_id).first()
 
     def get_deleted(self):
-        return self.db.query(Product).filter(Product.estado == 'eliminado').all()
+        return self.db.query(Product).filter(Product.estado == False).all()
 
     def save(self, product: Product):
         try:
@@ -61,12 +61,13 @@ class SQLProductRepository:
                     descripcion=product.descripcion,
                     precio_unitario=product.precio_unitario,
                     stock=product.stock,
-                    estado=product.estado or 'A',  # Default to 'A' if estado is not provided
+                    estado=product.estado if product.estado is not None else True,  # Default to True if estado is not provided
                     fecha_creacion=product.fecha_creacion or datetime.utcnow()  # Set current time if not provided
                 )
                 self.db.add(new_product)
                 self.db.commit()
                 self.db.refresh(new_product)
+                print(f"✅ Producto guardado exitosamente: {new_product.producto_id}")
                 return new_product
 
         except Exception as e:
@@ -83,15 +84,26 @@ class SQLProductRepository:
                 return True  # Eliminación física
             except Exception:
                 self.db.rollback()
-                setattr(product, 'estado', 'eliminado')
+                setattr(product, 'estado', False)
                 self.db.commit()
                 return False  # Eliminación lógica
         return False
 
     def restore(self, product_id: int):
         product = self.get_by_id(product_id)
-        if product is not None and getattr(product, 'estado', None) == 'eliminado':
-            setattr(product, 'estado', 'activo')
+        if product is not None and getattr(product, 'estado', None) == False:
+            setattr(product, 'estado', True)
             self.db.commit()
             return True
         return False
+
+    def update_stock(self, product_id: int, new_stock: int):
+        """Actualizar stock de un producto específico"""
+        try:
+            result = self.db.execute(text("UPDATE productos SET stock = :stock WHERE producto_id = :id"), 
+                                   {"stock": new_stock, "id": product_id})
+            self.db.commit()
+            return result.rowcount > 0
+        except Exception as e:
+            self.db.rollback()
+            return False

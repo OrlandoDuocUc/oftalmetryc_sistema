@@ -1,49 +1,71 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
-Script para verificar las tablas existentes en la base de datos
+Script para verificar qué tablas existen en la base de datos
 """
-from app.infraestructure.utils.db import engine
-from sqlalchemy import text
+
+import psycopg2
+from config.settings import BaseConfig
 
 def check_tables():
+    """Verifica qué tablas existen en la base de datos"""
     try:
-        print("🔍 Verificando tablas existentes en la base de datos...")
+        # Conectar a PostgreSQL
+        config = BaseConfig()
+        conn = psycopg2.connect(config.DATABASE_URL)
+        cursor = conn.cursor()
         
-        with engine.connect() as connection:
-            # Obtener todas las tablas
-            result = connection.execute(text("""
-                SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, IS_NULLABLE
-                FROM INFORMATION_SCHEMA.COLUMNS 
-                WHERE TABLE_SCHEMA = 'dbo'
-                ORDER BY TABLE_NAME, ORDINAL_POSITION
-            """))
+        print("🔍 VERIFICANDO TABLAS EN LA BASE DE DATOS")
+        print("=" * 50)
+        
+        # Obtener todas las tablas
+        cursor.execute("""
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public' 
+            ORDER BY table_name;
+        """)
+        
+        tables = cursor.fetchall()
+        print(f"📋 Total de tablas encontradas: {len(tables)}")
+        print("\n📊 TABLAS EXISTENTES:")
+        for table in tables:
+            print(f"   ✅ {table[0]}")
+        
+        # Verificar específicamente la tabla pacientes_medicos
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT 1 
+                FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                AND table_name = 'pacientes_medicos'
+            );
+        """)
+        
+        existe_pacientes_medicos = cursor.fetchone()[0]
+        
+        print(f"\n🔍 TABLA 'pacientes_medicos': {'✅ EXISTE' if existe_pacientes_medicos else '❌ NO EXISTE'}")
+        
+        if existe_pacientes_medicos:
+            # Si existe, verificar su estructura
+            cursor.execute("""
+                SELECT column_name, data_type, is_nullable
+                FROM information_schema.columns 
+                WHERE table_name = 'pacientes_medicos' 
+                ORDER BY ordinal_position;
+            """)
             
-            tables = {}
-            for row in result:
-                table_name = row[0]
-                if table_name not in tables:
-                    tables[table_name] = []
-                tables[table_name].append({
-                    'column': row[1],
-                    'type': row[2],
-                    'nullable': row[3]
-                })
-            
-            if tables:
-                print("📋 Tablas encontradas:")
-                for table_name, columns in tables.items():
-                    print(f"\n   🗂️ Tabla: {table_name}")
-                    for col in columns:
-                        nullable = "NULL" if col['nullable'] == 'YES' else "NOT NULL"
-                        print(f"      - {col['column']}: {col['type']} ({nullable})")
-            else:
-                print("📭 No se encontraron tablas en la base de datos")
-                
-        return tables
+            columns = cursor.fetchall()
+            print(f"\n📋 ESTRUCTURA DE 'pacientes_medicos' ({len(columns)} columnas):")
+            for col in columns:
+                print(f"   - {col[0]} ({col[1]}) {'NULL' if col[2] == 'YES' else 'NOT NULL'}")
+        
+        cursor.close()
+        conn.close()
         
     except Exception as e:
-        print(f"❌ Error al verificar tablas: {str(e)}")
-        return {}
+        print(f"❌ Error: {str(e)}")
 
 if __name__ == "__main__":
-    check_tables() 
+    check_tables()

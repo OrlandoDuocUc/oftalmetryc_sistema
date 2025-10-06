@@ -57,13 +57,15 @@ def productos():
         if request.method == 'POST':
             try:
                 data = request.form.to_dict()
-                campos_permitidos = ['nombre', 'descripcion', 'precio_unitario', 'stock']
+                campos_permitidos = ['nombre', 'descripcion', 'precio_unitario', 'stock', 'categoria', 'marca', 'sku']
                 data = {k: v for k, v in data.items() if k in campos_permitidos}
                 if 'stock' in data:
                     data['stock'] = int(data['stock'])
                 if 'precio_unitario' in data:
                     data['precio_unitario'] = float(data['precio_unitario'])
+                print(f"🔧 Datos del producto a crear: {data}")
                 product_use_cases.create_product(data)
+                flash('Producto creado exitosamente.', 'success')
                 return redirect(url_for('product_html.productos'))
             except Exception as e:
                 print(f"Error al crear producto: {e}")

@@ -16,16 +16,16 @@ else:
     # Fallback para desarrollo local
     print("🏠 [db.py] Usando configuración local")
     DB_USER = os.getenv('DB_USER', 'postgres')
-    DB_PASSWORD = os.getenv('DB_PASSWORD', 'password')
+    DB_PASSWORD = os.getenv('DB_PASSWORD', '12345')
     DB_HOST = os.getenv('DB_HOST', 'localhost')
     DB_PORT = os.getenv('DB_PORT', '5432')
-    DB_NAME = os.getenv('DB_NAME', 'oftalmetryc_db')
+    DB_NAME = os.getenv('DB_NAME', 'optica_db')
     
     # Escapar caracteres especiales en la contraseña
     password_encoded = quote_plus(DB_PASSWORD)
     
-    # URL de conexión PostgreSQL
-    DATABASE_URL = f"postgresql://{DB_USER}:{password_encoded}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    # URL de conexión PostgreSQL con encoding explícito
+    DATABASE_URL = f"postgresql://{DB_USER}:{password_encoded}@{DB_HOST}:{DB_PORT}/{DB_NAME}?client_encoding=utf8&application_name=optica_app"
     print(f"🔧 [db.py] URL local construida: {DATABASE_URL}")
 
 # Configuración anterior SQL Server (comentada)
@@ -36,13 +36,17 @@ else:
 
 engine = create_engine(
     DATABASE_URL, 
-    echo=True,  # Cambiar a False en producción
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True  # Verificar conexiones antes de usar
+    echo=True,  # Activar logs para debug
+    pool_size=5,
+    max_overflow=10,
+    pool_pre_ping=True,  # Verificar conexiones antes de usar
+    connect_args={
+        "client_encoding": "utf8",
+        "application_name": "optica_maipu_app"
+    }
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=True, bind=engine)
 
 def get_connection():
     """Obtiene una conexión directa a la base de datos"""

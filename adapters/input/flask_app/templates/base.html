@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Oftalmetryc{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #2980b9;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --dark-bg: #34495e;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* NAVBAR AZUL CONSISTENTE */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand, .navbar-nav .nav-link {
+            color: white !important;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: #bdc3c7 !important;
+        }
+        
+        .dropdown-menu {
+            background: white;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .dropdown-item {
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            color: white;
+        }
+        
+        .dropdown-item.active {
+            background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
+            color: white;
+        }
+        
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <!-- NAVBAR ÚNICO PARA TODA LA APLICACIÓN -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-eye me-2"></i>Oftalmetryc
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% if session['rol'] == 'Administrador' %}
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.dashboard' %}active{% endif %}" href="/">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.productos' %}active{% endif %}" href="/productos">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.inventario' %}active{% endif %}" href="/inventario"><i class="fas fa-boxes me-1"></i>Inventario</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'proveedores.lista_proveedores' %}active{% endif %}" href="/proveedores"><i class="fas fa-truck me-1"></i>Proveedores</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.registrar_venta' %}active{% endif %}" href="/registrar-venta">Registrar Venta</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.historial_ventas' %}active{% endif %}" href="/historial-ventas">Historial Ventas</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.usuarios' %}active{% endif %}" href="/usuarios">Usuarios</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-eye me-1"></i>Módulo Médico
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
+                            <li><a class="dropdown-item" href="/pacientes-medicos"><i class="fas fa-users me-2"></i>Pacientes</a></li>
+                            <li><a class="dropdown-item" href="/consultas-nuevo"><i class="fas fa-calendar-check me-2"></i>Historial Consultas</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/ficha-clinica-nuevo"><i class="fas fa-clipboard-check me-2"></i>Ficha Clínica</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.dashboard' %}active{% endif %}" href="/">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.inventario' %}active{% endif %}" href="/inventario"><i class="fas fa-boxes me-1"></i>Inventario</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.registrar_venta' %}active{% endif %}" href="/registrar-venta">Registrar Venta</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.historial_ventas' %}active{% endif %}" href="/historial-ventas">Historial Ventas</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-eye me-1"></i>Módulo Médico
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
+                            <li><a class="dropdown-item" href="/pacientes-nuevo"><i class="fas fa-users me-2"></i>Pacientes</a></li>
+                            <li><a class="dropdown-item" href="/consultas-nuevo"><i class="fas fa-calendar-check me-2"></i>Historial Consultas</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/ficha-clinica-nuevo"><i class="fas fa-clipboard-check me-2"></i>Ficha Clínica</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+                <a class="nav-link text-danger" href="/logout">Cerrar sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO ESPECÍFICO DE CADA PÁGINA -->
+    {% block content %}{% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

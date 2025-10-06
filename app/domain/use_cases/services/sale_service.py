@@ -65,9 +65,10 @@ class SaleService:
         db_session, sale_repository, _ = self._get_repositories()
         try:
             from app.domain.models.cliente import Cliente
+            from app.domain.models.sale import SaleDetail
             
-            # Obtener ventas con joins para productos y clientes
-            sales = db_session.query(Sale).join(Product, Sale.producto_id == Product.producto_id).all()
+            # Obtener todas las ventas sin JOIN directo con productos
+            sales = db_session.query(Sale).all()
             
             # Crear lista con información completa
             sales_with_details = []
@@ -89,7 +90,7 @@ class SaleService:
                     'cantidad': sale.cantidad,
                     'total': sale.total,
                     'cliente': cliente_nombre,
-                    'fecha': format_datetime_chile(sale.fecha)
+                    'fecha': format_datetime_chile(sale.fecha_venta)
                 })
             
             return sales_with_details
@@ -123,8 +124,8 @@ class SaleService:
             
             # Obtener ventas del día
             sales = db_session.query(Sale).filter(
-                Sale.fecha >= start_of_day,
-                Sale.fecha < end_of_day
+                Sale.fecha_venta >= start_of_day,
+                Sale.fecha_venta < end_of_day
             ).all()
             
             return sales
@@ -157,14 +158,14 @@ class SaleService:
             start_of_day, end_of_day = get_day_start_end_chile(hoy_chile)
             
             ventas_hoy = db_session.query(Sale).filter(
-                Sale.fecha >= start_of_day,
-                Sale.fecha < end_of_day
+                Sale.fecha_venta >= start_of_day,
+                Sale.fecha_venta < end_of_day
             ).all()
             
             total_ventas_hoy = sum(float(getattr(v, 'total', 0)) for v in ventas_hoy if getattr(v, 'total', None) is not None)
             
             # Obtener ventas recientes
-            ventas_recientes = db_session.query(Sale).order_by(Sale.fecha.desc()).limit(5).all()
+            ventas_recientes = db_session.query(Sale).order_by(Sale.fecha_venta.desc()).limit(5).all()
             
             return {
                 'productos_en_stock': productos_en_stock,

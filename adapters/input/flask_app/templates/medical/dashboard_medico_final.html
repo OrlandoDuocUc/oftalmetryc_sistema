@@ -1,0 +1,438 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Médico - Oftalmetryc{% endblock %}
+
+{% block extra_css %}
+/* ESTILOS ESPECÍFICOS DEL DASHBOARD MÉDICO CON SIDEBAR FIJO */
+        /* SIDEBAR MÉDICO FIJO SOLO PARA DASHBOARD */
+        .medical-sidebar {
+            position: fixed;
+            top: 56px; /* Altura del navbar */
+            left: 0;
+            width: 280px;
+            height: calc(100vh - 56px);
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+            z-index: 1040;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 25px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-bg));
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h4 {
+            color: white;
+            margin: 0;
+            font-weight: bold;
+        }
+        
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+        
+        .sidebar-nav .nav-item {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-nav .nav-link {
+            color: #bdc3c7;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-nav .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: var(--warning-color);
+        }
+        
+        .sidebar-nav .nav-link.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border-left-color: var(--warning-color);
+            font-weight: bold;
+        }
+        
+        .sidebar-nav .nav-link i {
+            width: 20px;
+            margin-right: 15px;
+        }
+        
+        /* CONTENIDO PRINCIPAL CON MARGEN PARA SIDEBAR */
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: calc(100vh - 56px);
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .page-header h1 {
+            margin: 0;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 15px auto;
+            color: white;
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .medical-chart {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .activity-feed {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .medical-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+{% endblock %}
+
+{% block content %}
+<!-- SIDEBAR MÉDICO FIJO -->
+<div class="medical-sidebar">
+    <div class="sidebar-header">
+        <h4><i class="fas fa-stethoscope me-2"></i>Módulo Médico</h4>
+    </div>
+    <nav class="sidebar-nav">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="/dashboard-medico">
+                    <i class="fas fa-chart-line"></i>Dashboard Médico
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/pacientes-nuevo">
+                    <i class="fas fa-users"></i>Gestión Pacientes
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/pacientes/nuevo">
+                    <i class="fas fa-user-plus"></i>Nuevo Paciente
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/consultas-nuevo">
+                    <i class="fas fa-calendar-check"></i>Historial Consultas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/ficha-clinica-nuevo">
+                    <i class="fas fa-clipboard-check"></i>Ficha Clínica
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/examen-oftalmologico-nuevo">
+                    <i class="fas fa-eye-dropper"></i>Examen Oftalmológico
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <a class="nav-link" href="/" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                    <i class="fas fa-home"></i>Volver al Sistema
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="main-content">
+    <!-- HEADER DE LA PÁGINA -->
+    <div class="page-header">
+        <h1><i class="fas fa-chart-line me-3"></i>Dashboard Médico</h1>
+        <p>Panel de control del módulo médico - Vista general de actividades y estadísticas</p>
+    </div>
+
+    <!-- TARJETAS DE ESTADÍSTICAS -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="stats-icon" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stats-number text-primary" id="totalPacientes">0</div>
+                <div class="stats-label">Total Pacientes</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="stats-icon" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stats-number text-success" id="consultasHoy">0</div>
+                <div class="stats-label">Consultas Hoy</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="stats-icon" style="background: linear-gradient(135deg, #f39c12, #e67e22);">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stats-number text-warning" id="totalConsultas">0</div>
+                <div class="stats-label">Total Consultas</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="stats-icon" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stats-number text-danger" id="examenesRealizados">0</div>
+                <div class="stats-label">Exámenes Realizados</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GRÁFICOS Y ACTIVIDAD RECIENTE -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="medical-chart">
+                <h5 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Consultas por Mes</h5>
+                <div class="chart-container">
+                    <canvas id="consultasPorMesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="activity-feed">
+                <h5 class="mb-3"><i class="fas fa-history me-2"></i>Actividad Reciente</h5>
+                <div id="actividadReciente">
+                    <div class="activity-item d-flex align-items-center">
+                        <div class="activity-icon" style="background: #3498db;">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Nuevo paciente registrado</div>
+                            <small class="text-muted">Hace 2 horas</small>
+                        </div>
+                    </div>
+                    <div class="activity-item d-flex align-items-center">
+                        <div class="activity-icon" style="background: #27ae60;">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Consulta completada</div>
+                            <small class="text-muted">Hace 3 horas</small>
+                        </div>
+                    </div>
+                    <div class="activity-item d-flex align-items-center">
+                        <div class="activity-icon" style="background: #f39c12;">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Examen oftalmológico realizado</div>
+                            <small class="text-muted">Hace 5 horas</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCESOS RÁPIDOS -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="medical-chart">
+                <h5 class="mb-3"><i class="fas fa-lightning-bolt me-2"></i>Accesos Rápidos</h5>
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="/pacientes/nuevo" class="btn btn-outline-primary btn-lg w-100">
+                            <i class="fas fa-user-plus d-block mb-2"></i>
+                            Nuevo Paciente
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="/ficha-clinica-nuevo" class="btn btn-outline-success btn-lg w-100">
+                            <i class="fas fa-clipboard-check d-block mb-2"></i>
+                            Ficha Clínica
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="/examen-oftalmologico-nuevo" class="btn btn-outline-warning btn-lg w-100">
+                            <i class="fas fa-eye d-block mb-2"></i>
+                            Examen Oftalmológico
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="/consultas-nuevo" class="btn btn-outline-info btn-lg w-100">
+                            <i class="fas fa-history d-block mb-2"></i>
+                            Ver Historial
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Cargar estadísticas del dashboard
+    async function cargarEstadisticas() {
+        try {
+            // Cargar total de pacientes
+            const pacientesResponse = await fetch('/api/pacientes');
+            if (pacientesResponse.ok) {
+                const pacientesData = await pacientesResponse.json();
+                document.getElementById('totalPacientes').textContent = pacientesData.data.length;
+            }
+
+            // Cargar total de consultas
+            const consultasResponse = await fetch('/api/consultas-medicas');
+            if (consultasResponse.ok) {
+                const consultasData = await consultasResponse.json();
+                document.getElementById('totalConsultas').textContent = consultasData.data.length;
+                
+                // Filtrar consultas de hoy
+                const hoy = new Date().toISOString().split('T')[0];
+                const consultasHoy = consultasData.data.filter(consulta => 
+                    consulta.fecha_consulta.startsWith(hoy)
+                );
+                document.getElementById('consultasHoy').textContent = consultasHoy.length;
+            }
+
+            // Placeholder para exámenes realizados
+            document.getElementById('examenesRealizados').textContent = '0';
+
+        } catch (error) {
+            console.error('Error al cargar estadísticas:', error);
+        }
+    }
+
+    // Crear gráfico de consultas por mes
+    function crearGraficoConsultas() {
+        const ctx = document.getElementById('consultasPorMesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Consultas',
+                    data: [12, 19, 3, 5, 2, 3],
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Inicializar dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarEstadisticas();
+        crearGraficoConsultas();
+    });
+</script>
+{% endblock %}

@@ -1,438 +1,246 @@
 #!/usr/bin/env python3
 """
-Script para crear las tablas del módulo médico oftalmológico
-Oftalmetryc - Sistema Profesional de Gestión Óptica
+Script para crear las tablas del módulo médico en PostgreSQL
 """
 
-from sqlalchemy import create_engine, text
+import sys
 import os
-from urllib.parse import quote_plus
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+import psycopg2
+from config.settings import BaseConfig
 
 def create_medical_tables():
-    """Crear todas las tablas del módulo médico oftalmológico"""
+    """Crea todas las tablas del módulo médico"""
+    print("🏥 CREANDO TABLAS DEL MÓDULO MÉDICO")
+    print("=" * 50)
+    
+    # Obtener configuración de base de datos
+    config = BaseConfig()
+    db_url = config.DATABASE_URL
+    
+    # Parsear URL de conexión
+    # postgresql://postgres:12345@localhost:5432/optica_bd
+    url_parts = db_url.replace('postgresql://', '').split('@')
+    user_pass = url_parts[0].split(':')
+    host_db = url_parts[1].split('/')
+    host_port = host_db[0].split(':')
+    
+    connection_params = {
+        'host': host_port[0],
+        'port': int(host_port[1]),
+        'database': host_db[1].split('?')[0],
+        'user': user_pass[0],
+        'password': user_pass[1]
+    }
+    
+    print(f"🔗 Conectando a: {connection_params['host']}:{connection_params['port']}/{connection_params['database']}")
     
     try:
-        # Configuración de la base de datos usando SQLAlchemy
-        DB_USER = 'postgres'
-        DB_PASSWORD = 'admin'
-        DB_HOST = 'localhost'
-        DB_PORT = '5432'
-        DB_NAME = 'oftalmetryc_db'
+        # Conectar a PostgreSQL
+        conn = psycopg2.connect(**connection_params)
+        cursor = conn.cursor()
         
-        # URL de conexión PostgreSQL
-        DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        # SQL para crear tablas médicas
+        medical_tables_sql = """
+        -- Tabla 7: PACIENTES MÉDICOS
+        CREATE TABLE IF NOT EXISTS pacientes_medicos (
+            paciente_medico_id SERIAL PRIMARY KEY,
+            cliente_id INTEGER REFERENCES clientes(cliente_id),
+            numero_ficha VARCHAR(20) UNIQUE NOT NULL,
+            antecedentes_medicos TEXT,
+            antecedentes_oculares TEXT,
+            alergias TEXT,
+            medicamentos_actuales TEXT,
+            contacto_emergencia VARCHAR(100),
+            telefono_emergencia VARCHAR(20),
+            fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            estado BOOLEAN DEFAULT TRUE
+        );
+
+        -- Tabla 8: FICHAS CLÍNICAS
+        CREATE TABLE IF NOT EXISTS fichas_clinicas (
+            ficha_id SERIAL PRIMARY KEY,
+            paciente_medico_id INTEGER REFERENCES pacientes_medicos(paciente_medico_id),
+            usuario_id INTEGER REFERENCES usuarios(usuario_id),
+            numero_consulta VARCHAR(20) UNIQUE NOT NULL,
+            fecha_consulta TIMESTAMP NOT NULL,
+            motivo_consulta TEXT,
+            historia_actual TEXT,
+            
+            -- AGUDEZA VISUAL OJO DERECHO
+            av_od_sc VARCHAR(20),
+            av_od_cc VARCHAR(20),
+            av_od_ph VARCHAR(20),
+            av_od_cerca VARCHAR(20),
+            
+            -- AGUDEZA VISUAL OJO IZQUIERDO
+            av_oi_sc VARCHAR(20),
+            av_oi_cc VARCHAR(20),
+            av_oi_ph VARCHAR(20),
+            av_oi_cerca VARCHAR(20),
+            
+            -- REFRACCIÓN OJO DERECHO
+            esfera_od VARCHAR(10),
+            cilindro_od VARCHAR(10),
+            eje_od VARCHAR(10),
+            adicion_od VARCHAR(10),
+            
+            -- REFRACCIÓN OJO IZQUIERDO
+            esfera_oi VARCHAR(10),
+            cilindro_oi VARCHAR(10),
+            eje_oi VARCHAR(10),
+            adicion_oi VARCHAR(10),
+            
+            -- DATOS GENERALES REFRACCIÓN
+            distancia_pupilar VARCHAR(10),
+            tipo_lente VARCHAR(50),
+            
+            estado VARCHAR(20) DEFAULT 'en_proceso',
+            fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Tabla 9: BIOMICROSCOPÍA
+        CREATE TABLE IF NOT EXISTS biomicroscopia (
+            biomicroscopia_id SERIAL PRIMARY KEY,
+            ficha_id INTEGER REFERENCES fichas_clinicas(ficha_id),
+            
+            -- OJO DERECHO
+            parpados_od TEXT,
+            conjuntiva_od TEXT,
+            cornea_od TEXT,
+            camara_anterior_od TEXT,
+            iris_od TEXT,
+            pupila_od_mm VARCHAR(10),
+            pupila_od_reaccion VARCHAR(20),
+            cristalino_od TEXT,
+            
+            -- OJO IZQUIERDO
+            parpados_oi TEXT,
+            conjuntiva_oi TEXT,
+            cornea_oi TEXT,
+            camara_anterior_oi TEXT,
+            iris_oi TEXT,
+            pupila_oi_mm VARCHAR(10),
+            pupila_oi_reaccion VARCHAR(20),
+            cristalino_oi TEXT,
+            
+            observaciones_generales TEXT,
+            fecha_examen TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Tabla 10: FONDO DE OJO
+        CREATE TABLE IF NOT EXISTS fondo_ojo (
+            fondo_ojo_id SERIAL PRIMARY KEY,
+            ficha_id INTEGER REFERENCES fichas_clinicas(ficha_id),
+            
+            -- OJO DERECHO
+            disco_optico_od TEXT,
+            macula_od TEXT,
+            vasos_od TEXT,
+            retina_periferica_od TEXT,
+            
+            -- OJO IZQUIERDO
+            disco_optico_oi TEXT,
+            macula_oi TEXT,
+            vasos_oi TEXT,
+            retina_periferica_oi TEXT,
+            
+            observaciones TEXT,
+            fecha_examen TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Tabla 11: PRESIÓN INTRAOCULAR
+        CREATE TABLE IF NOT EXISTS presion_intraocular (
+            pio_id SERIAL PRIMARY KEY,
+            ficha_id INTEGER REFERENCES fichas_clinicas(ficha_id),
+            pio_od VARCHAR(10),
+            pio_oi VARCHAR(10),
+            metodo_medicion VARCHAR(50),
+            hora_medicion TIME,
+            observaciones TEXT,
+            fecha_medicion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Tabla 12: CAMPOS VISUALES
+        CREATE TABLE IF NOT EXISTS campos_visuales (
+            campo_visual_id SERIAL PRIMARY KEY,
+            ficha_id INTEGER REFERENCES fichas_clinicas(ficha_id),
+            tipo_campo VARCHAR(50),
+            resultado_od TEXT,
+            resultado_oi TEXT,
+            interpretacion TEXT,
+            fecha_examen TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Tabla 13: DIAGNÓSTICOS
+        CREATE TABLE IF NOT EXISTS diagnosticos (
+            diagnostico_id SERIAL PRIMARY KEY,
+            ficha_id INTEGER REFERENCES fichas_clinicas(ficha_id),
+            diagnostico_principal TEXT NOT NULL,
+            diagnosticos_secundarios TEXT,
+            cie_10_principal VARCHAR(10),
+            cie_10_secundarios TEXT,
+            severidad VARCHAR(20),
+            observaciones TEXT,
+            fecha_diagnostico TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Tabla 14: TRATAMIENTOS
+        CREATE TABLE IF NOT EXISTS tratamientos (
+            tratamiento_id SERIAL PRIMARY KEY,
+            ficha_id INTEGER REFERENCES fichas_clinicas(ficha_id),
+            medicamentos TEXT,
+            tratamiento_no_farmacologico TEXT,
+            recomendaciones TEXT,
+            plan_seguimiento TEXT,
+            proxima_cita DATE,
+            urgencia_seguimiento VARCHAR(20),
+            fecha_tratamiento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- ÍNDICES PARA OPTIMIZACIÓN
+        CREATE INDEX IF NOT EXISTS idx_pacientes_numero_ficha ON pacientes_medicos(numero_ficha);
+        CREATE INDEX IF NOT EXISTS idx_fichas_fecha ON fichas_clinicas(fecha_consulta);
+        CREATE INDEX IF NOT EXISTS idx_fichas_numero ON fichas_clinicas(numero_consulta);
+        """
         
-        # Crear engine
-        engine = create_engine(DATABASE_URL)
+        print("📝 Ejecutando SQL para crear tablas médicas...")
+        cursor.execute(medical_tables_sql)
+        conn.commit()
         
-        print("Creando tablas del módulo médico oftalmológico...")
+        print("✅ ¡Tablas médicas creadas exitosamente!")
         
-        with engine.connect() as connection:
-        # 1. Tabla de Pacientes (ampliación de clientes para datos médicos)
-            connection.execute(text("""
-                CREATE TABLE IF NOT EXISTS pacientes (
-                    id SERIAL PRIMARY KEY,
-                    cliente_id INTEGER REFERENCES clientes(id) ON DELETE CASCADE,
-                    numero_historia VARCHAR(20) UNIQUE NOT NULL,
-                    fecha_primera_consulta DATE NOT NULL DEFAULT CURRENT_DATE,
-                    ocupacion VARCHAR(100),
-                    telefono_emergencia VARCHAR(20),
-                    contacto_emergencia VARCHAR(100),
-                    alergias TEXT,
-                    medicamentos_actuales TEXT,
-                    antecedentes_oculares TEXT,
-                    antecedentes_familiares TEXT,
-                    antecedentes_medicos TEXT,
-                    observaciones_generales TEXT,
-                    activo BOOLEAN DEFAULT TRUE,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            """))
-            
-            # 2. Tabla de Consultas Médicas
-            connection.execute(text("""
-                CREATE TABLE IF NOT EXISTS consultas_medicas (
-                    id SERIAL PRIMARY KEY,
-                    paciente_id INTEGER REFERENCES pacientes(id) ON DELETE CASCADE,
-                    numero_consulta VARCHAR(20) UNIQUE NOT NULL,
-                    fecha_consulta TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    tipo_consulta VARCHAR(50) NOT NULL DEFAULT 'Control',
-                    motivo_consulta TEXT NOT NULL,
-                    sintomas_actuales TEXT,
-                    tiempo_evolucion VARCHAR(100),
-                    tratamiento_previo TEXT,
-                    profesional_id INTEGER REFERENCES usuarios(id),
-                    estado VARCHAR(20) DEFAULT 'En Proceso',
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            """))
-            
-            # 3. Tabla de Examen Básico (Agudeza Visual, etc.)
-            connection.execute(text("""
-                CREATE TABLE IF NOT EXISTS examenes_basicos (
-                    id SERIAL PRIMARY KEY,
-                    consulta_id INTEGER REFERENCES consultas_medicas(id) ON DELETE CASCADE,
-                    
-                    -- Agudeza Visual Lejana
-                    od_sc_lejos VARCHAR(10),
-                    od_cc_lejos VARCHAR(10),
-                    oi_sc_lejos VARCHAR(10),
-                    oi_cc_lejos VARCHAR(10),
-                    ao_sc_lejos VARCHAR(10),
-                    ao_cc_lejos VARCHAR(10),
-                    
-                    -- Agudeza Visual Cercana
-                    od_sc_cerca VARCHAR(10),
-                    od_cc_cerca VARCHAR(10),
-                    oi_sc_cerca VARCHAR(10),
-                    oi_cc_cerca VARCHAR(10),
-                    ao_sc_cerca VARCHAR(10),
-                    ao_cc_cerca VARCHAR(10),
-                    
-                    -- Presión Intraocular
-                    pio_od VARCHAR(10),
-                    pio_oi VARCHAR(10),
-                    metodo_pio VARCHAR(50),
-                    hora_pio TIME,
-                    
-                    -- Cover Test
-                    cover_test_lejos VARCHAR(100),
-                    cover_test_cerca VARCHAR(100),
-                    
-                    -- Motilidad Ocular
-                    motilidad_od TEXT,
-                    motilidad_oi TEXT,
-                    convergencia VARCHAR(50),
-                    
-                    -- Reflejos Pupilares
-                    reflejo_fotomotor_od VARCHAR(50),
-                    reflejo_fotomotor_oi VARCHAR(50),
-                    reflejo_consensual_od VARCHAR(50),
-                    reflejo_consensual_oi VARCHAR(50),
-                    defecto_pupilar_aferente VARCHAR(100),
-                    
-                    observaciones_examen_basico TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            """))
-            
-            # 4. Tabla de Refracción
-            connection.execute(text("""
-                CREATE TABLE IF NOT EXISTS refracciones (
-                    id SERIAL PRIMARY KEY,
-                    consulta_id INTEGER REFERENCES consultas_medicas(id) ON DELETE CASCADE,
-                    tipo_refraccion VARCHAR(20) NOT NULL DEFAULT 'Subjetiva',
-                    
-                    -- Ojo Derecho
-                    od_esfera DECIMAL(4,2),
-                    od_cilindro DECIMAL(4,2),
-                    od_eje INTEGER,
-                    od_prisma DECIMAL(3,2),
-                    od_base VARCHAR(10),
-                    od_add DECIMAL(3,2),
-                    od_dip DECIMAL(4,1),
-                    
-                    -- Ojo Izquierdo
-                    oi_esfera DECIMAL(4,2),
-                    oi_cilindro DECIMAL(4,2),
-                    oi_eje INTEGER,
-                    oi_prisma DECIMAL(3,2),
-                    oi_base VARCHAR(10),
-                    oi_add DECIMAL(3,2),
-                    oi_dip DECIMAL(4,1),
-                    
-                    -- Datos adicionales
-                    distancia_pupilar DECIMAL(4,1),
-                    altura_pupilar DECIMAL(4,1),
-                    tipo_lente VARCHAR(50),
-                    observaciones_refraccion TEXT,
-                    recomendaciones TEXT,
-                    
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            """))
-            
-            # 5. Tabla de Biomicroscopía
-            connection.execute(text("""
-                CREATE TABLE IF NOT EXISTS biomicroscopias (
-                    id SERIAL PRIMARY KEY,
-                    consulta_id INTEGER REFERENCES consultas_medicas(id) ON DELETE CASCADE,
-                    
-                    -- Párpados y Pestañas OD
-                    parpados_od TEXT,
-                    pestanas_od TEXT,
-                    glandulas_meibomio_od TEXT,
-                    
-                    -- Párpados y Pestañas OI
-                    parpados_oi TEXT,
-                    pestanas_oi TEXT,
-                    glandulas_meibomio_oi TEXT,
-                    
-                    -- Conjuntiva OD
-                    conjuntiva_bulbar_od TEXT,
-                    conjuntiva_tarsal_od TEXT,
-                    conjuntiva_fondo_saco_od TEXT,
-                    
-                    -- Conjuntiva OI
-                    conjuntiva_bulbar_oi TEXT,
-                    conjuntiva_tarsal_oi TEXT,
-                    conjuntiva_fondo_saco_oi TEXT,
-                    
-                    -- Córnea OD
-                    cornea_epitelio_od TEXT,
-                    cornea_estroma_od TEXT,
-                    cornea_endotelio_od TEXT,
-                    
-                    -- Córnea OI
-                    cornea_epitelio_oi TEXT,
-                    cornea_estroma_oi TEXT,
-                    cornea_endotelio_oi TEXT,
-                    
-                    -- Cámara Anterior OD
-                    camara_anterior_od TEXT,
-                    profundidad_camara_od VARCHAR(20),
-                    humor_acuoso_od TEXT,
-                    
-                    -- Cámara Anterior OI
-                    camara_anterior_oi TEXT,
-                    profundidad_camara_oi VARCHAR(20),
-                    humor_acuoso_oi TEXT,
-                    
-                    -- Iris OD
-                    iris_od TEXT,
-                    pupilas_od TEXT,
-                    
-                    -- Iris OI
-                    iris_oi TEXT,
-                    pupilas_oi TEXT,
-                    
-                    -- Cristalino OD
-                    cristalino_od TEXT,
-                    opacidades_od TEXT,
-                    
-                    -- Cristalino OI
-                    cristalino_oi TEXT,
-                    opacidades_oi TEXT,
-                    
-                    observaciones_biomicroscopia TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            """))
-            
-            # 6. Tabla de Fondo de Ojo
-            connection.execute(text("""
-                CREATE TABLE IF NOT EXISTS fondos_ojo (
-                    id SERIAL PRIMARY KEY,
-                    consulta_id INTEGER REFERENCES consultas_medicas(id) ON DELETE CASCADE,
-                    metodo_examen VARCHAR(50) DEFAULT 'Oftalmoscopía Directa',
-                    midriasis_aplicada BOOLEAN DEFAULT FALSE,
-                    
-                    -- Papila OD
-                    papila_od_forma VARCHAR(50),
-                    papila_od_color VARCHAR(50),
-                    papila_od_bordes VARCHAR(100),
-                    papila_od_excavacion VARCHAR(20),
-                    papila_od_vascularizacion TEXT,
-                    
-                    -- Papila OI
-                    papila_oi_forma VARCHAR(50),
-                    papila_oi_color VARCHAR(50),
-                    papila_oi_bordes VARCHAR(100),
-                    papila_oi_excavacion VARCHAR(20),
-                    papila_oi_vascularizacion TEXT,
-                    
-                    -- Mácula OD
-                    macula_od_aspecto TEXT,
-                    macula_od_reflejo_foveal VARCHAR(50),
-                    macula_od_pigmentacion TEXT,
-                    
-                    -- Mácula OI
-                    macula_oi_aspecto TEXT,
-                    macula_oi_reflejo_foveal VARCHAR(50),
-                    macula_oi_pigmentacion TEXT,
-                    
-                    -- Retina Periférica OD
-                    retina_periferia_od TEXT,
-                    vasos_od TEXT,
-                    
-                    -- Retina Periférica OI
-                    retina_periferia_oi TEXT,
-                    vasos_oi TEXT,
-                    
-                    -- Vítreo
-                    vitreo_od TEXT,
-                    vitreo_oi TEXT,
-                    
-                    observaciones_fondo_ojo TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            """))
-            
-            # 7. Tabla de Diagnósticos
-            connection.execute(text("""
-                CREATE TABLE IF NOT EXISTS diagnosticos (
-                    id SERIAL PRIMARY KEY,
-                    consulta_id INTEGER REFERENCES consultas_medicas(id) ON DELETE CASCADE,
-                    ojo VARCHAR(10) NOT NULL, -- 'OD', 'OI', 'AO'
-                    codigo_cie10 VARCHAR(10),
-                    descripcion_diagnostico TEXT NOT NULL,
-                    tipo_diagnostico VARCHAR(20) DEFAULT 'Principal', -- Principal, Secundario, Diferencial
-                    severidad VARCHAR(20),
-                    observaciones TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            """))
-            
-            # 8. Tabla de Tratamientos
-            connection.execute(text("""
-                CREATE TABLE IF NOT EXISTS tratamientos (
-                    id SERIAL PRIMARY KEY,
-                    consulta_id INTEGER REFERENCES consultas_medicas(id) ON DELETE CASCADE,
-                    tipo_tratamiento VARCHAR(50) NOT NULL, -- Farmacológico, Óptico, Quirúrgico, Observación
-                    descripcion TEXT NOT NULL,
-                    medicamento VARCHAR(100),
-                    dosis VARCHAR(50),
-                    frecuencia VARCHAR(50),
-                    duracion VARCHAR(50),
-                    via_administracion VARCHAR(30),
-                    instrucciones TEXT,
-                    fecha_inicio DATE DEFAULT CURRENT_DATE,
-                    fecha_fin DATE,
-                    activo BOOLEAN DEFAULT TRUE,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            """))
-            
-            # 9. Tabla de Seguimientos
-            connection.execute(text("""
-                CREATE TABLE IF NOT EXISTS seguimientos (
-                    id SERIAL PRIMARY KEY,
-                    paciente_id INTEGER REFERENCES pacientes(id) ON DELETE CASCADE,
-                    consulta_id INTEGER REFERENCES consultas_medicas(id) ON DELETE CASCADE,
-                    fecha_seguimiento DATE NOT NULL,
-                    tipo_seguimiento VARCHAR(50), -- Control, Urgencia, Revisión
-                    motivo TEXT,
-                    evolucion TEXT,
-                    cumplimiento_tratamiento VARCHAR(50),
-                    efectos_adversos TEXT,
-                    modificaciones_tratamiento TEXT,
-                    proxima_cita DATE,
-                    observaciones TEXT,
-                    profesional_id INTEGER REFERENCES usuarios(id),
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            """))
-            
-            # 10. Tabla de Archivos Adjuntos (para imágenes, estudios, etc.)
-            connection.execute(text("""
-                CREATE TABLE IF NOT EXISTS archivos_medicos (
-                    id SERIAL PRIMARY KEY,
-                    consulta_id INTEGER REFERENCES consultas_medicas(id) ON DELETE CASCADE,
-                    nombre_archivo VARCHAR(255) NOT NULL,
-                    tipo_archivo VARCHAR(50), -- Imagen, PDF, Estudio, Laboratorio
-                    ruta_archivo VARCHAR(500) NOT NULL,
-                    descripcion TEXT,
-                    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    usuario_id INTEGER REFERENCES usuarios(id)
-                );
-            """))
-            
-            # Crear índices para optimizar consultas
-            print("Creando índices...")
-            
-            indices = [
-                "CREATE INDEX IF NOT EXISTS idx_pacientes_cliente ON pacientes(cliente_id);",
-                "CREATE INDEX IF NOT EXISTS idx_pacientes_historia ON pacientes(numero_historia);",
-                "CREATE INDEX IF NOT EXISTS idx_consultas_paciente ON consultas_medicas(paciente_id);",
-                "CREATE INDEX IF NOT EXISTS idx_consultas_fecha ON consultas_medicas(fecha_consulta);",
-                "CREATE INDEX IF NOT EXISTS idx_examenes_consulta ON examenes_basicos(consulta_id);",
-                "CREATE INDEX IF NOT EXISTS idx_refracciones_consulta ON refracciones(consulta_id);",
-                "CREATE INDEX IF NOT EXISTS idx_biomicroscopias_consulta ON biomicroscopias(consulta_id);",
-                "CREATE INDEX IF NOT EXISTS idx_fondos_consulta ON fondos_ojo(consulta_id);",
-                "CREATE INDEX IF NOT EXISTS idx_diagnosticos_consulta ON diagnosticos(consulta_id);",
-                "CREATE INDEX IF NOT EXISTS idx_tratamientos_consulta ON tratamientos(consulta_id);",
-                "CREATE INDEX IF NOT EXISTS idx_seguimientos_paciente ON seguimientos(paciente_id);",
-                "CREATE INDEX IF NOT EXISTS idx_archivos_consulta ON archivos_medicos(consulta_id);"
-            ]
-            
-            for indice in indices:
-                connection.execute(text(indice))
-            
-            # Crear secuencias para números de historia y consulta
-            connection.execute(text("""
-                CREATE SEQUENCE IF NOT EXISTS seq_numero_historia 
-                START 1000 INCREMENT 1;
-            """))
-            
-            connection.execute(text("""
-                CREATE SEQUENCE IF NOT EXISTS seq_numero_consulta 
-                START 100000 INCREMENT 1;
-            """))
-            
-            # Crear función para generar número de historia automático
-            connection.execute(text("""
-                CREATE OR REPLACE FUNCTION generar_numero_historia()
-                RETURNS TEXT AS $$
-                BEGIN
-                    RETURN 'HC-' || LPAD(nextval('seq_numero_historia')::TEXT, 6, '0');
-                END;
-                $$ LANGUAGE plpgsql;
-            """))
-            
-            # Crear función para generar número de consulta automático
-            connection.execute(text("""
-                CREATE OR REPLACE FUNCTION generar_numero_consulta()
-                RETURNS TEXT AS $$
-                BEGIN
-                    RETURN 'CON-' || TO_CHAR(CURRENT_DATE, 'YYYY') || '-' || LPAD(nextval('seq_numero_consulta')::TEXT, 6, '0');
-                END;
-                $$ LANGUAGE plpgsql;
-            """))
-            
-            # Crear triggers para actualizar updated_at
-            trigger_sql = """
-                CREATE OR REPLACE FUNCTION update_updated_at_column()
-                RETURNS TRIGGER AS $$
-                BEGIN
-                    NEW.updated_at = CURRENT_TIMESTAMP;
-                    RETURN NEW;
-                END;
-                $$ LANGUAGE plpgsql;
-            """
-            connection.execute(text(trigger_sql))
-            
-            # Aplicar trigger a las tablas que lo necesiten
-            tablas_con_updated_at = ['pacientes', 'consultas_medicas']
-            for tabla in tablas_con_updated_at:
-                connection.execute(text(f"""
-                    DROP TRIGGER IF EXISTS trigger_updated_at_{tabla} ON {tabla};
-                    CREATE TRIGGER trigger_updated_at_{tabla}
-                        BEFORE UPDATE ON {tabla}
-                        FOR EACH ROW
-                        EXECUTE FUNCTION update_updated_at_column();
-                """))
-            
-            connection.commit()
+        # Verificar tablas creadas
+        cursor.execute("""
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public' 
+            AND table_name LIKE '%medico%' 
+            OR table_name LIKE '%ficha%' 
+            OR table_name LIKE '%bio%'
+            OR table_name LIKE '%fondo%'
+            OR table_name LIKE '%presion%'
+            OR table_name LIKE '%campo%'
+            OR table_name LIKE '%diagnostico%'
+            OR table_name LIKE '%tratamiento%'
+            ORDER BY table_name
+        """)
         
-        print("✅ Todas las tablas del módulo médico han sido creadas exitosamente!")
-        print("\nTablas creadas:")
-        print("- pacientes (datos médicos del cliente)")
-        print("- consultas_medicas (registro de consultas)")
-        print("- examenes_basicos (agudeza visual, PIO, etc.)")
-        print("- refracciones (prescripciones ópticas)")
-        print("- biomicroscopias (examen segmento anterior)")
-        print("- fondos_ojo (examen segmento posterior)")
-        print("- diagnosticos (diagnósticos por consulta)")
-        print("- tratamientos (prescripciones médicas)")
-        print("- seguimientos (evolución del paciente)")
-        print("- archivos_medicos (documentos adjuntos)")
-        print("\n✅ Funciones y triggers creados para numeración automática")
+        tablas_medicas = cursor.fetchall()
+        print(f"\n📊 TABLAS MÉDICAS CREADAS ({len(tablas_medicas)}):")
+        for tabla in tablas_medicas:
+            print(f"   ✓ {tabla[0]}")
+        
+        cursor.close()
+        conn.close()
+        
+        print(f"\n🎉 ¡MÓDULO MÉDICO INSTALADO CORRECTAMENTE!")
         
     except Exception as e:
-        print(f"❌ Error al crear las tablas: {e}")
-        raise e
+        print(f"❌ ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     create_medical_tables()

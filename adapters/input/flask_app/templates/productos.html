@@ -1,112 +1,42 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Productos - Oftalmetryc</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #2980b9;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --light-bg: #ecf0f1;
-            --dark-bg: #34495e;
-        }
-        
-        body {
-            background-color: var(--light-bg);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        /* NAVBAR AZUL CONSISTENTE - ESTILO DASHBOARD EXACTO */
-        .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .navbar-brand, .navbar-nav .nav-link {
-            color: white !important;
-        }
-        
-        .navbar-nav .nav-link:hover {
-            color: #bdc3c7 !important;
-        }
-        
-        .dropdown-menu {
-            background: white;
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .dropdown-item {
-            color: var(--primary-color);
-            transition: all 0.3s ease;
-        }
-        
-        .dropdown-item:hover {
-            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
-            color: white;
-        }
-        
-        .dropdown-item.active {
-            background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
-            color: white;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">Oftalmetryc</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    {% if session['rol'] == 'Administrador' %}
-                    <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="/productos">Productos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/registrar-venta">Registrar Venta</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/historial-ventas">Historial Ventas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/usuarios">Usuarios</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-eye me-1"></i>Módulo Médico
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
-                            <li><a class="dropdown-item" href="/pacientes"><i class="fas fa-users me-2"></i>Pacientes</a></li>
-                            <li><a class="dropdown-item" href="/consultas"><i class="fas fa-calendar-check me-2"></i>Historial Consultas</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/ficha-clinica"><i class="fas fa-clipboard-check me-2"></i>Ficha Clínica</a></li>
-                        </ul>
-                    </li>
-                    {% else %}
-                    <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/registrar-venta">Registrar Venta</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/historial-ventas">Historial Ventas</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-eye me-1"></i>Módulo Médico
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
-                            <li><a class="dropdown-item" href="/pacientes"><i class="fas fa-users me-2"></i>Pacientes</a></li>
-                            <li><a class="dropdown-item" href="/consultas"><i class="fas fa-calendar-check me-2"></i>Historial Consultas</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/ficha-clinica"><i class="fas fa-clipboard-check me-2"></i>Ficha Clínica</a></li>
-                        </ul>
-                    </li>
-                    {% endif %}
-                </ul>
-                <a class="nav-link text-danger" href="/logout">Cerrar sesión</a>
-            </div>
-        </div>
-    </nav>
-    <div class="container mt-5">
+{% extends "base.html" %}
+
+{% block title %}Gestión de Productos - Oftalmetryc{% endblock %}
+
+{% block extra_css %}
+/* ESTILOS ESPECÍFICOS DE PRODUCTOS */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.table th {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9, #1f618d);
+    transform: translateY(-1px);
+}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
         <h1 class="text-center mb-4" style="font-family: 'Segoe UI', sans-serif; font-weight: bold; color: #2c3e50; letter-spacing: 2px;">Gestión de Productos</h1>
         
         <!-- Formulario para crear nuevo producto -->
@@ -124,6 +54,20 @@
                         <div class="col-md-6 mb-3">
                             <label for="precio_unitario" class="form-label">Precio Unitario</label>
                             <input type="number" class="form-control" id="precio_unitario" name="precio_unitario" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="categoria" class="form-label">Categoría</label>
+                            <input type="text" class="form-control" id="categoria" name="categoria" placeholder="Ej: Lentes, Marcos">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="marca" class="form-label">Marca</label>
+                            <input type="text" class="form-control" id="marca" name="marca" placeholder="Ej: Ray-Ban">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="sku" class="form-label">SKU/Código</label>
+                            <input type="text" class="form-control" id="sku" name="sku" placeholder="Ej: RB3025">
                         </div>
                     </div>
                     <div class="row">
@@ -152,6 +96,9 @@
                         <tr>
                             <th>ID</th>
                             <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Marca</th>
+                            <th>SKU</th>
                             <th>Descripción</th>
                             <th>Precio</th>
                             <th>Stock</th>
@@ -161,30 +108,54 @@
                     <tbody>
                         {% if products|length == 0 %}
                         <tr>
-                            <td colspan="6" class="text-center">No hay productos activos registrados.</td>
+                            <td colspan="9" class="text-center">No hay productos activos registrados.</td>
                         </tr>
                         {% else %}
                         {% for p in products %}
                         <tr>
                             <td>{{ p.producto_id }}</td>
-                            <td>{{ p.nombre }}</td>
-                            <td>{{ p.descripcion }}</td>
-                            <td>{{ p.precio_unitario|currency }}</td>
+                            <td><strong>{{ p.nombre }}</strong></td>
+                            <td>
+                                <span class="badge bg-info">{{ p.categoria or 'Sin categoría' }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ p.marca or 'Sin marca' }}</span>
+                            </td>
+                            <td>
+                                <code>{{ p.sku or 'N/A' }}</code>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ p.descripcion[:50] }}{% if p.descripcion|length > 50 %}...{% endif %}</small>
+                            </td>
+                            <td><strong>{{ p.precio_unitario|currency }}</strong></td>
                             <td>
                                 <span class="badge {% if p.stock > 10 %}bg-success{% elif p.stock > 0 %}bg-warning{% else %}bg-danger{% endif %}">
                                     {{ p.stock }}
                                 </span>
                             </td>
                             <td>
-                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarProducto"
-                                    data-producto-id="{{ p.producto_id }}"
-                                    data-nombre="{{ p.nombre }}"
-                                    data-descripcion="{{ p.descripcion }}"
-                                    data-precio="{{ p.precio_unitario }}"
-                                    data-stock="{{ p.stock }}">
-                                    Editar
-                                </button>
-                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminar" data-producto-id="{{ p.producto_id }}">Eliminar</button>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-info btn-sm" onclick="verDetalles({{ p.producto_id }})" title="Ver Detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-warning btn-sm" onclick="editarStock({{ p.producto_id }}, {{ p.stock }})" title="Editar Stock">
+                                        <i class="fas fa-boxes"></i>
+                                    </button>
+                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarProducto"
+                                        data-producto-id="{{ p.producto_id }}"
+                                        data-nombre="{{ p.nombre }}"
+                                        data-descripcion="{{ p.descripcion }}"
+                                        data-precio="{{ p.precio_unitario }}"
+                                        data-stock="{{ p.stock }}"
+                                        data-categoria="{{ p.categoria or '' }}"
+                                        data-marca="{{ p.marca or '' }}"
+                                        data-sku="{{ p.sku or '' }}" title="Editar Producto">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminar" data-producto-id="{{ p.producto_id }}" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -248,21 +219,39 @@
                     <form id="formEditarProducto" method="post">
                         <div class="modal-body">
                             <input type="hidden" name="producto_id" id="editarProductoId">
-                            <div class="mb-3">
-                                <label for="editarNombreProducto" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="editarNombreProducto" name="nombre" required>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="editarNombreProducto" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="editarNombreProducto" name="nombre" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="editarPrecioProducto" class="form-label">Precio Unitario</label>
+                                    <input type="number" class="form-control" id="editarPrecioProducto" name="precio_unitario" step="0.01" min="0" required>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="editarDescripcionProducto" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="editarDescripcionProducto" name="descripcion" rows="2" required></textarea>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="editarCategoriaProducto" class="form-label">Categoría</label>
+                                    <input type="text" class="form-control" id="editarCategoriaProducto" name="categoria" placeholder="Ej: Lentes, Marcos">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="editarMarcaProducto" class="form-label">Marca</label>
+                                    <input type="text" class="form-control" id="editarMarcaProducto" name="marca" placeholder="Ej: Ray-Ban">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="editarSkuProducto" class="form-label">SKU/Código</label>
+                                    <input type="text" class="form-control" id="editarSkuProducto" name="sku" placeholder="Ej: RB3025">
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="editarPrecioProducto" class="form-label">Precio Unitario</label>
-                                <input type="number" class="form-control" id="editarPrecioProducto" name="precio_unitario" step="0.01" min="0" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editarStockProducto" class="form-label">Stock</label>
-                                <input type="number" class="form-control" id="editarStockProducto" name="stock" min="0" required>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="editarStockProducto" class="form-label">Stock</label>
+                                    <input type="number" class="form-control" id="editarStockProducto" name="stock" min="0" required>
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label for="editarDescripcionProducto" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="editarDescripcionProducto" name="descripcion" rows="2" required></textarea>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -306,11 +295,130 @@
                 var descripcion = button.getAttribute('data-descripcion');
                 var precio = button.getAttribute('data-precio');
                 var stock = button.getAttribute('data-stock');
+                var categoria = button.getAttribute('data-categoria');
+                var marca = button.getAttribute('data-marca');
+                var sku = button.getAttribute('data-sku');
+                
                 document.getElementById('editarProductoId').value = productoId;
                 document.getElementById('editarNombreProducto').value = nombre;
                 document.getElementById('editarDescripcionProducto').value = descripcion;
                 document.getElementById('editarPrecioProducto').value = precio;
                 document.getElementById('editarStockProducto').value = stock;
+                document.getElementById('editarCategoriaProducto').value = categoria;
+                document.getElementById('editarMarcaProducto').value = marca;
+                document.getElementById('editarSkuProducto').value = sku;
+                
+                // Establecer action del formulario
+                document.getElementById('formEditarProducto').action = '/productos/editar/' + productoId;
+            });
+        }
+
+        var modalEliminar = document.getElementById('modalEliminar');
+        if (modalEliminar) {
+            modalEliminar.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var productoId = button.getAttribute('data-producto-id');
+                document.getElementById('formEliminarProducto').action = '/productos/eliminar/' + productoId;
+            });
+        }
+
+        // Función para ver detalles del producto
+        function verDetalles(productoId) {
+            // Modal para mostrar detalles completos
+            fetch(`/api/productos/${productoId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const producto = data.producto;
+                        Swal.fire({
+                            title: `<strong>${producto.nombre}</strong>`,
+                            html: `
+                                <div class="text-start">
+                                    <div class="row">
+                                        <div class="col-6"><strong>ID:</strong> ${producto.producto_id}</div>
+                                        <div class="col-6"><strong>SKU:</strong> ${producto.sku || 'N/A'}</div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6"><strong>Categoría:</strong> ${producto.categoria || 'N/A'}</div>
+                                        <div class="col-6"><strong>Marca:</strong> ${producto.marca || 'N/A'}</div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6"><strong>Precio:</strong> $${producto.precio_unitario}</div>
+                                        <div class="col-6"><strong>Stock:</strong> <span class="badge ${producto.stock > 10 ? 'bg-success' : producto.stock > 0 ? 'bg-warning' : 'bg-danger'}">${producto.stock}</span></div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <strong>Descripción:</strong><br>
+                                        <p class="text-muted">${producto.descripcion || 'Sin descripción'}</p>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Creado: ${new Date(producto.fecha_creacion).toLocaleDateString()}</small>
+                                    </div>
+                                </div>
+                            `,
+                            icon: 'info',
+                            showCloseButton: true,
+                            width: '500px'
+                        });
+                    } else {
+                        Swal.fire('Error', 'No se pudo cargar la información del producto', 'error');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'Error de conexión', 'error');
+                });
+        }
+
+        // Función para editar stock
+        function editarStock(productoId, stockActual) {
+            Swal.fire({
+                title: 'Editar Stock',
+                input: 'number',
+                inputLabel: 'Nuevo stock:',
+                inputValue: stockActual,
+                inputAttributes: {
+                    min: 0,
+                    step: 1
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Actualizar',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value || value < 0) {
+                        return 'Por favor ingresa un stock válido'
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Enviar actualización de stock
+                    const formData = new FormData();
+                    formData.append('stock', result.value);
+                    
+                    fetch(`/productos/stock/${productoId}`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('¡Actualizado!', 'Stock actualizado correctamente', 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message || 'Error al actualizar stock', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error', 'Error de conexión', 'error');
+                    });
+                }
+            });
+        }
+
+        // Incluir SweetAlert2 para las notificaciones
+        if (!document.querySelector('script[src*="sweetalert2"]')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+            document.head.appendChild(script);
+        }
                 document.getElementById('formEditarProducto').action = '/productos/edit/' + productoId;
             });
         }
@@ -330,5 +438,11 @@
             modal.show();
         }
     </script>
-</body>
-</html> 
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Scripts específicos de productos si son necesarios
+</script>
+{% endblock %} 

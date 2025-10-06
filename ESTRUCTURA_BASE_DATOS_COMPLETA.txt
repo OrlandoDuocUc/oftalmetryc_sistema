@@ -1,0 +1,346 @@
+==================================================================
+ESTRUCTURA COMPLETA DE LA BASE DE DATOS - ÓPTICA MAIPÚ
+==================================================================
+
+BASE DE DATOS: optica_bd (PostgreSQL)
+
+==================================================================
+RESUMEN EJECUTIVO
+==================================================================
+La base de datos consta de 12 tablas principales divididas en dos módulos:
+
+MÓDULO COMERCIAL (5 tablas):
+- usuarios (gestión de empleados y accesos)
+- roles (perfiles de usuario)
+- productos (inventario óptico)
+- clientes (base de clientes)
+- ventas (transacciones comerciales)
+
+MÓDULO MÉDICO (7 tablas):
+- pacientes (información médica de pacientes)
+- consultas_medicas (historial de consultas)
+- examenes_basicos (pruebas oftalmológicas básicas)
+- biomicroscopia (examen microscópico del ojo)
+- oftalmoscopia (examen del fondo de ojo)
+- diagnosticos (catálogo CIE-10)
+- recetas_oftalmologicas (prescripciones ópticas)
+
+==================================================================
+DETALLE DE TABLAS
+==================================================================
+
+1. TABLA: usuarios
+   Descripción: Gestión de empleados y control de acceso
+   Campos principales:
+   - usuario_id (PK, Integer, autoincrement)
+   - nombre_usuario (String(50), único, no nulo)
+   - email (String(100), único, no nulo)
+   - password_hash (String(255), no nulo)
+   - nombre_completo (String(100), no nulo)
+   - rol_id (FK -> roles.id, no nulo)
+   - activo (Boolean, default=True)
+   - fecha_creacion (DateTime, auto)
+   - ultima_actividad (DateTime)
+
+2. TABLA: roles
+   Descripción: Perfiles y permisos de usuario
+   Campos principales:
+   - id (PK, Integer, autoincrement)
+   - nombre (String(50), único, no nulo)
+   - descripcion (String(200))
+   - permisos (JSON - array de strings)
+   - activo (Boolean, default=True)
+   - fecha_creacion (DateTime, auto)
+
+3. TABLA: productos
+   Descripción: Inventario de productos ópticos
+   Campos principales:
+   - id (PK, Integer, autoincrement)
+   - codigo (String(50), único, no nulo)
+   - nombre (String(100), no nulo)
+   - descripcion (Text)
+   - categoria (String(50), no nulo)
+   - marca (String(50))
+   - precio (Numeric(10,2), no nulo)
+   - stock (Integer, no nulo, default=0)
+   - stock_minimo (Integer, default=5)
+   - estado (String(20), default='activo')
+   - fecha_creacion (DateTime, auto)
+   - fecha_actualizacion (DateTime, auto-update)
+
+4. TABLA: clientes
+   Descripción: Base de datos de clientes
+   Campos principales:
+   - id (PK, Integer, autoincrement)
+   - rut (String(12), único, no nulo)
+   - nombre (String(100), no nulo)
+   - apellidos (String(100), no nulo)
+   - email (String(100), único)
+   - telefono (String(15))
+   - direccion (String(200))
+   - fecha_nacimiento (Date)
+   - activo (Boolean, default=True)
+   - fecha_registro (DateTime, auto)
+   - observaciones (Text)
+
+5. TABLA: ventas
+   Descripción: Registro de transacciones comerciales
+   Campos principales:
+   - id (PK, Integer, autoincrement)
+   - numero_venta (String(20), único, no nulo)
+   - cliente_id (FK -> clientes.id)
+   - vendedor_id (FK -> usuarios.usuario_id, no nulo)
+   - fecha_venta (DateTime, auto)
+   - subtotal (Numeric(10,2), no nulo)
+   - descuento (Numeric(10,2), default=0)
+   - impuestos (Numeric(10,2), no nulo)
+   - total (Numeric(10,2), no nulo)
+   - metodo_pago (String(50), no nulo)
+   - estado (String(20), default='completada')
+   - observaciones (Text)
+
+6. TABLA: pacientes
+   Descripción: Información médica de pacientes
+   Campos principales:
+   - id (PK, Integer, autoincrement)
+   - rut (String(12), único, no nulo)
+   - nombre (String(100), no nulo)
+   - apellidos (String(100), no nulo)
+   - fecha_nacimiento (Date, no nulo)
+   - sexo (String(1)) # M/F
+   - telefono (String(15))
+   - email (String(100))
+   - direccion (String(200))
+   - ocupacion (String(100))
+   - prevision (String(50))
+   - contacto_emergencia_nombre (String(100))
+   - contacto_emergencia_telefono (String(15))
+   - activo (Boolean, default=True)
+   - created_at/updated_at (DateTime, auto)
+
+7. TABLA: consultas_medicas
+   Descripción: Historial de consultas oftalmológicas
+   Campos principales:
+   - id (PK, Integer, autoincrement)
+   - paciente_id (FK -> pacientes.id, CASCADE, no nulo)
+   - fecha_consulta (DateTime, auto)
+   - medico (String(100))
+   - motivo_consulta (Text)
+   - anamnesis (Text)
+   - antecedentes_personales (Text)
+   - antecedentes_familiares (Text)
+   - medicamentos_actuales (Text)
+   - alergias (Text)
+   - diagnostico (Text)
+   - plan_tratamiento (Text)
+   - observaciones_generales (Text)
+   - proxima_cita (Date)
+   - estado (String(20), default='activa')
+   - created_at/updated_at (DateTime, auto)
+
+8. TABLA: examenes_basicos
+   Descripción: Exámenes oftalmológicos básicos
+   Campos principales:
+   - id (PK, Integer, autoincrement)
+   - consulta_id (FK -> consultas_medicas.id, CASCADE, no nulo)
+   
+   AGUDEZA VISUAL (12 campos):
+   - od_sc_lejos/oi_sc_lejos/ao_sc_lejos (String(10)) # sin corrección
+   - od_sc_cerca/oi_sc_cerca/ao_sc_cerca (String(10))
+   - od_cc_lejos/oi_cc_lejos/ao_cc_lejos (String(10)) # con corrección
+   - od_cc_cerca/oi_cc_cerca/ao_cc_cerca (String(10))
+   
+   REFRACCIÓN OBJETIVA (6 campos):
+   - od_esfera_obj/oi_esfera_obj (Numeric(4,2))
+   - od_cilindro_obj/oi_cilindro_obj (Numeric(4,2))
+   - od_eje_obj/oi_eje_obj (Integer)
+   
+   REFRACCIÓN SUBJETIVA (8 campos):
+   - od_esfera_subj/oi_esfera_subj (Numeric(4,2))
+   - od_cilindro_subj/oi_cilindro_subj (Numeric(4,2))
+   - od_eje_subj/oi_eje_subj (Integer)
+   - od_add/oi_add (Numeric(4,2)) # adición presbicia
+   
+   PRESIÓN INTRAOCULAR (3 campos):
+   - pio_od/pio_oi (Integer) # mmHg
+   - metodo_pio (String(50))
+   
+   EVALUACIÓN PUPILAR Y OTROS:
+   - Múltiples campos para evaluación completa
+   - created_at (DateTime, auto)
+
+9. TABLA: biomicroscopia
+   Descripción: Examen microscópico detallado del ojo
+   Campos principales:
+   - id (PK, Integer, autoincrement)
+   - consulta_id (FK -> consultas_medicas.id, CASCADE, no nulo)
+   
+   PÁRPADOS OD/OI (8 campos):
+   - od/oi_parpados_posicion (String(20)) # normal, ptosis, retracción
+   - od/oi_parpados_edema (Boolean)
+   - od/oi_parpados_lesiones (Text)
+   - od/oi_pestanas (String(20)) # normales, triaquiasis, madarosis
+   
+   CONJUNTIVA OD/OI (10 campos):
+   - od/oi_conjuntiva_bulbar (String(30)) # normal, hiperemia, hemorragia
+   - od/oi_conjuntiva_tarsal (String(30))
+   - od/oi_conjuntiva_secrecion (String(30))
+   - od/oi_conjuntiva_foliculos/papilas (Boolean)
+   
+   CÓRNEA OD/OI (12 campos):
+   - od/oi_cornea_transparencia (String(20))
+   - od/oi_cornea_superficie/epitelo/estroma/endotelio (String)
+   - od/oi_cornea_fluorenceina (String(30))
+   
+   CÁMARA ANTERIOR, IRIS, CRISTALINO (múltiples campos)
+   - observaciones (Text)
+   - created_at (DateTime, auto)
+
+10. TABLA: oftalmoscopia
+    Descripción: Examen del fondo de ojo
+    Campos principales:
+    - id (PK, Integer, autoincrement)
+    - consulta_id (FK -> consultas_medicas.id, CASCADE, no nulo)
+    
+    VÍTREO OD/OI (4 campos):
+    - od/oi_vitreo (String(30)) # transparente, hialosis, hemorragia
+    - od/oi_vitreo_desprendimiento (Boolean)
+    
+    PAPILA ÓPTICA OD/OI (10 campos):
+    - od/oi_papila_color (String(20)) # normal, pálida, hiperémico
+    - od/oi_papila_contornos (String(20)) # nítidos, borrosos
+    - od/oi_papila_excavacion (Numeric(3,2)) # relación copa/disco 0.0-1.0
+    - od/oi_papila_hemorragias/edema (Boolean)
+    
+    MÁCULA OD/OI (12 campos):
+    - od/oi_macula_reflejo/pigmentacion (String(20))
+    - od/oi_macula_exudados/hemorragias/edema/drusen (Boolean)
+    
+    VASOS RETINIANOS Y PERIFERIA (múltiples campos)
+    - observaciones (Text)
+    - created_at (DateTime, auto)
+
+11. TABLA: diagnosticos
+    Descripción: Catálogo de diagnósticos CIE-10
+    Campos principales:
+    - id (PK, Integer, autoincrement)
+    - codigo_cie10 (String(10), no nulo)
+    - descripcion (String(200), no nulo)
+    - categoria (String(100))
+    - created_at (DateTime, auto)
+
+12. TABLA: recetas_oftalmologicas
+    Descripción: Prescripciones ópticas
+    Campos principales:
+    - id (PK, Integer, autoincrement)
+    - consulta_id (FK -> consultas_medicas.id, CASCADE, no nulo)
+    
+    LENTE OD (7 campos):
+    - od_esfera/cilindro (Numeric(4,2))
+    - od_eje (Integer)
+    - od_add (Numeric(4,2)) # adición presbicia
+    - od_prisma (Numeric(3,1))
+    - od_base (String(20))
+    - od_dp (Numeric(4,1)) # distancia pupilar
+    
+    LENTE OI (7 campos similares):
+    - oi_esfera/cilindro/eje/add/prisma/base/dp
+    
+    INFORMACIÓN ADICIONAL:
+    - tipo_lente (String(50)) # monofocal, bifocal, progresivo
+    - material_lente (String(50)) # orgánico, mineral, policarbonato
+    - filtros (String(100)) # UV, antirreflex, fotocromático
+    - tipo_armazon (String(50)) # completo, al aire, semi al aire
+    - observaciones_receta (Text)
+    - fecha_entrega (Date)
+    - vendedor_id (FK -> usuarios.usuario_id)
+    - estado (String(20), default='pendiente')
+    - created_at/updated_at (DateTime, auto)
+
+==================================================================
+RELACIONES CLAVE
+==================================================================
+
+RELACIONES PRINCIPALES:
+1. usuarios -> roles (Many-to-One)
+2. ventas -> clientes (Many-to-One, opcional)
+3. ventas -> usuarios (Many-to-One, obligatorio)
+4. consultas_medicas -> pacientes (Many-to-One, CASCADE)
+5. examenes_basicos -> consultas_medicas (One-to-One, CASCADE)
+6. biomicroscopia -> consultas_medicas (One-to-One, CASCADE)
+7. oftalmoscopia -> consultas_medicas (One-to-One, CASCADE)
+8. recetas_oftalmologicas -> consultas_medicas (Many-to-One, CASCADE)
+9. recetas_oftalmologicas -> usuarios (Many-to-One, vendedor)
+
+INTEGRIDAD REFERENCIAL:
+- CASCADE DELETE: Eliminar consulta elimina todos sus exámenes
+- RESTRICT/SET NULL: Preserva integridad en relaciones críticas
+
+==================================================================
+ÍNDICES Y CONSTRAINTS
+==================================================================
+
+CAMPOS ÚNICOS:
+- usuarios.nombre_usuario
+- usuarios.email  
+- roles.nombre
+- productos.codigo
+- clientes.rut
+- clientes.email
+- ventas.numero_venta
+- pacientes.rut
+
+FOREIGN KEYS CON CASCADE:
+- Todas las tablas médicas dependen de consultas_medicas
+- Eliminación en cascada preserva consistencia
+
+==================================================================
+OBSERVACIONES TÉCNICAS
+==================================================================
+
+1. TIPOS DE DATOS:
+   - String(n): VARCHAR con límite específico
+   - Text: VARCHAR sin límite para observaciones
+   - Numeric(m,n): Decimales con precisión específica
+   - Boolean: Campos true/false
+   - DateTime: Timestamp automático
+   - Date: Solo fecha sin hora
+
+2. CAMPOS AUTOMÁTICOS:
+   - created_at: Timestamp de creación
+   - updated_at: Timestamp de última modificación
+   - Autoincrement en todas las Primary Keys
+
+3. VALORES DEFAULT:
+   - Campos booleanos: False por defecto
+   - Estados: 'activo', 'completada', 'pendiente'
+   - Timestamps automáticos con func.now()
+
+4. CAMPOS MÉDICOS:
+   - OD: Ojo Derecho
+   - OI: Ojo Izquierdo  
+   - AO: Ambos Ojos
+   - Nomenclatura oftalmológica estándar
+
+5. ESCALABILIDAD:
+   - Diseño modular permite extensión
+   - Separación clara entre módulo comercial y médico
+   - Relaciones bien definidas para integridad
+
+==================================================================
+CONFIGURACIÓN DE CONEXIÓN
+==================================================================
+
+ARCHIVO: config/settings.py
+- DATABASE_URL configurada para PostgreSQL
+- Parámetros de conexión centralizados
+- Variables de entorno para seguridad
+
+ARCHIVO: app/infraestructure/utils/db.py  
+- SQLAlchemy como ORM
+- Gestión de sesiones automática
+- Configuración de pool de conexiones
+
+==================================================================
+FIN DEL DOCUMENTO
+==================================================================

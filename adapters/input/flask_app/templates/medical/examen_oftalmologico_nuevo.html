@@ -1,0 +1,506 @@
+{% extends "base.html" %}
+
+{% block title %}Examen Oftalmológico - Oftalmetryc{% endblock %}
+
+{% block extra_css %}
+/* ESTILOS ESPECÍFICOS DE EXAMEN OFTALMOLÓGICO */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .exam-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .visual-test-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .eye-diagram {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .measurement-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .btn-group-custom {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- HEADER DE LA PÁGINA -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-eye-dropper me-3"></i>Examen Oftalmológico Completo</h1>
+                <p class="mb-0">Evaluación detallada de la salud visual del paciente</p>
+            </div>
+            <div>
+                <a href="/ficha-clinica-nuevo" class="btn btn-light btn-lg me-2">
+                    <i class="fas fa-file-medical me-2"></i>Nueva Ficha
+                </a>
+                <a href="/consultas-nuevo" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-list me-2"></i>Historial
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form id="examenOftalmologicoForm">
+        <!-- INFORMACIÓN DEL PACIENTE -->
+        <div class="exam-section">
+            <h4 class="section-title">
+                <i class="fas fa-user me-2"></i>Información del Paciente
+            </h4>
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="pacienteRut" class="form-label">RUT del Paciente</label>
+                    <input type="text" class="form-control" id="pacienteRut" placeholder="12.345.678-9">
+                </div>
+                <div class="col-md-4">
+                    <label for="pacienteNombre" class="form-label">Nombre Completo</label>
+                    <input type="text" class="form-control" id="pacienteNombre" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label for="fechaExamen" class="form-label">Fecha del Examen</label>
+                    <input type="datetime-local" class="form-control" id="fechaExamen">
+                </div>
+            </div>
+        </div>
+
+        <!-- AGUDEZA VISUAL -->
+        <div class="exam-section">
+            <h4 class="section-title">
+                <i class="fas fa-chart-line me-2"></i>Agudeza Visual
+            </h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="visual-test-card">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-eye me-2"></i>Ojo Derecho (OD)
+                        </h5>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="agudezaODLejos" class="form-label">Visión Lejana</label>
+                                <input type="text" class="form-control" id="agudezaODLejos" placeholder="20/20">
+                            </div>
+                            <div class="col-6">
+                                <label for="agudezaODCerca" class="form-label">Visión Cercana</label>
+                                <input type="text" class="form-control" id="agudezaODCerca" placeholder="J1">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="correccionOD" class="form-label">Con Corrección</label>
+                            <input type="text" class="form-control" id="correccionOD" placeholder="20/20">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="visual-test-card">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-eye me-2"></i>Ojo Izquierdo (OI)
+                        </h5>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="agudezaOILejos" class="form-label">Visión Lejana</label>
+                                <input type="text" class="form-control" id="agudezaOILejos" placeholder="20/20">
+                            </div>
+                            <div class="col-6">
+                                <label for="agudezaOICerca" class="form-label">Visión Cercana</label>
+                                <input type="text" class="form-control" id="agudezaOICerca" placeholder="J1">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="correccionOI" class="form-label">Con Corrección</label>
+                            <input type="text" class="form-control" id="correccionOI" placeholder="20/20">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="measurement-card">
+                        <h6 class="text-info">Visión Binocular (Ambos Ojos)</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="agudezaAO" class="form-label">AO</label>
+                                <input type="text" class="form-control" id="agudezaAO" placeholder="20/20">
+                            </div>
+                            <div class="col-md-8">
+                                <label for="observacionesAgudeza" class="form-label">Observaciones</label>
+                                <input type="text" class="form-control" id="observacionesAgudeza" 
+                                       placeholder="Notas sobre la agudeza visual">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REFRACCIÓN -->
+        <div class="exam-section">
+            <h4 class="section-title">
+                <i class="fas fa-glasses me-2"></i>Refracción
+            </h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="measurement-card">
+                        <h6 class="text-primary">Ojo Derecho (OD)</h6>
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="esfericoOD" class="form-label">Esférico</label>
+                                <input type="text" class="form-control" id="esfericoOD" placeholder="-2.50">
+                            </div>
+                            <div class="col-4">
+                                <label for="cilindricoOD" class="form-label">Cilíndrico</label>
+                                <input type="text" class="form-control" id="cilindricoOD" placeholder="-1.00">
+                            </div>
+                            <div class="col-4">
+                                <label for="ejeOD" class="form-label">Eje</label>
+                                <input type="text" class="form-control" id="ejeOD" placeholder="90°">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="measurement-card">
+                        <h6 class="text-primary">Ojo Izquierdo (OI)</h6>
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="esfericoOI" class="form-label">Esférico</label>
+                                <input type="text" class="form-control" id="esfericoOI" placeholder="-2.50">
+                            </div>
+                            <div class="col-4">
+                                <label for="cilindricoOI" class="form-label">Cilíndrico</label>
+                                <input type="text" class="form-control" id="cilindricoOI" placeholder="-1.00">
+                            </div>
+                            <div class="col-4">
+                                <label for="ejeOI" class="form-label">Eje</label>
+                                <input type="text" class="form-control" id="ejeOI" placeholder="90°">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label for="adicion" class="form-label">Adición (Lectura)</label>
+                    <input type="text" class="form-control" id="adicion" placeholder="+2.00">
+                </div>
+                <div class="col-md-6">
+                    <label for="distanciaPupilar" class="form-label">Distancia Pupilar (mm)</label>
+                    <input type="number" class="form-control" id="distanciaPupilar" placeholder="62">
+                </div>
+            </div>
+        </div>
+
+        <!-- PRESIÓN INTRAOCULAR -->
+        <div class="exam-section">
+            <h4 class="section-title">
+                <i class="fas fa-tachometer-alt me-2"></i>Presión Intraocular (PIO)
+            </h4>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="measurement-card">
+                        <h6 class="text-info">OD</h6>
+                        <label for="pioOD" class="form-label">mmHg</label>
+                        <input type="number" class="form-control" id="pioOD" step="0.1" placeholder="15.0">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="measurement-card">
+                        <h6 class="text-info">OI</h6>
+                        <label for="pioOI" class="form-label">mmHg</label>
+                        <input type="number" class="form-control" id="pioOI" step="0.1" placeholder="15.0">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="metodoTonometria" class="form-label">Método</label>
+                    <select class="form-select" id="metodoTonometria">
+                        <option value="">Seleccionar</option>
+                        <option value="goldman">Goldman</option>
+                        <option value="aire">Por aire</option>
+                        <option value="palpacion">Palpación</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="horaMediacion" class="form-label">Hora</label>
+                    <input type="time" class="form-control" id="horaMediacion">
+                </div>
+            </div>
+        </div>
+
+        <!-- EXAMEN EXTERNO -->
+        <div class="exam-section">
+            <h4 class="section-title">
+                <i class="fas fa-search me-2"></i>Examen Externo
+            </h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="examenParpados" class="form-label">Párpados</label>
+                    <textarea class="form-control" id="examenParpados" rows="3" 
+                              placeholder="Posición, movimiento, lesiones..."></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="examenConjuntiva" class="form-label">Conjuntiva</label>
+                    <textarea class="form-control" id="examenConjuntiva" rows="3" 
+                              placeholder="Color, secreciones, lesiones..."></textarea>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label for="examenCornea" class="form-label">Córnea</label>
+                    <textarea class="form-control" id="examenCornea" rows="3" 
+                              placeholder="Transparencia, superficie, lesiones..."></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="examenPupila" class="form-label">Pupilas</label>
+                    <textarea class="form-control" id="examenPupila" rows="3" 
+                              placeholder="Tamaño, forma, reactividad..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- FONDO DE OJO -->
+        <div class="exam-section">
+            <h4 class="section-title">
+                <i class="fas fa-circle me-2"></i>Fondo de Ojo (Oftalmoscopía)
+            </h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="eye-diagram">
+                        <h6 class="text-primary">Ojo Derecho</h6>
+                        <i class="fas fa-eye fa-3x text-muted mb-3"></i>
+                        <textarea class="form-control" id="fondoOjoOD" rows="4" 
+                                  placeholder="Disco óptico, mácula, vasos, retina..."></textarea>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="eye-diagram">
+                        <h6 class="text-primary">Ojo Izquierdo</h6>
+                        <i class="fas fa-eye fa-3x text-muted mb-3"></i>
+                        <textarea class="form-control" id="fondoOjoOI" rows="4" 
+                                  placeholder="Disco óptico, mácula, vasos, retina..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONCLUSIONES -->
+        <div class="exam-section">
+            <h4 class="section-title">
+                <i class="fas fa-clipboard-check me-2"></i>Conclusiones del Examen
+            </h4>
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="hallazgosImportantes" class="form-label">Hallazgos Importantes</label>
+                    <textarea class="form-control" id="hallazgosImportantes" rows="3" 
+                              placeholder="Resumen de los hallazgos más relevantes del examen..."></textarea>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label for="recomendaciones" class="form-label">Recomendaciones</label>
+                    <textarea class="form-control" id="recomendaciones" rows="3" 
+                              placeholder="Seguimiento, tratamiento, derivaciones..."></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="proximoControl" class="form-label">Próximo Control</label>
+                    <input type="date" class="form-control" id="proximoControl">
+                    <small class="form-text text-muted">Fecha sugerida para el siguiente examen</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="btn-group-custom">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <a href="/dashboard-medico" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-arrow-left me-2"></i>Dashboard Médico
+                    </a>
+                    <a href="/consultas-nuevo" class="btn btn-outline-info">
+                        <i class="fas fa-list me-2"></i>Historial Consultas
+                    </a>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-outline-primary me-2" onclick="imprimirExamen()">
+                        <i class="fas fa-print me-2"></i>Imprimir
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-2"></i>Guardar Examen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Inicializar fecha y hora actual
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        document.getElementById('fechaExamen').value = now.toISOString().slice(0, 16);
+        
+        // Configurar búsqueda de paciente por RUT
+        document.getElementById('pacienteRut').addEventListener('blur', buscarPaciente);
+    });
+
+    // Función para buscar paciente por RUT
+    async function buscarPaciente() {
+        const rut = document.getElementById('pacienteRut').value;
+        if (!rut) return;
+
+        try {
+            const response = await fetch(`/api/pacientes/${rut}`);
+            if (response.ok) {
+                const paciente = await response.json();
+                document.getElementById('pacienteNombre').value = `${paciente.nombre} ${paciente.apellido || ''}`;
+            } else {
+                document.getElementById('pacienteNombre').value = '';
+                if (response.status === 404) {
+                    mostrarAlerta('Paciente no encontrado. Verifique el RUT ingresado.', 'warning');
+                }
+            }
+        } catch (error) {
+            console.error('Error al buscar paciente:', error);
+            mostrarAlerta('Error al buscar paciente', 'danger');
+        }
+    }
+
+    // Función para guardar el examen oftalmológico
+    document.getElementById('examenOftalmologicoForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const examenData = {
+            paciente_rut: document.getElementById('pacienteRut').value,
+            fecha_examen: document.getElementById('fechaExamen').value,
+            // Agudeza Visual
+            agudeza_od_lejos: document.getElementById('agudezaODLejos').value,
+            agudeza_od_cerca: document.getElementById('agudezaODCerca').value,
+            agudeza_oi_lejos: document.getElementById('agudezaOILejos').value,
+            agudeza_oi_cerca: document.getElementById('agudezaOICerca').value,
+            agudeza_ao: document.getElementById('agudezaAO').value,
+            correccion_od: document.getElementById('correccionOD').value,
+            correccion_oi: document.getElementById('correccionOI').value,
+            // Refracción
+            esferico_od: document.getElementById('esfericoOD').value,
+            cilindrico_od: document.getElementById('cilindricoOD').value,
+            eje_od: document.getElementById('ejeOD').value,
+            esferico_oi: document.getElementById('esfericoOI').value,
+            cilindrico_oi: document.getElementById('cilindricoOI').value,
+            eje_oi: document.getElementById('ejeOI').value,
+            adicion: document.getElementById('adicion').value,
+            distancia_pupilar: document.getElementById('distanciaPupilar').value,
+            // PIO
+            pio_od: document.getElementById('pioOD').value,
+            pio_oi: document.getElementById('pioOI').value,
+            metodo_tonometria: document.getElementById('metodoTonometria').value,
+            hora_medicion: document.getElementById('horaMediacion').value,
+            // Examen Externo
+            examen_parpados: document.getElementById('examenParpados').value,
+            examen_conjuntiva: document.getElementById('examenConjuntiva').value,
+            examen_cornea: document.getElementById('examenCornea').value,
+            examen_pupila: document.getElementById('examenPupila').value,
+            // Fondo de Ojo
+            fondo_ojo_od: document.getElementById('fondoOjoOD').value,
+            fondo_ojo_oi: document.getElementById('fondoOjoOI').value,
+            // Conclusiones
+            hallazgos_importantes: document.getElementById('hallazgosImportantes').value,
+            recomendaciones: document.getElementById('recomendaciones').value,
+            proximo_control: document.getElementById('proximoControl').value,
+            observaciones_agudeza: document.getElementById('observacionesAgudeza').value
+        };
+
+        try {
+            const response = await fetch('/api/examenes-oftalmologicos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(examenData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                mostrarAlerta('Examen oftalmológico guardado exitosamente', 'success');
+                
+                // Redirigir después de un breve delay
+                setTimeout(() => {
+                    window.location.href = '/consultas-nuevo';
+                }, 2000);
+            } else {
+                const error = await response.json();
+                mostrarAlerta(`Error al guardar: ${error.message}`, 'danger');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarAlerta('Error de conexión al guardar el examen', 'danger');
+        }
+    });
+
+    // Función para imprimir
+    function imprimirExamen() {
+        window.print();
+    }
+
+    // Función para mostrar alertas
+    function mostrarAlerta(mensaje, tipo) {
+        const alertaHTML = `
+            <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        const container = document.querySelector('.container');
+        container.insertAdjacentHTML('afterbegin', alertaHTML);
+        
+        setTimeout(() => {
+            const alerta = container.querySelector('.alert');
+            if (alerta) {
+                alerta.remove();
+            }
+        }, 5000);
+    }
+</script>
+{% endblock %}

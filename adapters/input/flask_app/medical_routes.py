@@ -1,13 +1,13 @@
 from flask import Blueprint, render_template, session, redirect, url_for
-from adapters.input.flask_app.controllers.paciente_controller import PacienteController
-from adapters.input.flask_app.controllers.consulta_medica_controller import ConsultaMedicaController
+from adapters.input.flask_app.controllers.paciente_controller import PacienteMedicoController
+from adapters.input.flask_app.controllers.ficha_clinica_controller_nuevo import FichaClinicaController
 
 # Crear el blueprint
 medical_bp = Blueprint('medical', __name__)
 
 # Inicializar controladores
-paciente_controller = PacienteController()
-consulta_controller = ConsultaMedicaController()
+paciente_medico_controller = PacienteMedicoController()
+ficha_clinica_controller = FichaClinicaController()
 
 def login_required(f):
     """Decorador para verificar autenticación"""
@@ -23,17 +23,17 @@ def login_required(f):
 # RUTAS DE VISTAS (HTML)
 # ============================================================================
 
-@medical_bp.route('/pacientes')
+@medical_bp.route('/pacientes-medicos')
 @login_required
 def pacientes():
-    """Vista principal de pacientes"""
-    return render_template('medical/pacientes.html')
+    """Vista principal de pacientes médicos"""
+    return render_template('medical/pacientes_nuevo.html')
 
 @medical_bp.route('/pacientes/nuevo')
 @login_required
 def nuevo_paciente():
-    """Vista para crear nuevo paciente"""
-    return render_template('medical/nuevo_paciente.html')
+    """Vista para crear nuevo paciente médico"""
+    return render_template('medical/nuevo_paciente_form.html')
 
 @medical_bp.route('/pacientes/<int:paciente_id>')
 @login_required
@@ -47,16 +47,22 @@ def editar_paciente(paciente_id):
     """Vista para editar paciente"""
     return render_template('medical/editar_paciente.html', paciente_id=paciente_id)
 
-@medical_bp.route('/consultas')
+@medical_bp.route('/pacientes-medicos/<int:paciente_id>/editar')
+@login_required
+def editar_paciente_medico(paciente_id):
+    """Vista para editar paciente médico (ruta alternativa)"""
+    return render_template('medical/editar_paciente.html', paciente_id=paciente_id)
+
+@medical_bp.route('/consultas-nuevo')
 @login_required
 def consultas():
     """Vista principal de consultas"""
-    return render_template('medical/consultas.html')
+    return render_template('medical/consultas_nuevo.html')
 
 @medical_bp.route('/consultas/nueva')
 @login_required
 def nueva_consulta():
-    """REDIRECCIÓN: /consultas/nueva → /ficha-clinica
+    """REDIRECCIÓN: /consultas/nueva → /ficha-clinica-nuevo
     
     Esta ruta era confusa y duplicaba funcionalidad.
     Ahora redirige a la ruta principal unificada.
@@ -70,119 +76,119 @@ def ver_consulta(consulta_id):
     """Vista detalle de consulta"""
     return render_template('medical/detalle_consulta.html', consulta_id=consulta_id)
 
+@medical_bp.route('/consultas/<int:consulta_id>/editar')
+@login_required
+def editar_consulta(consulta_id):
+    """Vista para editar consulta"""
+    return render_template('medical/editar_consulta.html', consulta_id=consulta_id)
+
 @medical_bp.route('/consultas/<int:consulta_id>/examen')
 @login_required
 def examen_oftalmologico(consulta_id):
     """Vista para realizar examen oftalmológico completo"""
-    return render_template('medical/examen_oftalmologico.html', consulta_id=consulta_id)
+    return render_template('medical/examen_oftalmologico_nuevo.html', consulta_id=consulta_id)
 
 @medical_bp.route('/dashboard-medico')
 @login_required
 def dashboard_medico():
     """Dashboard médico"""
-    return render_template('medical/dashboard_medico.html')
+    return render_template('medical/dashboard_medico_final.html')
 
 # ============================================================================
-# RUTAS API - PACIENTES
+# RUTAS API - PACIENTES MÉDICOS
 # ============================================================================
 
-@medical_bp.route('/api/pacientes', methods=['GET'])
+@medical_bp.route('/api/pacientes-medicos', methods=['GET'])
 @login_required
-def api_get_pacientes():
-    """API: Obtener todos los pacientes"""
-    return paciente_controller.get_all_pacientes()
+def api_get_pacientes_medicos():
+    """API: Obtener todos los pacientes médicos"""
+    return paciente_medico_controller.get_all_pacientes_medicos()
 
-@medical_bp.route('/api/pacientes/search', methods=['GET'])
+@medical_bp.route('/api/pacientes-medicos/search', methods=['GET'])
 @login_required
-def api_search_pacientes():
-    """API: Buscar pacientes"""
-    return paciente_controller.search_pacientes()
+def api_search_pacientes_medicos():
+    """API: Buscar pacientes médicos"""
+    return paciente_medico_controller.search_pacientes_medicos()
 
-@medical_bp.route('/api/pacientes', methods=['POST'])
+@medical_bp.route('/api/pacientes-medicos', methods=['POST'])
 @login_required
-def api_create_paciente():
-    """API: Crear paciente"""
-    return paciente_controller.create_paciente()
+def api_create_paciente_medico():
+    """API: Crear paciente médico"""
+    return paciente_medico_controller.create_paciente_medico()
 
-@medical_bp.route('/api/pacientes/<int:paciente_id>', methods=['GET'])
+@medical_bp.route('/api/pacientes-medicos/<int:paciente_medico_id>', methods=['GET'])
 @login_required
-def api_get_paciente(paciente_id):
-    """API: Obtener paciente por ID"""
-    return paciente_controller.get_paciente_by_id(paciente_id)
+def api_get_paciente_medico(paciente_medico_id):
+    """API: Obtener paciente médico por ID"""
+    return paciente_medico_controller.get_paciente_medico_by_id(paciente_medico_id)
 
-@medical_bp.route('/api/pacientes/<int:paciente_id>', methods=['PUT'])
+@medical_bp.route('/api/pacientes-medicos/<int:paciente_medico_id>', methods=['PUT'])
 @login_required
-def api_update_paciente(paciente_id):
-    """API: Actualizar paciente"""
-    return paciente_controller.update_paciente(paciente_id)
+def api_update_paciente_medico(paciente_medico_id):
+    """API: Actualizar paciente médico"""
+    return paciente_medico_controller.update_paciente_medico(paciente_medico_id)
 
-@medical_bp.route('/api/pacientes/<int:paciente_id>', methods=['DELETE'])
+@medical_bp.route('/pacientes-medicos/<int:paciente_id>/historial')
 @login_required
-def api_delete_paciente(paciente_id):
-    """API: Eliminar paciente"""
-    return paciente_controller.delete_paciente(paciente_id)
+def historial_paciente(paciente_id):
+    """Vista historial de consultas de un paciente específico"""
+    return render_template('medical/historial_paciente.html', paciente_id=paciente_id)
+
+@medical_bp.route('/api/pacientes-medicos/<int:paciente_medico_id>/consultas', methods=['GET'])
+@login_required
+def api_get_consultas_paciente(paciente_medico_id):
+    """API: Obtener todas las consultas/fichas clínicas de un paciente específico"""
+    return ficha_clinica_controller.get_consultas_by_paciente(paciente_medico_id)
+
+@medical_bp.route('/api/fichas-clinicas/<int:ficha_id>', methods=['GET'])
+@login_required
+def api_get_ficha_clinica_by_id(ficha_id):
+    """API: Obtener una ficha clínica específica por ID"""
+    return ficha_clinica_controller.get_ficha_clinica_by_id(ficha_id)
 
 # ============================================================================
-# RUTAS API - CONSULTAS
+# RUTAS API - FICHAS CLÍNICAS
 # ============================================================================
 
-@medical_bp.route('/api/consultas', methods=['GET'])
+@medical_bp.route('/api/fichas-clinicas', methods=['GET'])
 @login_required
-def api_get_consultas():
-    """API: Obtener todas las consultas"""
-    return consulta_controller.get_all_consultas()
+def api_get_fichas_clinicas():
+    """API: Obtener todas las fichas clínicas"""
+    return ficha_clinica_controller.get_all_fichas_clinicas()
 
-@medical_bp.route('/api/consultas', methods=['POST'])
+@medical_bp.route('/api/fichas-clinicas', methods=['POST'])
 @login_required
-def api_create_consulta():
-    """API: Crear consulta"""
-    return consulta_controller.create_consulta()
+def api_create_ficha_clinica():
+    """API: Crear ficha clínica"""
+    return ficha_clinica_controller.create_ficha_clinica()
 
-@medical_bp.route('/api/consultas/<int:consulta_id>', methods=['GET'])
+@medical_bp.route('/api/fichas-clinicas/<int:ficha_id>', methods=['GET'])
 @login_required
-def api_get_consulta(consulta_id):
-    """API: Obtener consulta por ID"""
-    return consulta_controller.get_consulta_by_id(consulta_id)
+def api_get_ficha_clinica(ficha_id):
+    """API: Obtener ficha clínica por ID"""
+    return ficha_clinica_controller.get_ficha_clinica_by_id(ficha_id)
 
-@medical_bp.route('/api/consultas/<int:consulta_id>', methods=['PUT'])
+@medical_bp.route('/api/fichas-clinicas/<int:ficha_id>', methods=['PUT'])
 @login_required
-def api_update_consulta(consulta_id):
-    """API: Actualizar consulta"""
-    return consulta_controller.update_consulta(consulta_id)
-
-@medical_bp.route('/api/consultas/<int:consulta_id>', methods=['DELETE'])
-@login_required
-def api_delete_consulta(consulta_id):
-    """API: Eliminar consulta"""
-    return consulta_controller.delete_consulta(consulta_id)
-
-@medical_bp.route('/api/pacientes/<int:paciente_id>/consultas', methods=['GET'])
-@login_required
-def api_get_consultas_paciente(paciente_id):
-    """API: Obtener consultas de un paciente"""
-    return consulta_controller.get_consultas_by_paciente(paciente_id)
-
-@medical_bp.route('/api/consultas/hoy', methods=['GET'])
-@login_required
-def api_get_consultas_hoy():
-    """API: Obtener consultas de hoy"""
-    return consulta_controller.get_consultas_hoy()
-
-@medical_bp.route('/api/diagnosticos', methods=['GET'])
-@login_required
-def api_get_diagnosticos():
-    """API: Obtener diagnósticos"""
-    return consulta_controller.get_diagnosticos()
+def api_update_ficha_clinica(ficha_id):
+    """API: Actualizar ficha clínica"""
+    return ficha_clinica_controller.update_ficha_clinica(ficha_id)
 
 # ============================================================================
 # RUTAS FICHA CLÍNICA DIGITAL - INTEGRADAS
 # ============================================================================
 
-@medical_bp.route('/ficha-clinica')
+@medical_bp.route('/ficha-clinica-nuevo')
 @login_required
 def ficha_clinica():
     """Página principal de ficha clínica digital"""
-    return render_template('medical/ficha_clinica.html')
+    return render_template('medical/ficha_clinica_nuevo.html')
+
+@medical_bp.route('/examen-oftalmologico-nuevo')
+@login_required
+def examen_oftalmologico_nuevo():
+    """Página de examen oftalmológico completo"""
+    return render_template('medical/examen_oftalmologico_nuevo.html')
 
 @medical_bp.route('/api/ficha-clinica/buscar-pacientes', methods=['POST'])
 @login_required

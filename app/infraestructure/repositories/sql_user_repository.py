@@ -24,17 +24,22 @@ class SQLUserRepository:
 
     def get_all(self):
         session = self._get_session()
-        return session.query(User).filter(User.estado.in_(['A', 'I'])).all()
+        return session.query(User).all()
 
     def save(self, user):
         session = self._get_session()
         try:
             session.add(user)
             session.commit()
+            session.refresh(user)
             return user
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             session.rollback()
+            print(f"Error saving user: {e}")
             return None
+        finally:
+            if not self.db_session:  # Solo cerrar si creamos la sesión aquí
+                session.close()
 
     def delete(self, user_id):
         session = self._get_session()
@@ -46,7 +51,7 @@ class SQLUserRepository:
                 return True  # Eliminación física
             except IntegrityError:
                 session.rollback()
-                setattr(user, 'estado', 'E')
+                setattr(user, 'estado', False)
                 session.commit()
                 return False  # Eliminación lógica
         return False

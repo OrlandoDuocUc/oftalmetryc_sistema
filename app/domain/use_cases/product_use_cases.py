@@ -14,7 +14,7 @@ class ProductUseCases:
         # Filtrar solo productos activos y asegurar que stock sea int
         productos_activos = []
         for p in products:
-            if str(p.estado).lower() in ['a', 'activo']:
+            if p.estado is True:  # Solo productos con estado True
                 p.stock = int(p.stock)
                 productos_activos.append(p)
         return productos_activos
@@ -48,9 +48,12 @@ class ProductUseCases:
                 descripcion=data['descripcion'],
                 precio_unitario=data['precio_unitario'],
                 stock=data['stock'],
-                estado=data.get('estado', 'A')  # Default to 'A' if not provided
+                categoria=data.get('categoria'),
+                marca=data.get('marca'),
+                sku=data.get('sku'),
+                estado=data.get('estado', True)  # Default to True if not provided
             )
-            print(f"Creating product with data: {data}")
+            print(f"🔧 Creating product with data: {data}")
 
             # Save to the repository (assuming product_repo is an object with save method)
             saved = self.product_repo.save(product)
@@ -108,5 +111,9 @@ class ProductUseCases:
             descripcion=product_model.descripcion,
             precio_unitario=product_model.precio_unitario,
             stock=product_model.stock,
-            estado=getattr(product_model, 'estado', 'activo')
+            categoria=getattr(product_model, 'categoria', None),
+            marca=getattr(product_model, 'marca', None),
+            sku=getattr(product_model, 'sku', None),
+            fecha_creacion=getattr(product_model, 'fecha_creacion', None),
+            estado=getattr(product_model, 'estado', True)
         )

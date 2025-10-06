@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Paciente Médico - Oftalmetryc{% endblock %}
+
+{% block extra_css %}
+/* ESTILOS ESPECÍFICOS PARA NUEVO PACIENTE */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .form-row {
+            margin-bottom: 15px;
+        }
+        
+        .btn-group-custom {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .required-field {
+            color: red;
+        }
+        
+        .info-tooltip {
+            cursor: help;
+            border-bottom: 1px dotted #999;
+        }
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- HEADER DE LA PÁGINA -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-user-plus me-3"></i>Nuevo Paciente Médico</h1>
+                <p class="mb-0">Registro completo de paciente para el módulo oftalmológico</p>
+            </div>
+            <a href="/pacientes-medicos" class="btn btn-light btn-lg">
+                <i class="fas fa-list me-2"></i>Ver Pacientes
+            </a>
+        </div>
+    </div>
+
+    <form id="nuevoPacienteForm">
+        <!-- INFORMACIÓN PERSONAL BÁSICA -->
+        <div class="form-section">
+            <h4 class="section-title">
+                <i class="fas fa-id-card me-2"></i>Información Personal Básica
+            </h4>
+            <div class="row">
+                <div class="col-md-4 form-row">
+                    <label for="nombres" class="form-label">Nombres <span class="required-field">*</span></label>
+                    <input type="text" class="form-control" id="nombres" name="nombres" required>
+                </div>
+                <div class="col-md-4 form-row">
+                    <label for="ap_pat" class="form-label">Apellido Paterno <span class="required-field">*</span></label>
+                    <input type="text" class="form-control" id="ap_pat" name="ap_pat" required>
+                </div>
+                <div class="col-md-4 form-row">
+                    <label for="ap_mat" class="form-label">Apellido Materno</label>
+                    <input type="text" class="form-control" id="ap_mat" name="ap_mat">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 form-row">
+                    <label for="rut" class="form-label">RUT <span class="required-field">*</span></label>
+                    <input type="text" class="form-control" id="rut" name="rut" placeholder="12.345.678-9" required>
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                    <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento">
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email">
+                </div>
+                <div class="col-md-3 form-row">
+                    <label for="telefono" class="form-label">Teléfono</label>
+                    <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="+56 9 1234 5678">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 form-row">
+                    <label for="direccion" class="form-label">Dirección</label>
+                    <textarea class="form-control" id="direccion" name="direccion" rows="2" placeholder="Dirección completa del paciente"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFORMACIÓN MÉDICA ESPECÍFICA -->
+        <div class="form-section">
+            <h4 class="section-title">
+                <i class="fas fa-stethoscope me-2"></i>Información Médica Oftalmológica
+            </h4>
+            <div class="row">
+                <div class="col-md-6 form-row">
+                    <label for="numero_ficha" class="form-label">Número de Ficha <span class="required-field">*</span></label>
+                    <input type="text" class="form-control" id="numero_ficha" name="numero_ficha" readonly>
+                    <small class="form-text text-muted">Se genera automáticamente</small>
+                </div>
+                <div class="col-md-6 form-row">
+                    <label for="fecha_registro" class="form-label">Fecha de Registro</label>
+                    <input type="datetime-local" class="form-control" id="fecha_registro" name="fecha_registro" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANTECEDENTES MÉDICOS -->
+        <div class="form-section">
+            <h4 class="section-title">
+                <i class="fas fa-history me-2"></i>Antecedentes Médicos
+            </h4>
+            <div class="row">
+                <div class="col-md-6 form-row">
+                    <label for="antecedentes_medicos" class="form-label">
+                        Antecedentes Médicos Generales
+                        <span class="info-tooltip" title="Enfermedades, cirugías, hospitalizaciones previas">ℹ️</span>
+                    </label>
+                    <textarea class="form-control" id="antecedentes_medicos" name="antecedentes_medicos" rows="4" 
+                              placeholder="Diabetes, hipertensión, cirugías previas, etc."></textarea>
+                </div>
+                <div class="col-md-6 form-row">
+                    <label for="antecedentes_oculares" class="form-label">
+                        Antecedentes Oculares
+                        <span class="info-tooltip" title="Problemas de visión, cirugías oculares, tratamientos previos">ℹ️</span>
+                    </label>
+                    <textarea class="form-control" id="antecedentes_oculares" name="antecedentes_oculares" rows="4" 
+                              placeholder="Glaucoma, cataratas, cirugías oculares, uso de lentes, etc."></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 form-row">
+                    <label for="alergias" class="form-label">Alergias Conocidas</label>
+                    <textarea class="form-control" id="alergias" name="alergias" rows="3" 
+                              placeholder="Medicamentos, sustancias, alimentos a los que es alérgico"></textarea>
+                </div>
+                <div class="col-md-6 form-row">
+                    <label for="medicamentos_actuales" class="form-label">Medicamentos Actuales</label>
+                    <textarea class="form-control" id="medicamentos_actuales" name="medicamentos_actuales" rows="3" 
+                              placeholder="Medicamentos que toma actualmente con dosis y frecuencia"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTACTO DE EMERGENCIA -->
+        <div class="form-section">
+            <h4 class="section-title">
+                <i class="fas fa-phone me-2"></i>Contacto de Emergencia
+            </h4>
+            <div class="row">
+                <div class="col-md-6 form-row">
+                    <label for="contacto_emergencia" class="form-label">Nombre del Contacto</label>
+                    <input type="text" class="form-control" id="contacto_emergencia" name="contacto_emergencia" 
+                           placeholder="Nombre completo del contacto de emergencia">
+                </div>
+                <div class="col-md-6 form-row">
+                    <label for="telefono_emergencia" class="form-label">Teléfono de Emergencia</label>
+                    <input type="tel" class="form-control" id="telefono_emergencia" name="telefono_emergencia" 
+                           placeholder="+56 9 1234 5678">
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="btn-group-custom">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <a href="/pacientes-medicos" class="btn btn-outline-secondary btn-lg me-3">
+                        <i class="fas fa-arrow-left me-2"></i>Cancelar
+                    </a>
+                    <button type="button" class="btn btn-outline-info btn-lg" onclick="guardarBorrador()">
+                        <i class="fas fa-save me-2"></i>Guardar Borrador
+                    </button>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Registrar Paciente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Inicializar el formulario
+    document.addEventListener('DOMContentLoaded', function() {
+        generarNumeroFicha();
+        establecerFechaRegistro();
+        configurarValidacionRUT();
+    });
+
+    // Función para generar número de ficha automático
+    function generarNumeroFicha() {
+        const fecha = new Date();
+        const año = fecha.getFullYear();
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const timestamp = fecha.getTime();
+        const numeroFicha = `FM-${año}${mes}-${timestamp}`;
+        document.getElementById('numero_ficha').value = numeroFicha;
+    }
+
+    // Función para establecer fecha de registro actual
+    function establecerFechaRegistro() {
+        const ahora = new Date();
+        const fechaLocal = new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        document.getElementById('fecha_registro').value = fechaLocal;
+    }
+
+    // Configurar validación de RUT chileno
+    function configurarValidacionRUT() {
+        document.getElementById('rut').addEventListener('input', function(e) {
+            let rut = e.target.value.replace(/[^0-9kK]/g, '');
+            if (rut.length > 1) {
+                rut = rut.slice(0, -1) + '-' + rut.slice(-1);
+            }
+            if (rut.length > 5) {
+                rut = rut.slice(0, -5) + '.' + rut.slice(-5);
+            }
+            if (rut.length > 9) {
+                rut = rut.slice(0, -9) + '.' + rut.slice(-9);
+            }
+            e.target.value = rut;
+        });
+    }
+
+    // Función principal para guardar paciente
+    document.getElementById('nuevoPacienteForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Crear objeto con datos del cliente (tabla clientes)
+        const clienteData = {
+            nombres: document.getElementById('nombres').value,
+            ap_pat: document.getElementById('ap_pat').value,
+            ap_mat: document.getElementById('ap_mat').value || null,
+            rut: document.getElementById('rut').value,
+            email: document.getElementById('email').value || null,
+            telefono: document.getElementById('telefono').value || null,
+            direccion: document.getElementById('direccion').value || null,
+            fecha_nacimiento: document.getElementById('fecha_nacimiento').value || null,
+            estado: true
+        };
+
+        // Crear objeto con datos del paciente médico (tabla pacientes_medicos)
+        const pacienteMedicoData = {
+            numero_ficha: document.getElementById('numero_ficha').value,
+            antecedentes_medicos: document.getElementById('antecedentes_medicos').value || null,
+            antecedentes_oculares: document.getElementById('antecedentes_oculares').value || null,
+            alergias: document.getElementById('alergias').value || null,
+            medicamentos_actuales: document.getElementById('medicamentos_actuales').value || null,
+            contacto_emergencia: document.getElementById('contacto_emergencia').value || null,
+            telefono_emergencia: document.getElementById('telefono_emergencia').value || null,
+            estado: true
+        };
+
+        // Combinar ambos objetos para enviar al backend
+        const pacienteCompleto = {
+            cliente: clienteData,
+            paciente_medico: pacienteMedicoData
+        };
+
+        try {
+            const response = await fetch('/api/pacientes-medicos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(pacienteCompleto)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                mostrarAlerta('Paciente registrado exitosamente', 'success');
+                
+                // Redirigir después de un breve delay
+                setTimeout(() => {
+                    window.location.href = '/pacientes-medicos';
+                }, 2000);
+            } else {
+                const error = await response.json();
+                mostrarAlerta(`Error al registrar paciente: ${error.message}`, 'danger');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarAlerta('Error de conexión al registrar el paciente', 'danger');
+        }
+    });
+
+    // Función para guardar borrador
+    async function guardarBorrador() {
+        mostrarAlerta('Funcionalidad de borrador en desarrollo', 'info');
+    }
+
+    // Función para mostrar alertas
+    function mostrarAlerta(mensaje, tipo) {
+        const alertaHTML = `
+            <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        // Insertar alerta al inicio del contenido
+        const container = document.querySelector('.container');
+        container.insertAdjacentHTML('afterbegin', alertaHTML);
+        
+        // Auto-ocultar después de 5 segundos
+        setTimeout(() => {
+            const alerta = container.querySelector('.alert');
+            if (alerta) {
+                alerta.remove();
+            }
+        }, 5000);
+    }
+
+    // Validación en tiempo real
+    document.getElementById('nombres').addEventListener('blur', function() {
+        if (this.value.trim() === '') {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        }
+    });
+
+    document.getElementById('ap_pat').addEventListener('blur', function() {
+        if (this.value.trim() === '') {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        }
+    });
+
+    document.getElementById('rut').addEventListener('blur', function() {
+        if (this.value.trim() === '') {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        }
+    });
+</script>
+{% endblock %}

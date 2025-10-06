@@ -1,52 +1,123 @@
-# ===============================================================================
-# CONTROLADOR - FICHA CLÍNICA DIGITAL
-# Sistema: Oftalmetryc - Control de Fichas Clínicas
-# Autor: Orlando Rodriguez
-# Fecha: 2 de octubre de 2025
-# ===============================================================================
-
-from flask import request, jsonify, render_template, redirect, url_for, flash, session
-from typing import Dict, Any, Tuple
-import logging
+from flask import request, jsonify
+from app.infraestructure.utils.db import SessionLocal
+from app.domain.models.consulta_medica import FichaClinica
+from app.domain.models.paciente import PacienteMedico
+from app.domain.models.user import User
+from sqlalchemy.orm import joinedload
 from datetime import datetime
-
-from app.domain.use_cases.ficha_clinica_service import FichaClinicaService
-from app.infraestructure.utils.db_session import get_db_session
-
-logger = logging.getLogger(__name__)
-
-# ===============================================================================
-# CONTROLADOR PRINCIPAL - FICHA CLÍNICA
-# ===============================================================================
 
 class FichaClinicaController:
     """
-    Controlador para gestionar todas las operaciones de fichas clínicas
+    Controlador para gestionar fichas clínicas según estructura SQL real
     """
     
-    @staticmethod
-    def index():
-        """
-        Página principal de gestión de pacientes y fichas
-        """
+    def __init__(self):
+        pass
+    
+    def get_all_fichas_clinicas(self):
+        """Obtiene todas las fichas clínicas"""
         try:
-            with get_db_session() as db_session:
-                service = FichaClinicaService(db_session)
+            session = SessionLocal()
+            try:
+                fichas = session.query(FichaClinica)\
+                    .options(
+                        joinedload(FichaClinica.paciente_medico),
+                        joinedload(FichaClinica.usuario)
+                    )\
+                    .order_by(FichaClinica.fecha_consulta.desc())\
+                    .all()
                 
-                # Obtener estadísticas generales
-                estadisticas = service.obtener_estadisticas_generales()
+                result = []
+                for ficha in fichas:
+                    data = ficha.to_dict()
+                    
+                    # Agregar información del paciente médico
+                    if ficha.paciente_medico:
+                        data['paciente_medico'] = {
+                            'paciente_medico_id': ficha.paciente_medico.paciente_medico_id,
+                            'numero_ficha': ficha.paciente_medico.numero_ficha
+                        }
+                        
+                        # Agregar información del cliente si existe
+                        if ficha.paciente_medico.cliente:
+                            data['cliente'] = {
+                                'nombres': ficha.paciente_medico.cliente.nombres,
+                                'ap_pat': ficha.paciente_medico.cliente.ap_pat,
+                                'ap_mat': ficha.paciente_medico.cliente.ap_mat,
+                                'rut': ficha.paciente_medico.cliente.rut
+                            }
+                    
+                    # Agregar información del usuario
+                    if ficha.usuario:
+                        data['usuario'] = {
+                            'usuario_id': ficha.usuario.usuario_id,
+                            'nombre': ficha.usuario.nombre,
+                            'username': ficha.usuario.username
+                        }
+                    
+                    result.append(data)
                 
-                # Obtener pacientes recientes
-                pacientes_recientes = service.paciente_repo.obtener_pacientes_recientes(10)
-                
-                return render_template('ficha_clinica/index.html', 
-                                     estadisticas=estadisticas,
-                                     pacientes_recientes=pacientes_recientes)
-                
+                return jsonify({
+                    'success': True,
+                    'data': result,
+                    'total': len(result)
+                })
+            finally:
+                session.close()
         except Exception as e:
-            logger.error(f"Error en FichaClinicaController.index: {str(e)}")
-            flash('Error al cargar la página principal', 'error')
-            return redirect(url_for('dashboard.index'))
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
+    
+    def get_ficha_clinica_by_id(self, ficha_id):
+        """Obtiene una ficha clínica por ID"""
+        try:
+            session = SessionLocal()
+            try:
+                ficha = session.query(FichaClinica)\
+                    .options(
+                        joinedload(FichaClinica.paciente_medico),
+                        joinedload(FichaClinica.usuario)
+                    )\
+                    .filter(FichaClinica.ficha_id == ficha_id)\
+                    .first()
+                
+                if ficha:
+                    data = ficha.to_dict()
+                    
+                    if ficha.paciente_medico:
+                        data['paciente_medico'] = ficha.paciente_medico.to_dict()
+                        if ficha.paciente_medico.cliente:
+                            data['cliente'] = {
+                                'nombres': ficha.paciente_medico.cliente.nombres,
+                                'ap_pat': ficha.paciente_medico.cliente.ap_pat,
+                                'ap_mat': ficha.paciente_medico.cliente.ap_mat,
+                                'rut': ficha.paciente_medico.cliente.rut
+                            }
+                    
+                    if ficha.usuario:
+                        data['usuario'] = {
+                            'nombre': ficha.usuario.nombre,
+                            'username': ficha.usuario.username
+                        }
+                    
+                    return jsonify({
+                        'success': True,
+                        'data': data
+                    })
+                else:
+                    return jsonify({
+                        'success': False,
+                        'error': 'Ficha clínica no encontrada'
+                    }), 404
+            finally:
+                session.close()
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
     
     @staticmethod
     def buscar_pacientes():

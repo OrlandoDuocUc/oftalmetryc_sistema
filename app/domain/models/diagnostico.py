@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from app.infraestructure.utils.tables import Base
 
 class Diagnostico(Base):
-    __tablename__ = 'diagnosticos'
+    __tablename__ = 'catalogo_diagnosticos'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     codigo_cie10 = Column(String(10), nullable=False)
