@@ -1,7 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from flask_sqlalchemy import SQLAlchemy  # <-- PASO 1: Importar SQLAlchemy
 import os
 from urllib.parse import quote_plus
+
+# --- PASO 2: Crear la instancia 'db' que tu aplicación necesita ---
+# Esta es la línea clave que soluciona el error.
+db = SQLAlchemy()
+
+# --- El resto de tu código de configuración se mantiene, está perfecto ---
 
 # CONFIGURACIÓN CORREGIDA PARA RENDER
 # Priorizar DATABASE_URL completa de Render
@@ -28,18 +35,12 @@ else:
     DATABASE_URL = f"postgresql://{DB_USER}:{password_encoded}@{DB_HOST}:{DB_PORT}/{DB_NAME}?client_encoding=utf8&application_name=optica_app"
     print(f"🔧 [db.py] URL local construida: {DATABASE_URL}")
 
-# Configuración anterior SQL Server (comentada)
-# DATABASE_URL = (
-#     "mssql+pyodbc://adminbd:Admin2025@proyectobd.database.windows.net:1433"
-#     "/?database=optica-maipu&driver=ODBC+Driver+17+for+SQL+Server"
-# )
-
 engine = create_engine(
     DATABASE_URL, 
-    echo=True,  # Activar logs para debug
+    echo=True,
     pool_size=5,
     max_overflow=10,
-    pool_pre_ping=True,  # Verificar conexiones antes de usar
+    pool_pre_ping=True,
     connect_args={
         "client_encoding": "utf8",
         "application_name": "optica_maipu_app"
@@ -61,3 +62,4 @@ def get_connection():
 def get_session():
     """Obtiene una sesión de SQLAlchemy"""
     return SessionLocal()
+
