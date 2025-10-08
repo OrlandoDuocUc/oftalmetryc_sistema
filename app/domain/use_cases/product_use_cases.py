@@ -5,115 +5,83 @@ from app.infraestructure.utils.exceptions import ProductCreationError
 from sqlalchemy.exc import SQLAlchemyError
 
 class ProductUseCases:
-    def __init__(self, product_repo):
-        self.product_repo = product_repo
+    def __init__(self):
+        # El servicio ya no recibe un repositorio, lo gestiona internamente.
+        pass
+
+    def _execute_with_session(self, operation):
+        """Maneja la creación y cierre de sesión para cualquier operación."""
+        with SessionLocal() as db_session:
+            try:
+                repo = SQLProductRepository(db_session)
+                result = operation(repo)
+                return result
+            except SQLAlchemyError as e:
+                db_session.rollback()
+                # Puedes loggear el error aquí si quieres
+                raise e
 
     def list_products(self):
-        """Returns all products."""
-        products = self.product_repo.get_all()
-        # Filtrar solo productos activos y asegurar que stock sea int
-        productos_activos = []
-        for p in products:
-            if p.estado is True:  # Solo productos con estado True
-                p.stock = int(p.stock)
-                productos_activos.append(p)
-        return productos_activos
+        """Devuelve todos los productos activos."""
+        def operation(repo):
+            return repo.get_all(include_deleted=False)
+        return self._execute_with_session(operation)
 
     def get_product(self, product_id):
-        """Returns a product by its ID."""
-        product = self.product_repo.get_by_id(product_id)
-        return self._to_domain(product) if product else None
+        """Devuelve un producto por su ID."""
+        def operation(repo):
+            return repo.get_by_id(product_id)
+        return self._execute_with_session(operation)
 
     def create_product(self, data):
-        """Creates a new product and saves it to the repository."""
-        try:
-            # Data validation
-            required_fields = ['nombre', 'descripcion', 'precio_unitario', 'stock']
-            if not all(key in data for key in required_fields):
-                raise ValueError(f"Missing required fields: {', '.join([key for key in required_fields if key not in data])}")
-
-            # Validating that fields are not empty or invalid
-            if not data['nombre'] or not data['descripcion']:
-                raise ValueError("Product name and description cannot be empty.")
+        """Crea un nuevo producto."""
+        def operation(repo):
+            # Validaciones de negocio
+            if not data.get('nombre') or data.get('precio_unitario', 0) <= 0 or data.get('stock', -1) < 0:
+                raise ValueError("Nombre, precio positivo y stock no negativo son requeridos.")
             
-            if data['precio_unitario'] <= 0:
-                raise ValueError("Price must be greater than zero.")
-            
-            if data['stock'] < 0:
-                raise ValueError("Stock cannot be negative.")
-
-            # Create product instance
             product = Product(
                 nombre=data['nombre'],
-                descripcion=data['descripcion'],
+                descripcion=data.get('descripcion', ''),
                 precio_unitario=data['precio_unitario'],
                 stock=data['stock'],
                 categoria=data.get('categoria'),
                 marca=data.get('marca'),
                 sku=data.get('sku'),
-                estado=data.get('estado', True)  # Default to True if not provided
+                estado=True
             )
-            print(f"🔧 Creating product with data: {data}")
-
-            # Save to the repository (assuming product_repo is an object with save method)
-            saved = self.product_repo.save(product)
-            
-            if not saved:
-                raise ProductCreationError("Failed to create product")
-
-            return self._to_domain(saved)
-
-        except ValueError as ve:
-            raise ProductCreationError(f"Validation error: {ve}") from ve
-        except SQLAlchemyError as e:
-            raise ProductCreationError(f"Database error creating product: {e}") from e
-        except Exception as e:
-            raise ProductCreationError(f"Error creating product: {e}") from e
-
+            return repo.save(product)
+        return self._execute_with_session(operation)
 
     def update_product(self, product_id, data):
-        """Updates an existing product."""
-        existing = self.product_repo.get_by_id(product_id)
-        if not existing:
-            return None
-
-        # Update fields
-        updated = Product(
-            producto_id=existing.producto_id,
-            nombre=data.get("nombre", existing.nombre),
-            descripcion=data.get("descripcion", existing.descripcion),
-            precio_unitario=data.get("precio_unitario", existing.precio_unitario),
-            stock=data.get("stock", existing.stock)
-        )
-
-        # Save updated product
-        saved = self.product_repo.save(updated)
-        return self._to_domain(saved)
+        """Actualiza un producto existente."""
+        def operation(repo):
+            product = repo.get_by_id(product_id)
+            if not product:
+                return None
+            
+            # Actualiza solo los campos proporcionados en 'data'
+            for key, value in data.items():
+                if hasattr(product, key):
+                    setattr(product, key, value)
+            
+            return repo.save(product)
+        return self._execute_with_session(operation)
 
     def list_deleted_products(self):
         """Devuelve todos los productos eliminados lógicamente."""
-        products = self.product_repo.get_deleted()
-        return [self._to_domain(p) for p in products]
+        def operation(repo):
+            return repo.get_all(include_deleted=True, only_deleted=True)
+        return self._execute_with_session(operation)
 
     def restore_product(self, product_id):
         """Restaura un producto eliminado lógicamente."""
-        return self.product_repo.restore(product_id)
+        def operation(repo):
+            return repo.restore(product_id)
+        return self._execute_with_session(operation)
 
     def delete_product(self, product_id):
-        """Elimina lógicamente un producto por su ID."""
-        return self.product_repo.delete(product_id)
-
-    def _to_domain(self, product_model):
-        """Convierte un modelo SQLAlchemy en un objeto de dominio."""
-        return Product(
-            producto_id=product_model.producto_id,
-            nombre=product_model.nombre,
-            descripcion=product_model.descripcion,
-            precio_unitario=product_model.precio_unitario,
-            stock=product_model.stock,
-            categoria=getattr(product_model, 'categoria', None),
-            marca=getattr(product_model, 'marca', None),
-            sku=getattr(product_model, 'sku', None),
-            fecha_creacion=getattr(product_model, 'fecha_creacion', None),
-            estado=getattr(product_model, 'estado', True)
-        )
+        """Elimina (lógica o físicamente) un producto por su ID."""
+        def operation(repo):
+            return repo.delete(product_id)
+        return self._execute_with_session(operation)

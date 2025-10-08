@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmar Venta - Oftalmetryc{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Confirmar Venta</h2>
+    <p class="text-muted">Por favor, revisa el pedido antes de finalizar la venta.</p>
+
+    <!-- Resumen del Pedido -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Resumen del Pedido</h5>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.nombre }}</td>
+                        <td class="text-center">{{ item.cantidad }}</td>
+                        <td class="text-end">{{ item.subtotal|currency }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="fw-bold">
+                    <tr>
+                        <td colspan="2" class="text-end fs-5">Total General:</td>
+                        <td class="text-end fs-5">{{ total_general|currency }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Formulario de Cliente y Botones Finales -->
+    <form action="{{ url_for('sale_html.finalizar_venta_definitiva') }}" method="POST">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>Información del Cliente (Opcional)</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="cliente_nombres" class="form-label">Nombres</label>
+                        <input type="text" class="form-control" id="cliente_nombres" name="cliente_nombres">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="cliente_ap_pat" class="form-label">Apellido Paterno</label>
+                        <input type="text" class="form-control" id="cliente_ap_pat" name="cliente_ap_pat">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="cliente_ap_mat" class="form-label">Apellido Materno</label>
+                        <input type="text" class="form-control" id="cliente_ap_mat" name="cliente_ap_mat">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="cliente_telefono" class="form-label">Teléfono</label>
+                        <input type="text" class="form-control" id="cliente_telefono" name="cliente_telefono">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="cliente_email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="cliente_email" name="cliente_email">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{{ url_for('sale_html.registrar_venta_page') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Volver y Modificar Pedido
+            </a>
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-check-circle me-2"></i>Finalizar y Generar Boleta
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

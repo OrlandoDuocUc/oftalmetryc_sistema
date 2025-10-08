@@ -1,187 +1,116 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash
 from app.domain.use_cases.product_use_cases import ProductUseCases
-from app.infraestructure.repositories.sql_product_repository import SQLProductRepository
-from app.infraestructure.utils.db import SessionLocal
 from app.domain.use_cases.services.sale_service import SaleService
-from app.infraestructure.utils.date_utils import format_datetime_chile
 
 product_html = Blueprint('product_html', __name__)
 
-@product_html.route('/')
+# Se crea UNA SOLA instancia del servicio para todo el controlador.
+product_use_cases = ProductUseCases()
+sale_service = SaleService()
+
+@product_html.route('/dashboard') # La ruta '/' es ambigua, es mejor usar '/dashboard'
 def dashboard():
-    if 'user_id' not in session or 'rol' not in session:
+    if 'user_id' not in session:
         return redirect(url_for('user_html.login'))
+    
     try:
-        db_session = SessionLocal()
-        product_repo = SQLProductRepository(db_session)
-        product_use_cases = ProductUseCases(product_repo)
-        sale_service = SaleService()
+        # La lógica del dashboard ahora debería estar idealmente en su propio servicio.
+        # Por ahora, la mantenemos aquí pero simplificada.
         stats = sale_service.get_dashboard_stats()
-        products = product_use_cases.list_products()
-        stock_total_productos = sum([int(getattr(p, 'stock', 0)) for p in products if getattr(p, 'stock', None) is not None])
-        productos_bajo_stock = []
-        for p in products:
-            stock = getattr(p, 'stock', None)
-            if stock is not None and int(stock) <= 10:
-                productos_bajo_stock.append(p)
-        total_ventas_hoy = stats['total_ventas_hoy']
-        ventas_recientes = stats['ventas_recientes']
-        pagos_pendientes = 0
+        
         return render_template('dashboard.html', 
-                             stock_total_productos=stock_total_productos, 
-                             productos_bajo_stock=productos_bajo_stock, 
-                             total_ventas_hoy=total_ventas_hoy, 
-                             ventas_recientes=ventas_recientes, 
-                             pagos_pendientes=pagos_pendientes)
+                               stock_total_productos=stats.get('total_stock', 0), 
+                               productos_bajo_stock=stats.get('productos_stock_bajo', []), 
+                               total_ventas_hoy=stats.get('total_ventas_hoy', 0), 
+                               ventas_recientes=stats.get('ventas_recientes', []), 
+                               pagos_pendientes=0)
     except Exception as e:
         print(f"Error en dashboard: {e}")
-        flash('Ocurrió un error al cargar el dashboard. Intente más tarde.', 'danger')
-        return render_template('dashboard.html', 
-                             stock_total_productos=0, 
-                             productos_bajo_stock=[], 
-                             total_ventas_hoy=0, 
-                             ventas_recientes=[], 
-                             pagos_pendientes=0)
-    finally:
-        if 'db_session' in locals():
-            db_session.close()
+        flash('Ocurrió un error al cargar el dashboard.', 'danger')
+        return render_template('dashboard.html', stock_total_productos=0, productos_bajo_stock=[], total_ventas_hoy=0, ventas_recientes=[], pagos_pendientes=0)
 
 @product_html.route('/productos', methods=['GET', 'POST'])
 def productos():
-    if not session.get('user_id') or session.get('rol', '').lower() != 'administrador':
+    if session.get('rol', '').lower() != 'administrador':
+        flash('Acceso no autorizado.', 'danger')
         return redirect(url_for('user_html.login'))
-    try:
-        db_session = SessionLocal()
-        product_repo = SQLProductRepository(db_session)
-        product_use_cases = ProductUseCases(product_repo)
-        if request.method == 'POST':
-            try:
-                data = request.form.to_dict()
-                campos_permitidos = ['nombre', 'descripcion', 'precio_unitario', 'stock', 'categoria', 'marca', 'sku']
-                data = {k: v for k, v in data.items() if k in campos_permitidos}
-                if 'stock' in data:
-                    data['stock'] = int(data['stock'])
-                if 'precio_unitario' in data:
-                    data['precio_unitario'] = float(data['precio_unitario'])
-                print(f"🔧 Datos del producto a crear: {data}")
-                product_use_cases.create_product(data)
-                flash('Producto creado exitosamente.', 'success')
-                return redirect(url_for('product_html.productos'))
-            except Exception as e:
-                print(f"Error al crear producto: {e}")
-                flash('Ocurrió un error al crear el producto. Intente más tarde.', 'danger')
+        
+    if request.method == 'POST':
         try:
-            products = product_use_cases.list_products()
+            data = request.form.to_dict()
+            # Convertir a tipos correctos
+            data['stock'] = int(data.get('stock', 0))
+            data['precio_unitario'] = float(data.get('precio_unitario', 0.0))
+            
+            product_use_cases.create_product(data)
+            flash('Producto creado exitosamente.', 'success')
         except Exception as e:
-            print(f"Error al listar productos: {e}")
-            flash('Ocurrió un error al cargar los productos. Intente más tarde.', 'danger')
-            products = []
+            print(f"Error al crear producto: {e}")
+            flash(f'Ocurrió un error al crear el producto: {e}', 'danger')
+        return redirect(url_for('product_html.productos'))
+
+    # Método GET
+    try:
+        products = product_use_cases.list_products()
         return render_template('productos.html', products=products)
     except Exception as e:
-        print(f"Error general en productos: {e}")
-        flash('Ocurrió un error inesperado. Intente más tarde.', 'danger')
+        print(f"Error al listar productos: {e}")
+        flash('Ocurrió un error al cargar los productos.', 'danger')
         return render_template('productos.html', products=[])
-    finally:
-        if 'db_session' in locals():
-            db_session.close()
 
 @product_html.route('/productos/eliminados')
 def productos_eliminados():
-    if 'user_id' not in session or 'rol' not in session:
+    if session.get('rol', '').lower() != 'administrador':
+        flash('Acceso no autorizado.', 'danger')
         return redirect(url_for('user_html.login'))
-    if session['rol'] != 'administrador':
-        return redirect(url_for('product_html.productos'))
+
     try:
-        db_session = SessionLocal()
-        product_repo = SQLProductRepository(db_session)
-        product_use_cases = ProductUseCases(product_repo)
-        try:
-            deleted_products = product_use_cases.list_deleted_products()
-        except Exception as e:
-            print(f"Error al listar productos eliminados: {e}")
-            flash('Ocurrió un error al cargar los productos eliminados.', 'danger')
-            deleted_products = []
+        deleted_products = product_use_cases.list_deleted_products()
         return render_template('productos.html', products=[], deleted_products=deleted_products)
     except Exception as e:
-        print(f"Error general en productos eliminados: {e}")
-        flash('Ocurrió un error inesperado. Intente más tarde.', 'danger')
+        print(f"Error al listar productos eliminados: {e}")
+        flash('Ocurrió un error al cargar los productos eliminados.', 'danger')
         return render_template('productos.html', products=[], deleted_products=[])
-    finally:
-        if 'db_session' in locals():
-            db_session.close()
 
 @product_html.route('/productos/edit/<int:product_id>', methods=['POST'])
 def editar_producto(product_id):
-    if not session.get('user_id') or session.get('rol', '').lower() != 'administrador':
+    if session.get('rol', '').lower() != 'administrador':
         return redirect(url_for('user_html.login'))
     try:
-        db_session = SessionLocal()
-        product_repo = SQLProductRepository(db_session)
-        product_use_cases = ProductUseCases(product_repo)
-        try:
-            data = request.form.to_dict()
-            campos_permitidos = ['nombre', 'descripcion', 'precio_unitario', 'stock']
-            data = {k: v for k, v in data.items() if k in campos_permitidos}
-            if 'stock' in data:
-                data['stock'] = int(data['stock'])
-            if 'precio_unitario' in data:
-                data['precio_unitario'] = float(data['precio_unitario'])
-            product_use_cases.update_product(product_id, data)
-            return redirect(url_for('product_html.productos'))
-        except Exception as e:
-            print(f"Error al editar producto: {e}")
-            flash('Ocurrió un error al editar el producto. Intente más tarde.', 'danger')
-            return redirect(url_for('product_html.productos'))
+        data = request.form.to_dict()
+        data['stock'] = int(data.get('stock', 0))
+        data['precio_unitario'] = float(data.get('precio_unitario', 0.0))
+        
+        product_use_cases.update_product(product_id, data)
+        flash('Producto actualizado correctamente.', 'success')
     except Exception as e:
-        print(f"Error general en editar producto: {e}")
-        flash('Ocurrió un error inesperado. Intente más tarde.', 'danger')
-        return redirect(url_for('product_html.productos'))
-    finally:
-        if 'db_session' in locals():
-            db_session.close()
+        print(f"Error al editar producto: {e}")
+        flash(f'Ocurrió un error al editar el producto: {e}', 'danger')
+    return redirect(url_for('product_html.productos'))
 
 @product_html.route('/productos/delete/<int:product_id>', methods=['POST'])
 def eliminar_producto(product_id):
-    if not session.get('user_id') or session.get('rol', '').lower() != 'administrador':
+    if session.get('rol', '').lower() != 'administrador':
         return redirect(url_for('user_html.login'))
     try:
-        db_session = SessionLocal()
-        product_repo = SQLProductRepository(db_session)
-        product_use_cases = ProductUseCases(product_repo)
-        try:
-            product_use_cases.delete_product(product_id)
-            return redirect(url_for('product_html.productos'))
-        except Exception as e:
-            print(f"Error al eliminar producto: {e}")
-            flash('Ocurrió un error al eliminar el producto. Intente más tarde.', 'danger')
-            return redirect(url_for('product_html.productos'))
+        success = product_use_cases.delete_product(product_id)
+        if success:
+             flash('Producto eliminado físicamente.', 'success')
+        else:
+             flash('El producto no se eliminó físicamente (puede tener ventas asociadas) y fue desactivado.', 'warning')
     except Exception as e:
-        print(f"Error general en eliminar producto: {e}")
-        flash('Ocurrió un error inesperado. Intente más tarde.', 'danger')
-        return redirect(url_for('product_html.productos'))
-    finally:
-        if 'db_session' in locals():
-            db_session.close()
+        print(f"Error al eliminar producto: {e}")
+        flash('Ocurrió un error al eliminar el producto.', 'danger')
+    return redirect(url_for('product_html.productos'))
 
 @product_html.route('/productos/restore/<int:product_id>', methods=['POST'])
 def restaurar_producto(product_id):
-    if 'user_id' not in session or 'rol' not in session or session['rol'] != 'administrador':
+    if session.get('rol', '').lower() != 'administrador':
         return redirect(url_for('user_html.login'))
     try:
-        db_session = SessionLocal()
-        product_repo = SQLProductRepository(db_session)
-        product_use_cases = ProductUseCases(product_repo)
-        try:
-            product_use_cases.restore_product(product_id)
-            return redirect(url_for('product_html.productos_eliminados'))
-        except Exception as e:
-            print(f"Error al restaurar producto: {e}")
-            flash('Ocurrió un error al restaurar el producto. Intente más tarde.', 'danger')
-            return redirect(url_for('product_html.productos_eliminados'))
+        product_use_cases.restore_product(product_id)
+        flash('Producto restaurado exitosamente.', 'success')
     except Exception as e:
-        print(f"Error general en restaurar producto: {e}")
-        flash('Ocurrió un error inesperado. Intente más tarde.', 'danger')
-        return redirect(url_for('product_html.productos_eliminados'))
-    finally:
-        if 'db_session' in locals():
-            db_session.close() 
+        print(f"Error al restaurar producto: {e}")
+        flash('Ocurrió un error al restaurar el producto.', 'danger')
+    return redirect(url_for('product_html.productos_eliminados'))

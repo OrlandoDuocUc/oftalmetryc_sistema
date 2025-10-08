@@ -4,329 +4,289 @@
 
 {% block extra_css %}
 /* ESTILOS ESPECÍFICOS DEL INVENTARIO */
-
-        .navbar {
-            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
-            color: white;
-            border-radius: 12px 12px 0 0 !important;
-            font-weight: 600;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .stock-low {
-            color: #dc3545;
-            font-weight: bold;
-        }
-
-        .stock-medium {
-            color: #ffc107;
-            font-weight: bold;
-        }
-
-        .stock-high {
-            color: #198754;
-            font-weight: bold;
-        }
-
-        .filter-section {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .table th {
-            background-color: var(--card-blue);
-            border: none;
-            font-weight: 600;
-        }
-
-        .table td {
-            vertical-align: middle;
-            border: none;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .category-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .btn-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-        }
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+.stock-low {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+.stock-medium {
+    color: var(--warning-color);
+    font-weight: bold;
+}
+.stock-high {
+    color: var(--success-color);
+    font-weight: bold;
+}
+.filter-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.table td {
+    vertical-align: middle;
+}
+.category-badge {
+    padding: 0.35rem 0.75rem; /* Ajuste ligero para mejor apariencia */
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+.table-header-custom {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+.table-header-custom th {
+    border-color: var(--accent-color) !important;
+}
 {% endblock %}
 
 {% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-center">
+                <i class="fas fa-boxes text-primary me-3"></i>Gestión de Inventario
+            </h1>
+        </div>
+    </div>
 
-    <div class="container-fluid mt-4">
-        <!-- Header -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h1 class="text-center mb-4">
-                    <i class="fas fa-boxes text-primary me-3"></i>Gestión de Inventario
-                </h1>
+    <!-- Estadísticas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon text-primary"><i class="fas fa-boxes"></i></div>
+            <div class="stat-value text-primary">{{ stats.total_productos }}</div>
+            <div class="text-muted">Productos Totales</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon text-success"><i class="fas fa-warehouse"></i></div>
+            <div class="stat-value text-success">{{ stats.total_stock }}</div>
+            <div class="text-muted">Unidades en Stock</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon text-warning"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-value text-warning">{{ stats.stock_bajo }}</div>
+            <div class="text-muted">Stock Bajo (&lt;10)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon text-info"><i class="fas fa-tags"></i></div>
+            <div class="stat-value text-info">{{ stats.categorias }}</div>
+            <div class="text-muted">Categorías</div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-section">
+        <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Filtros</h5>
+        <div class="row">
+            <div class="col-md-3">
+                <select class="form-select" id="filterCategoria">
+                    <option value="">Todas las categorías</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria }}">{{ categoria }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterStock">
+                    <option value="">Todo el stock</option>
+                    <option value="bajo">Stock bajo (&lt;10)</option>
+                    <option value="medio">Stock medio (10-50)</option>
+                    <option value="alto">Stock alto (&gt;50)</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <input type="text" class="form-control" id="searchProduct" placeholder="Buscar producto...">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-secondary w-100" onclick="resetFilters()">
+                    <i class="fas fa-undo me-1"></i>Limpiar
+                </button>
             </div>
         </div>
+    </div>
 
-        <!-- Estadísticas -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon text-primary">
-                    <i class="fas fa-boxes"></i>
-                </div>
-                <div class="stat-value text-primary">{{ stats.total_productos }}</div>
-                <div class="text-muted">Productos Totales</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon text-success">
-                    <i class="fas fa-warehouse"></i>
-                </div>
-                <div class="stat-value text-success">{{ stats.total_stock }}</div>
-                <div class="text-muted">Unidades en Stock</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon text-warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="stat-value text-warning">{{ stats.stock_bajo }}</div>
-                <div class="text-muted">Stock Bajo (&lt;10)</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon text-info">
-                    <i class="fas fa-tags"></i>
-                </div>
-                <div class="stat-value text-info">{{ stats.categorias }}</div>
-                <div class="text-muted">Categorías</div>
-            </div>
-        </div>
-
-        <!-- Filtros -->
-        <div class="filter-section">
-            <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Filtros</h5>
-            <div class="row">
-                <div class="col-md-3">
-                    <select class="form-select" id="filterCategoria">
-                        <option value="">Todas las categorías</option>
-                        {% for categoria in categorias %}
-                        <option value="{{ categoria }}">{{ categoria }}</option>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="inventoryTable">
+                    <thead class="table-header-custom">
+                        <tr>
+                            <th>SKU</th>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Marca</th>
+                            <th>Proveedor</th>
+                            <th>Stock</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr data-categoria="{{ producto.categoria or '' }}" data-stock="{{ producto.stock }}">
+                            <td><code>{{ producto.sku or 'N/A' }}</code></td>
+                            <td>
+                                <strong>{{ producto.nombre }}</strong><br>
+                                <small class="text-muted">{{ producto.descripcion[:50] }}...</small>
+                            </td>
+                            <td>
+                                {% if producto.categoria %}
+                                <!-- --- CORRECCIÓN: Color de la insignia cambiado a 'secondary' --- -->
+                                <span class="category-badge bg-secondary text-white">{{ producto.categoria }}</span>
+                                {% else %}
+                                <span class="text-muted">Sin categoría</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ producto.marca or 'N/A' }}</td>
+                            <td>{{ producto.proveedor.nombre_comercial if producto.proveedor else 'N/A' }}</td>
+                            <td>
+                                {% if producto.stock < 10 %}
+                                <span class="stock-low">{{ producto.stock }}</span>
+                                {% elif producto.stock < 50 %}
+                                <span class="stock-medium">{{ producto.stock }}</span>
+                                {% else %}
+                                <span class="stock-high">{{ producto.stock }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ producto.precio_unitario|currency }}</td>
+                            <td>
+                                {% if producto.estado %}
+                                <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" onclick="editStock({{ producto.producto_id }}, {{ producto.stock }})" title="Editar Stock">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info" onclick="viewDetails({{ producto.producto_id }})" title="Ver Detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                         {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select" id="filterStock">
-                        <option value="">Todo el stock</option>
-                        <option value="bajo">Stock bajo (&lt;10)</option>
-                        <option value="medio">Stock medio (10-50)</option>
-                        <option value="alto">Stock alto (&gt;50)</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <input type="text" class="form-control" id="searchProduct" placeholder="Buscar producto...">
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-outline-secondary w-100" onclick="resetFilters()">
-                        <i class="fas fa-undo me-1"></i>Limpiar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tabla de Inventario -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Inventario Detallado</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="inventoryTable">
-                        <thead>
-                            <tr>
-                                <th>SKU</th>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th>Marca</th>
-                                <th>Stock</th>
-                                <th>Precio</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for producto in productos %}
-                            <tr data-categoria="{{ producto.categoria or '' }}" data-stock="{{ producto.stock }}">
-                                <td>
-                                    <code>{{ producto.sku or 'N/A' }}</code>
-                                </td>
-                                <td>
-                                    <strong>{{ producto.nombre }}</strong>
-                                    <br>
-                                    <small class="text-muted">{{ producto.descripcion[:50] }}...</small>
-                                </td>
-                                <td>
-                                    {% if producto.categoria %}
-                                    <span class="category-badge bg-primary text-white">{{ producto.categoria }}</span>
-                                    {% else %}
-                                    <span class="text-muted">Sin categoría</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ producto.marca or 'N/A' }}</td>
-                                <td>
-                                    {% if producto.stock < 10 %}
-                                    <span class="stock-low">{{ producto.stock }}</span>
-                                    {% elif producto.stock < 50 %}
-                                    <span class="stock-medium">{{ producto.stock }}</span>
-                                    {% else %}
-                                    <span class="stock-high">{{ producto.stock }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>${{ "{:,.0f}".format(producto.precio_unitario) }}</td>
-                                <td>
-                                    {% if producto.estado %}
-                                    <span class="badge bg-success">Activo</span>
-                                    {% else %}
-                                    <span class="badge bg-secondary">Inactivo</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-outline-primary" onclick="editStock({{ producto.producto_id }}, {{ producto.stock }})" title="Editar Stock">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-outline-info" onclick="viewDetails({{ producto.producto_id }})" title="Ver Detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal Editar Stock -->
-    <div class="modal fade" id="editStockModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Editar Stock</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="formEditStock" method="post">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="newStock" class="form-label">Nuevo Stock</label>
-                            <input type="number" class="form-control" id="newStock" name="stock" min="0" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="stockNote" class="form-label">Nota (opcional)</label>
-                            <textarea class="form-control" id="stockNote" name="nota" rows="2" placeholder="Razón del ajuste de stock..."></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Actualizar Stock</button>
-                    </div>
-                </form>
+<!-- Modal Editar Stock (sin cambios) -->
+<div class="modal fade" id="editStockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+            <form id="formEditStock" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="newStock" class="form-label">Nuevo Stock</label>
+                        <input type="number" class="form-control" id="newStock" name="stock" min="0" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stockNote" class="form-label">Nota (opcional)</label>
+                        <textarea class="form-control" id="stockNote" name="nota" rows="2" placeholder="Razón del ajuste de stock..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar Stock</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-        // Filtros
-        document.getElementById('filterCategoria').addEventListener('change', filterTable);
-        document.getElementById('filterStock').addEventListener('change', filterTable);
-        document.getElementById('searchProduct').addEventListener('input', filterTable);
+<script>
+    // El JavaScript para los filtros y modales no necesita cambios
+    document.getElementById('filterCategoria').addEventListener('change', filterTable);
+    document.getElementById('filterStock').addEventListener('change', filterTable);
+    document.getElementById('searchProduct').addEventListener('input', filterTable);
 
-        function filterTable() {
-            const categoria = document.getElementById('filterCategoria').value.toLowerCase();
-            const stock = document.getElementById('filterStock').value;
-            const search = document.getElementById('searchProduct').value.toLowerCase();
-            const rows = document.querySelectorAll('#inventoryTable tbody tr');
+    function filterTable() {
+        const categoria = document.getElementById('filterCategoria').value.toLowerCase();
+        const stock = document.getElementById('filterStock').value;
+        const search = document.getElementById('searchProduct').value.toLowerCase();
+        const rows = document.querySelectorAll('#inventoryTable tbody tr');
 
-            rows.forEach(row => {
-                const prodCategoria = row.dataset.categoria.toLowerCase();
-                const prodStock = parseInt(row.dataset.stock);
-                const prodNombre = row.cells[1].textContent.toLowerCase();
-                
-                let showCategoria = !categoria || prodCategoria.includes(categoria);
-                let showStock = true;
-                
-                if (stock === 'bajo') showStock = prodStock < 10;
-                else if (stock === 'medio') showStock = prodStock >= 10 && prodStock <= 50;
-                else if (stock === 'alto') showStock = prodStock > 50;
-                
-                let showSearch = !search || prodNombre.includes(search);
+        rows.forEach(row => {
+            const prodCategoria = row.dataset.categoria.toLowerCase();
+            const prodStock = parseInt(row.dataset.stock);
+            const prodNombre = row.cells[1].textContent.toLowerCase();
+            
+            let showCategoria = !categoria || prodCategoria.includes(categoria);
+            let showStock = true;
+            
+            if (stock === 'bajo') showStock = prodStock < 10;
+            else if (stock === 'medio') showStock = prodStock >= 10 && prodStock <= 50;
+            else if (stock === 'alto') showStock = prodStock > 50;
+            
+            let showSearch = !search || prodNombre.includes(search);
 
-                row.style.display = showCategoria && showStock && showSearch ? '' : 'none';
-            });
-        }
+            row.style.display = showCategoria && showStock && showSearch ? '' : 'none';
+        });
+    }
 
-        function resetFilters() {
-            document.getElementById('filterCategoria').value = '';
-            document.getElementById('filterStock').value = '';
-            document.getElementById('searchProduct').value = '';
-            filterTable();
-        }
+    function resetFilters() {
+        document.getElementById('filterCategoria').value = '';
+        document.getElementById('filterStock').value = '';
+        document.getElementById('searchProduct').value = '';
+        filterTable();
+    }
 
-        function editStock(productId, currentStock) {
-            document.getElementById('newStock').value = currentStock;
-            document.getElementById('formEditStock').action = `/inventario/edit-stock/${productId}`;
-            new bootstrap.Modal(document.getElementById('editStockModal')).show();
-        }
+    function editStock(productId, currentStock) {
+        document.getElementById('newStock').value = currentStock;
+        document.getElementById('formEditStock').action = `/inventario/edit-stock/${productId}`;
+        new bootstrap.Modal(document.getElementById('editStockModal')).show();
+    }
 
-        function viewDetails(productId) {
-            window.location.href = `/productos/detail/${productId}`;
-        }
-    </script>
+    function viewDetails(productId) {
+        window.location.href = `/productos/edit/${productId}`; 
+    }
+</script>
 {% endblock %}
+

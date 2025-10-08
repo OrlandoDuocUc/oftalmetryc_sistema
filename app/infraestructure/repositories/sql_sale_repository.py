@@ -1,33 +1,49 @@
 from app.domain.models.sale import Sale
-from app.infraestructure.utils.db import SessionLocal
+from app.domain.models.products import Product
+from app.domain.models.user import User
+from app.domain.models.cliente import Cliente
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import SQLAlchemyError
 
 class SQLSaleRepository:
-    def __init__(self, db_session=None):
-        self.db_session = db_session or SessionLocal()
+    def __init__(self, db_session: Session):
+        # El repositorio siempre recibe una sesión activa.
+        self.db = db_session
 
-    def get_by_id(self, venta_id):
-        return self.db_session.query(Sale).filter_by(venta_id=venta_id).first()
+    def get_by_id(self, venta_id: int):
+        # Carga la venta y la información relacionada (producto, cliente, usuario) de una vez.
+        return self.db.query(Sale).options(
+            joinedload(Sale.producto),
+            joinedload(Sale.cliente),
+            joinedload(Sale.usuario)
+        ).filter(Sale.venta_id == venta_id).first()
 
-    def get_all(self):
-        return self.db_session.query(Sale).all()
+    def get_all_with_details(self):
+        # Obtiene todas las ventas, precargando los datos relacionados para evitar múltiples consultas.
+        return self.db.query(Sale).options(
+            joinedload(Sale.producto),
+            joinedload(Sale.cliente),
+            joinedload(Sale.usuario)
+        ).order_by(Sale.fecha_venta.desc()).all()
 
-    def get_by_user(self, usuario_id):
-        return self.db_session.query(Sale).filter_by(usuario_id=usuario_id).all()
+    def get_by_user(self, usuario_id: int):
+        return self.db.query(Sale).filter(Sale.usuario_id == usuario_id).all()
 
-    def save(self, sale):
+    def save(self, sale: Sale):
         try:
-            self.db_session.add(sale)
-            self.db_session.commit()
+            self.db.add(sale)
+            self.db.commit()
+            self.db.refresh(sale)
             return sale
-        except SQLAlchemyError:
-            self.db_session.rollback()
-            return None
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise e
 
-    def delete(self, venta_id):
+    def delete(self, venta_id: int):
         sale = self.get_by_id(venta_id)
         if sale:
-            self.db_session.delete(sale)
-            self.db_session.commit()
+            self.db.delete(sale)
+            self.db.commit()
             return True
-        return False 
+        return False
+

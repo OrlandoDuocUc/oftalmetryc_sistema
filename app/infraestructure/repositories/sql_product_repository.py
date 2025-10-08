@@ -7,103 +7,61 @@ class SQLProductRepository:
     def __init__(self, db_session: Session):
         self.db = db_session
 
-    def get_all(self, include_deleted=False):
-        # Usar consulta SQL directa para evitar cacheo
-        if include_deleted:
-            result = self.db.execute(text("SELECT * FROM productos"))
-        else:
-            result = self.db.execute(text("SELECT * FROM productos WHERE estado = true"))
-        
-        # Convertir resultados a objetos Product
-        products = []
-        for row in result:
-            product = Product()
-            product.producto_id = row.producto_id
-            product.nombre = row.nombre
-            product.descripcion = row.descripcion
-            product.stock = row.stock
-            product.precio_unitario = row.precio_unitario
-            product.fecha_creacion = row.fecha_creacion
-            product.estado = row.estado
-            products.append(product)
-        
-        return products
+    def get_all(self, include_deleted=False, only_deleted=False):
+        """Obtiene productos usando SQLAlchemy ORM para más eficiencia."""
+        query = self.db.query(Product)
+        if only_deleted:
+            return query.filter(Product.estado == False).all()
+        if not include_deleted:
+            return query.filter(Product.estado == True).all()
+        return query.all()
 
     def get_by_id(self, product_id: int):
-        return self.db.query(Product).filter_by(producto_id=product_id).first()
-
-    def get_deleted(self):
-        return self.db.query(Product).filter(Product.estado == False).all()
+        return self.db.query(Product).filter(Product.producto_id == product_id).first()
 
     def save(self, product: Product):
+        """Guarda un producto, ya sea creando uno nuevo o actualizando uno existente."""
         try:
-            product_id = getattr(product, 'producto_id', None)
-            if product_id is not None:
-                # Update existing product
-                existing = self.get_by_id(product_id)
-                if existing:
-                    existing.nombre = product.nombre
-                    existing.descripcion = product.descripcion
-                    existing.precio_unitario = product.precio_unitario
-                    existing.stock = product.stock
-                    # Ensure 'estado' is updated if provided, but 'fecha_creacion' should not be changed
-                    if product.estado is not None:
-                        existing.estado = product.estado
-                    self.db.commit()
-                    self.db.refresh(existing)
-                    return existing
-                else:
-                    raise ValueError(f"Product with ID {product_id} does not exist.")
-            else:
-                # Create a new product
-                new_product = Product(
-                    nombre=product.nombre,
-                    descripcion=product.descripcion,
-                    precio_unitario=product.precio_unitario,
-                    stock=product.stock,
-                    estado=product.estado if product.estado is not None else True,  # Default to True if estado is not provided
-                    fecha_creacion=product.fecha_creacion or datetime.utcnow()  # Set current time if not provided
-                )
-                self.db.add(new_product)
-                self.db.commit()
-                self.db.refresh(new_product)
-                print(f"✅ Producto guardado exitosamente: {new_product.producto_id}")
-                return new_product
-
+            # Si el objeto ya tiene una sesión, se actualizará; si es nuevo, se añadirá.
+            self.db.add(product)
+            self.db.commit()
+            self.db.refresh(product)
+            return product
         except Exception as e:
-            # Rollback in case of any error
             self.db.rollback()
-            raise e  # Re-raise the exception to handle it at a higher level
+            raise e
 
     def delete(self, product_id: int):
+        """Intenta eliminar físicamente. Si falla, hace una eliminación lógica."""
         product = self.get_by_id(product_id)
-        if product is not None:
+        if product:
             try:
+                # Intento de eliminación física
                 self.db.delete(product)
                 self.db.commit()
-                return True  # Eliminación física
+                return True
             except Exception:
+                # Fallback a eliminación lógica si hay dependencias (ej. ventas)
                 self.db.rollback()
-                setattr(product, 'estado', False)
+                product.estado = False
                 self.db.commit()
-                return False  # Eliminación lógica
-        return False
+                return False
+        return None
 
     def restore(self, product_id: int):
+        """Restaura un producto que fue eliminado lógicamente."""
         product = self.get_by_id(product_id)
-        if product is not None and getattr(product, 'estado', None) == False:
-            setattr(product, 'estado', True)
+        if product and product.estado == False:
+            product.estado = True
             self.db.commit()
             return True
         return False
 
     def update_stock(self, product_id: int, new_stock: int):
-        """Actualizar stock de un producto específico"""
-        try:
-            result = self.db.execute(text("UPDATE productos SET stock = :stock WHERE producto_id = :id"), 
-                                   {"stock": new_stock, "id": product_id})
+        """Actualiza solo el stock de un producto."""
+        product = self.get_by_id(product_id)
+        if product:
+            product.stock = new_stock
             self.db.commit()
-            return result.rowcount > 0
-        except Exception as e:
-            self.db.rollback()
-            return False
+            return True
+        return False

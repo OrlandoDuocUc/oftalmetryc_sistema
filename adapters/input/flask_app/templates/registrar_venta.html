@@ -2,405 +2,277 @@
 
 {% block title %}Registrar Venta - Oftalmetryc{% endblock %}
 
-{% block extra_css %}
-/* ESTILOS ESPECÍFICOS DE REGISTRAR VENTA */
-        /* Configuración del carrito de compras */
-        .product-card {
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: none;
-            border-radius: 12px;
-            overflow: hidden;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .product-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-        
-        .cart-section {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-        
-        .btn-add-cart {
-            background: linear-gradient(135deg, var(--success-color), #2ecc71);
-            border: none;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-add-cart:hover {
-            background: linear-gradient(135deg, #27ae60, var(--success-color));
-            transform: translateY(-1px);
-        }
-        
-        .client-form {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .cart-item {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .cart-item:hover {
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-        
-        .total-section {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        
-        .finalize-btn {
-            background: linear-gradient(135deg, var(--warning-color), #f1c40f);
-            border: none;
-            padding: 12px 30px;
-            font-weight: bold;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-        }
-        
-        .finalize-btn:hover {
-            background: linear-gradient(135deg, #e67e22, var(--warning-color));
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-{% endblock %}
-
 {% block content %}
-<div class="container mt-5">
-        <h1 class="text-center mb-4" style="font-family: 'Segoe UI', sans-serif; font-weight: bold; color: #2c3e50; letter-spacing: 2px;">Registrar Nueva Venta</h1>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        <!-- Carrito de Compras -->
-        {% if session.get('carrito') and session['carrito']|length > 0 %}
-        <div class="card mb-4">
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Registrar Nueva Venta</h2>
+    </div>
+
+    <!-- Formulario principal que engloba todo el pedido -->
+    <form action="{{ url_for('sale_html.revisar_venta_page') }}" method="POST" id="sale-form">
+        <!-- Campo oculto para enviar los datos del pedido en formato JSON -->
+        <input type="hidden" name="pedido_items" id="pedido_items_json">
+
+        <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Carrito de Compras</h5>
+                <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Detalle del Pedido</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead class="table-dark">
+                    <table class="table table-hover align-middle">
+                        <thead>
                             <tr>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Precio Unit.</th>
-                                <th>Subtotal</th>
-                                <th>Acciones</th>
+                                <th style="width: 40%;">Producto</th>
+                                <th style="width: 15%;" class="text-center">Cantidad</th>
+                                <th style="width: 20%;" class="text-end">Precio Unit.</th>
+                                <th style="width: 20%;" class="text-end">Subtotal</th>
+                                <th class="text-center">Acción</th>
                             </tr>
                         </thead>
-                        <tbody id="carrito-tbody">
-                            {% for item in session['carrito'] %}
-                            <tr data-producto-id="{{ item.producto_id }}">
-                                <td>{{ item.nombre }}</td>
-                                <td>{{ item.cantidad }}</td>
-                                <td>{{ item.precio_unitario|currency }}</td>
-                                <td>{{ item.subtotal|currency }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDelCarrito({{ item.producto_id }})">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                        <tbody id="pedido-items-container">
+                            <!-- Las filas de productos se agregarán aquí con JavaScript -->
                         </tbody>
-                        <tfoot class="table-info">
-                            <tr>
-                                <td colspan="3" class="text-end"><strong>Total General:</strong></td>
-                                <td><strong>{{ session.get('total_carrito', 0)|currency }}</strong></td>
+                        <tfoot>
+                            <tr class="table-light fw-bold">
+                                <td colspan="3" class="text-end fs-5">Total General:</td>
+                                <td class="text-end fs-5" id="total-general">0 CLP</td>
                                 <td></td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-success" onclick="finalizarVenta()">
-                        <i class="fas fa-check"></i> Finalizar Venta
-                    </button>
-                    <button type="button" class="btn btn-warning" onclick="limpiarCarrito()">
-                        <i class="fas fa-trash"></i> Limpiar Carrito
-                    </button>
-                </div>
+                <button type="button" id="btn-add-product" class="btn btn-success" onclick="agregarFilaProducto()">
+                    <i class="fas fa-plus me-2"></i>Agregar Producto
+                </button>
             </div>
         </div>
-        {% endif %}
-        
-        <!-- Formulario para agregar productos -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-plus"></i> Agregar Producto al Carrito</h5>
-            </div>
-            <div class="card-body">
-                <form id="form-producto" onsubmit="agregarAlCarrito(event)">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="producto_id" class="form-label">Producto *</label>
-                            <select class="form-select" id="producto_id" name="producto_id" required onchange="actualizarPrecio()">
-                                <option value="">Seleccione un producto</option>
-                                {% for p in products %}
-                                <option value="{{ p.producto_id }}" data-precio="{{ p.precio_unitario }}" data-stock="{{ p.stock }}" data-nombre="{{ p.nombre }}">
-                                    {{ p.nombre }} - Stock: {{ p.stock }} - {{ p.precio_unitario|currency }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="cantidad" class="form-label">Cantidad *</label>
-                            <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" required onchange="calcularTotal()">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="precio_unitario" class="form-label">Precio Unitario</label>
-                            <input type="number" class="form-control" id="precio_unitario" readonly>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="total" class="form-label">Subtotal *</label>
-                            <input type="number" class="form-control" id="total" name="total" min="0" step="0.01" required readonly>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-cart-plus"></i> Agregar al Carrito
-                        </button>
-                        <a href="/" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Volver
-                        </a>
-                    </div>
-                </form>
-            </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <!-- BOTÓN "CANCELAR" ACTUALIZADO -->
+            <a href="{{ url_for('product_html.dashboard') }}" class="btn btn-secondary" id="dashboard-link">Dashboard</a>
+            <button type="submit" class="btn btn-primary btn-lg">Confirmar Venta <i class="fas fa-arrow-right ms-2"></i></button>
         </div>
-        
-        <!-- Información del Cliente -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-user"></i> Información del Cliente (Opcional)</h5>
+    </form>
+</div>
+
+<!-- Plantilla para una nueva fila de producto (oculta) -->
+<template id="fila-producto-template">
+    <tr>
+        <td>
+            <input class="form-control producto-select" placeholder="Escribe para buscar un producto...">
+        </td>
+        <td>
+            <input type="number" class="form-control cantidad-input text-center" value="1" min="1" onchange="actualizarFila(this)" onkeyup="actualizarFila(this)">
+        </td>
+        <td class="text-end precio-unit-cell">0 CLP</td>
+        <td class="text-end subtotal-cell">0 CLP</td>
+        <td class="text-center">
+            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    </tr>
+</template>
+
+<!-- ===== INICIO DE MODALES PARA NOTIFICACIONES (REEMPLAZA A LOS ALERT) ===== -->
+<!-- Modal para Confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalTitle">Confirmar Acción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="card-body">
-                <form id="form-cliente">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="cliente_nombres" class="form-label">Nombres</label>
-                            <input type="text" class="form-control" id="cliente_nombres" name="cliente_nombres" placeholder="Nombres del cliente">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="cliente_ap_pat" class="form-label">Apellido Paterno</label>
-                            <input type="text" class="form-control" id="cliente_ap_pat" name="cliente_ap_pat" placeholder="Apellido paterno">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="cliente_ap_mat" class="form-label">Apellido Materno</label>
-                            <input type="text" class="form-control" id="cliente_ap_mat" name="cliente_ap_mat" placeholder="Apellido materno">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="cliente_telefono" class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" id="cliente_telefono" name="cliente_telefono" placeholder="Teléfono del cliente">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="cliente_email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="cliente_email" name="cliente_email" placeholder="Email del cliente">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="cliente_direccion" class="form-label">Dirección</label>
-                            <textarea class="form-control" id="cliente_direccion" name="cliente_direccion" rows="2" placeholder="Dirección del cliente"></textarea>
-                        </div>
-                    </div>
-                </form>
+            <div class="modal-body" id="confirmModalBody">
+                ¿Estás seguro?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmModalButton">Confirmar</button>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function actualizarPrecio() {
-            const select = document.getElementById('producto_id');
-            const precioInput = document.getElementById('precio_unitario');
-            const cantidadInput = document.getElementById('cantidad');
-            
-            if (select.value) {
-                const option = select.options[select.selectedIndex];
-                const precio = option.getAttribute('data-precio');
-                precioInput.value = precio;
-                calcularTotal();
-            } else {
-                precioInput.value = '';
-                document.getElementById('total').value = '';
-            }
-        }
-        
-        function calcularTotal() {
-            const cantidad = document.getElementById('cantidad').value;
-            const precio = document.getElementById('precio_unitario').value;
-            const totalInput = document.getElementById('total');
-            
-            if (cantidad && precio) {
-                const total = parseFloat(cantidad) * parseFloat(precio);
-                totalInput.value = total.toFixed(2);
-            } else {
-                totalInput.value = '';
-            }
-        }
-        
-        function agregarAlCarrito(event) {
-            event.preventDefault();
-            
-            const formData = new FormData(event.target);
-            const productoId = formData.get('producto_id');
-            const cantidad = formData.get('cantidad');
-            const total = formData.get('total');
-            
-            if (!productoId || !cantidad || !total) {
-                alert('Por favor complete todos los campos');
-                return;
-            }
-            
-            const select = document.getElementById('producto_id');
-            const option = select.options[select.selectedIndex];
-            const nombre = option.getAttribute('data-nombre');
-            const precio = option.getAttribute('data-precio');
-            
-            // Enviar al servidor para agregar al carrito
-            fetch('/agregar-al-carrito', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    producto_id: parseInt(productoId),
-                    cantidad: parseInt(cantidad),
-                    total: parseFloat(total),
-                    nombre: nombre,
-                    precio_unitario: parseFloat(precio)
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Recargar la página para mostrar el carrito actualizado
-                    window.location.reload();
-                } else {
-                    alert(data.message || 'Error al agregar al carrito');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al agregar al carrito');
-            });
-        }
-        
-        function eliminarDelCarrito(productoId) {
-            if (confirm('¿Está seguro de que desea eliminar este producto del carrito?')) {
-                fetch('/eliminar-del-carrito', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        producto_id: productoId
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.reload();
-                    } else {
-                        alert(data.message || 'Error al eliminar del carrito');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al eliminar del carrito');
-                });
-            }
-        }
-        
-        function limpiarCarrito() {
-            if (confirm('¿Está seguro de que desea limpiar todo el carrito?')) {
-                fetch('/limpiar-carrito', {
-                    method: 'POST'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.reload();
-                    } else {
-                        alert(data.message || 'Error al limpiar el carrito');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al limpiar el carrito');
-                });
-            }
-        }
-        
-        function finalizarVenta() {
-            // Obtener datos del cliente
-            const clienteData = {
-                nombres: document.getElementById('cliente_nombres').value,
-                ap_pat: document.getElementById('cliente_ap_pat').value,
-                ap_mat: document.getElementById('cliente_ap_mat').value,
-                telefono: document.getElementById('cliente_telefono').value,
-                email: document.getElementById('cliente_email').value,
-                direccion: document.getElementById('cliente_direccion').value
-            };
-            
-            fetch('/finalizar-venta', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(clienteData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Venta registrada exitosamente');
-                    window.location.href = data.redirect_url;
-                } else {
-                    alert(data.message || 'Error al finalizar la venta');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al finalizar la venta');
-        });
-    }
-</script>
 </div>
+<!-- ===== FIN DE MODALES ===== -->
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Scripts adicionales específicos si son necesarios
+    const productosData = JSON.parse('{{ products_json|safe }}');
+    const productosOptions = productosData.map(p => ({
+        value: p.producto_id.toString(),
+        text: p.nombre
+    }));
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (document.getElementById('pedido-items-container').children.length === 0) {
+            agregarFilaProducto();
+        }
+        
+        // --- INICIO CORRECCIÓN: Lógica de confirmación para salir ---
+        document.getElementById('dashboard-link').addEventListener('click', function(event) {
+            const pedidoJson = document.getElementById('pedido_items_json').value;
+            // Verificar si el pedido no está vacío
+            if (pedidoJson && pedidoJson !== '[]' && pedidoJson !== '') {
+                event.preventDefault(); // Detener la navegación del enlace
+                showConfirm(
+                    'Venta en Curso',
+                    'Tienes productos en el pedido. ¿Estás seguro de que quieres salir y descartar la venta actual?',
+                    () => {
+                        // Esta función se ejecuta solo si el usuario presiona "Confirmar"
+                        window.location.href = this.href; // Continuar a la URL del dashboard
+                    }
+                );
+            }
+        });
+        // --- FIN CORRECCIÓN ---
+    });
+    
+    function agregarFilaProducto() {
+        const container = document.getElementById('pedido-items-container');
+        const lastRow = container.lastElementChild;
+
+        if (lastRow) {
+            const lastSelect = lastRow.querySelector('.producto-select');
+            if (!lastSelect.tomselect || !lastSelect.tomselect.getValue()) {
+                return; 
+            }
+        }
+        
+        const template = document.getElementById('fila-producto-template');
+        const newRow = template.content.cloneNode(true);
+        container.appendChild(newRow);
+        
+        const selectInput = container.lastElementChild.querySelector('.producto-select');
+        
+        new TomSelect(selectInput, {
+            dropdownParent: 'body',
+            maxItems: 1,
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            options: productosOptions,
+            onChange: function(value) {
+                actualizarFila(this.wrapper);
+                if (value) {
+                    this.blur();
+                }
+            }
+        });
+    }
+
+    function eliminarFila(button) {
+        const container = document.getElementById('pedido-items-container');
+        const row = button.closest('tr');
+        
+        if (container.children.length > 1) {
+            const select = row.querySelector('.producto-select');
+            if (select && select.tomselect) {
+                select.tomselect.destroy();
+            }
+            row.remove();
+        } else {
+            const select = row.querySelector('.producto-select');
+            const cantidadInput = row.querySelector('.cantidad-input');
+            
+            if (select && select.tomselect) {
+                select.tomselect.clear();
+            }
+            cantidadInput.value = 1;
+            actualizarFila(row);
+        }
+        
+        calcularTotalGeneral();
+    }
+
+    // El resto de tu JavaScript (actualizarFila, calcularTotalGeneral, etc.)
+    // no necesita cambios y funciona correctamente.
+    function actualizarFila(element) {
+        const row = element.closest('tr');
+        const selectInput = row.querySelector('.producto-select');
+        const cantidadInput = row.querySelector('.cantidad-input');
+        const precioCell = row.querySelector('.precio-unit-cell');
+        const subtotalCell = row.querySelector('.subtotal-cell');
+
+        const productoId = selectInput.tomselect ? selectInput.tomselect.getValue() : null;
+        const producto = productosData.find(p => p.producto_id.toString() === productoId);
+        
+        if (producto) {
+            const cantidad = parseInt(cantidadInput.value) || 0;
+            const precio = parseFloat(producto.precio_unitario);
+            const subtotal = cantidad * precio;
+
+            precioCell.textContent = precio.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
+            subtotalCell.textContent = subtotal.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
+        } else {
+            precioCell.textContent = '0 CLP';
+            subtotalCell.textContent = '0 CLP';
+        }
+        calcularTotalGeneral();
+    }
+
+    function calcularTotalGeneral() {
+        const container = document.getElementById('pedido-items-container');
+        const rows = container.querySelectorAll('tr');
+        let totalGeneral = 0;
+
+        rows.forEach(row => {
+            const subtotalCell = row.querySelector('.subtotal-cell');
+            const subtotalValue = parseFloat(subtotalCell.textContent.replace(/[$.CLP\s]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
+            totalGeneral += subtotalValue;
+        });
+        
+        document.getElementById('total-general').textContent = totalGeneral.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
+        actualizarPedidoJson();
+    }
+    
+    function actualizarPedidoJson() {
+        const container = document.getElementById('pedido-items-container');
+        const rows = container.querySelectorAll('tr');
+        const pedidoItems = [];
+
+        rows.forEach(row => {
+            const selectInput = row.querySelector('.producto-select');
+            const cantidadInput = row.querySelector('.cantidad-input');
+            const productoId = selectInput.tomselect ? selectInput.tomselect.getValue() : null;
+            const producto = productosData.find(p => p.producto_id.toString() === productoId);
+
+            if (producto) {
+                const cantidad = parseInt(cantidadInput.value);
+                if (cantidad > 0) {
+                    pedidoItems.push({
+                        producto_id: producto.producto_id,
+                        nombre: producto.nombre,
+                        cantidad: cantidad,
+                        precio_unitario: parseFloat(producto.precio_unitario),
+                        subtotal: cantidad * parseFloat(producto.precio_unitario)
+                    });
+                }
+            }
+        });
+
+        document.getElementById('pedido_items_json').value = JSON.stringify(pedidoItems);
+    }
+    
+    function showConfirm(title, message, callback) {
+        const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        document.getElementById('confirmModalTitle').textContent = title;
+        document.getElementById('confirmModalBody').textContent = message;
+        
+        const confirmButton = document.getElementById('confirmModalButton');
+        const newConfirmButton = confirmButton.cloneNode(true);
+        confirmButton.parentNode.replaceChild(newConfirmButton, confirmButton);
+
+        newConfirmButton.addEventListener('click', () => {
+            callback();
+            confirmModal.hide();
+        }, { once: true }); // Asegura que el evento se dispare solo una vez
+
+        confirmModal.show();
+    }
 </script>
-{% endblock %} 
+{% endblock %}
+
