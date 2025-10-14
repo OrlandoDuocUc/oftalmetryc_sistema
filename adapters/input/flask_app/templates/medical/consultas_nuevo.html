@@ -3,67 +3,46 @@
 {% block title %}Historial de Consultas - Oftalmetryc{% endblock %}
 
 {% block extra_css %}
-/* ESTILOS ESPECÍFIC    // Función para cargar consultas desde la API
-    async function cargarConsultas() {
-        try {
-            const response = await fetch('/api/fichas-clinicas');
-            if (response.ok) {
-                const data = await response.json();
-                consultasData = data.data;
-                mostrarConsultas(consultasData);
-                updateConsultasCount(consultasData.length);
-            } else {
-                mostrarError('Error al cargar consultas');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            mostrarError('Error de conexión al cargar consultas');
-        }
-    }/
-        .page-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .search-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .consultas-table {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .consulta-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .consulta-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-        
-        .status-badge {
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
+/* ESTILOS ESPECÍFICOS */
+.page-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.search-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+.consultas-table {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.consulta-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.consulta-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+.status-badge {
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
 {% endblock %}
 
 {% block content %}
@@ -72,10 +51,10 @@
     <div class="page-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h1><i class="fas fa-calendar-check me-3"></i>Historial de Consultas</h1>
+                <h1><i class="fas fa-calendar-check me-3"></i>Historial de Consultas consultas_nuevo.html</h1>
                 <p class="mb-0">Gestión y seguimiento de consultas médicas oftalmológicas</p>
             </div>
-            <a href="/ficha-clinica-nuevo" class="btn btn-light btn-lg">
+            <a href="{{ url_for('medical.ficha_clinica') }}" class="btn btn-light btn-lg">
                 <i class="fas fa-plus me-2"></i>Nueva Consulta
             </a>
         </div>
@@ -89,8 +68,7 @@
                     <label for="searchConsulta" class="form-label fw-bold">
                         <i class="fas fa-search me-2"></i>Buscar Consulta
                     </label>
-                    <input type="text" class="form-control" id="searchConsulta" 
-                           placeholder="Buscar por paciente...">
+                    <input type="text" class="form-control" id="searchConsulta" placeholder="Buscar por paciente...">
                 </div>
             </div>
             <div class="col-md-3">
@@ -105,6 +83,7 @@
                     <select class="form-select" id="filterEstado">
                         <option value="">Todas</option>
                         <option value="completada">Completadas</option>
+                        <option value="en_proceso">En Proceso</option>
                         <option value="pendiente">Pendientes</option>
                         <option value="cancelada">Canceladas</option>
                     </select>
@@ -141,7 +120,7 @@
 
     <!-- BOTÓN VOLVER AL DASHBOARD MÉDICO -->
     <div class="text-center mt-4">
-        <a href="/dashboard-medico" class="btn btn-outline-secondary">
+        <a href="{{ url_for('medical.dashboard_medico') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard Médico
         </a>
     </div>
@@ -150,6 +129,12 @@
 
 {% block extra_js %}
 <script>
+    // ====== ENDPOINTS CON url_for (no hardcodear rutas) ======
+    const API_LIST_URL = "{{ url_for('medical.api_get_fichas_clinicas') }}";
+    // Helpers para armar URLs con ID conservando prefijo/blueprint:
+    const URL_VER_CONSULTA = (id) => "{{ url_for('medical.ver_consulta', consulta_id=0) }}".replace('/0', '/' + id);
+    const URL_EDITAR_CONSULTA = (id) => "{{ url_for('medical.editar_consulta', consulta_id=0) }}".replace('/0', '/' + id);
+
     let consultasData = [];
 
     // Cargar consultas al inicializar
@@ -160,14 +145,19 @@
     // Función para cargar consultas desde la API
     async function cargarConsultas() {
         try {
-            const response = await fetch('/api/fichas-clinicas');
-            if (response.ok) {
-                const data = await response.json();
-                consultasData = data.data;
+            const response = await fetch(API_LIST_URL, { headers: { 'Accept': 'application/json' } });
+            if (!response.ok) {
+                // Muestra el código de estado para depurar rápido
+                return mostrarError(`Error al cargar consultas (HTTP ${response.status})`);
+            }
+
+            const data = await response.json();
+            if (data && data.success) {
+                consultasData = Array.isArray(data.data) ? data.data : [];
                 mostrarConsultas(consultasData);
                 updateConsultasCount(consultasData.length);
             } else {
-                mostrarError('Error al cargar consultas');
+                mostrarError(data.error || 'Respuesta inválida de la API');
             }
         } catch (error) {
             console.error('Error:', error);
@@ -179,7 +169,7 @@
     function mostrarConsultas(consultas) {
         const container = document.getElementById('consultasList');
         
-        if (consultas.length === 0) {
+        if (!Array.isArray(consultas) || consultas.length === 0) {
             container.innerHTML = `
                 <div class="text-center py-5">
                     <i class="fas fa-calendar-times fa-3x text-muted"></i>
@@ -191,28 +181,30 @@
         }
 
         const consultasHTML = consultas.map(consulta => {
-            const fechaConsulta = new Date(consulta.fecha_consulta).toLocaleDateString();
-            const horaConsulta = new Date(consulta.fecha_consulta).toLocaleTimeString();
-            
-            // Extraer nombre del paciente desde el objeto cliente
-            const nombrePaciente = consulta.cliente ? 
-                `${consulta.cliente.nombres} ${consulta.cliente.ap_pat}` : 
-                'Sin nombre';
-            
-            // Extraer nombre del usuario (médico)
-            const nombreMedico = consulta.usuario ? 
-                consulta.usuario.nombre : 
-                'Sin asignar';
-            
-            // Mapear estado
-            const estadoTexto = consulta.estado === 'en_proceso' ? 'En Proceso' : 
-                              consulta.estado === 'completada' ? 'Completada' : 
-                              consulta.estado || 'Pendiente';
-            
-            const estadoClass = consulta.estado === 'completada' ? 'bg-success' :
-                              consulta.estado === 'en_proceso' ? 'bg-warning' :
-                              'bg-secondary';
-            
+            const fecha = consulta.fecha_consulta ? new Date(consulta.fecha_consulta) : null;
+            const fechaConsulta = fecha ? fecha.toLocaleDateString('es-CL') : '-';
+            const horaConsulta = fecha ? fecha.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }) : '-';
+
+            // Nombre del paciente desde el objeto cliente (inyectado por el controller)
+            const nombrePaciente = consulta.cliente
+                ? `${consulta.cliente.nombres || ''} ${consulta.cliente.ap_pat || ''}`.trim() || 'Sin nombre'
+                : 'Sin nombre';
+
+            const nombreMedico = (consulta.usuario && consulta.usuario.nombre) ? consulta.usuario.nombre : 'Sin asignar';
+
+            const estado = (consulta.estado || '').toLowerCase();
+            const estadoTexto = estado === 'en_proceso' ? 'En Proceso'
+                              : estado === 'completada' ? 'Completada'
+                              : estado === 'cancelada' ? 'Cancelada'
+                              : 'Pendiente';
+
+            const estadoClass = estado === 'completada' ? 'bg-success'
+                              : estado === 'en_proceso' ? 'bg-warning'
+                              : estado === 'cancelada' ? 'bg-danger'
+                              : 'bg-secondary';
+
+            const id = consulta.ficha_id;
+
             return `
                 <div class="consulta-card">
                     <div class="row align-items-center">
@@ -234,10 +226,10 @@
                             </span>
                         </div>
                         <div class="col-md-3 text-end">
-                            <button class="btn btn-outline-primary btn-sm me-2" onclick="verDetalles(${consulta.ficha_id})">
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="verDetalles(${id})">
                                 <i class="fas fa-eye"></i> Ver
                             </button>
-                            <button class="btn btn-outline-info btn-sm" onclick="editarConsulta(${consulta.ficha_id})">
+                            <button class="btn btn-outline-info btn-sm" onclick="editarConsulta(${id})">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
                         </div>
@@ -251,60 +243,51 @@
 
     // Función de búsqueda
     function buscarConsultas() {
-        const searchTerm = document.getElementById('searchConsulta').value.toLowerCase();
+        const searchTerm = (document.getElementById('searchConsulta').value || '').toLowerCase();
         const fechaFilter = document.getElementById('filterFecha').value;
         const estadoFilter = document.getElementById('filterEstado').value;
         
-        let consultasFiltradas = consultasData;
+        let consultasFiltradas = consultasData.slice();
 
-        // Filtrar por término de búsqueda
         if (searchTerm) {
             consultasFiltradas = consultasFiltradas.filter(consulta => {
-                const nombreCompleto = consulta.cliente ? 
-                    `${consulta.cliente.nombres} ${consulta.cliente.ap_pat} ${consulta.cliente.ap_mat || ''}`.toLowerCase() : '';
-                const rut = consulta.cliente ? consulta.cliente.rut.toLowerCase() : '';
-                const numeroConsulta = consulta.numero_consulta ? consulta.numero_consulta.toLowerCase() : '';
-                
-                return nombreCompleto.includes(searchTerm) || 
-                       rut.includes(searchTerm) || 
-                       numeroConsulta.includes(searchTerm);
+                const nombreCompleto = consulta.cliente
+                    ? `${consulta.cliente.nombres || ''} ${consulta.cliente.ap_pat || ''} ${consulta.cliente.ap_mat || ''}`.toLowerCase()
+                    : '';
+                const rut = consulta.cliente && consulta.cliente.rut ? consulta.cliente.rut.toLowerCase() : '';
+                const numeroConsulta = (consulta.numero_consulta || '').toLowerCase();
+                return nombreCompleto.includes(searchTerm) || rut.includes(searchTerm) || numeroConsulta.includes(searchTerm);
             });
         }
 
-        // Filtrar por fecha
         if (fechaFilter) {
-            consultasFiltradas = consultasFiltradas.filter(consulta => 
-                consulta.fecha_consulta.startsWith(fechaFilter)
+            consultasFiltradas = consultasFiltradas.filter(consulta =>
+                typeof consulta.fecha_consulta === 'string' && consulta.fecha_consulta.startsWith(fechaFilter)
             );
         }
 
-        // Filtrar por estado
         if (estadoFilter) {
-            consultasFiltradas = consultasFiltradas.filter(consulta => 
-                consulta.estado === estadoFilter
-            );
+            consultasFiltradas = consultasFiltradas.filter(consulta => (consulta.estado || '') === estadoFilter);
         }
 
         mostrarConsultas(consultasFiltradas);
         updateConsultasCount(consultasFiltradas.length);
     }
 
-    // Función para actualizar contador
+    // Contador
     function updateConsultasCount(count) {
         document.getElementById('totalConsultasCount').textContent = `${count} consulta${count !== 1 ? 's' : ''}`;
     }
 
-    // Función para ver detalles
+    // Navegación
     function verDetalles(consultaId) {
-        window.location.href = `/consultas/${consultaId}`;
+        window.location.href = URL_VER_CONSULTA(consultaId);
     }
-
-    // Función para editar consulta
     function editarConsulta(consultaId) {
-        window.location.href = `/consultas/${consultaId}/editar`;
+        window.location.href = URL_EDITAR_CONSULTA(consultaId);
     }
 
-    // Función para mostrar errores
+    // Errores
     function mostrarError(mensaje) {
         document.getElementById('consultasList').innerHTML = `
             <div class="text-center py-5">
@@ -314,6 +297,7 @@
                 <button class="btn btn-primary" onclick="cargarConsultas()">Reintentar</button>
             </div>
         `;
+        updateConsultasCount(0);
     }
 </script>
 {% endblock %}

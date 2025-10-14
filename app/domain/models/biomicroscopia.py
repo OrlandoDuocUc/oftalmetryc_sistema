@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, func, Boolean
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
 from app.infraestructure.utils.tables import Base
 
@@ -6,7 +6,7 @@ class Biomicroscopia(Base):
     __tablename__ = 'biomicroscopia'
 
     biomicroscopia_id = Column(Integer, primary_key=True, autoincrement=True)
-    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id'), nullable=False)
+    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id', ondelete='CASCADE'), nullable=False)
     
     # OJO DERECHO
     parpados_od = Column(Text)
@@ -29,19 +29,18 @@ class Biomicroscopia(Base):
     cristalino_oi = Column(Text)
     
     observaciones_generales = Column(Text)
-    fecha_examen = Column(DateTime, default=func.now())
+    fecha_examen = Column(DateTime, default=func.now(), nullable=False)
 
-    # Relaciones
+    # Relación
     ficha = relationship("FichaClinica", foreign_keys=[ficha_id])
 
     def __repr__(self):
-        return f"<Biomicroscopia(biomicroscopia_id={self.biomicroscopia_id}, ficha_id={self.ficha_id})>"
+        return f"<Biomicroscopia(id={self.biomicroscopia_id}, ficha_id={self.ficha_id})>"
 
     def to_dict(self):
         return {
             'biomicroscopia_id': self.biomicroscopia_id,
             'ficha_id': self.ficha_id,
-            # OJO DERECHO
             'parpados_od': self.parpados_od,
             'conjuntiva_od': self.conjuntiva_od,
             'cornea_od': self.cornea_od,
@@ -50,7 +49,6 @@ class Biomicroscopia(Base):
             'pupila_od_mm': self.pupila_od_mm,
             'pupila_od_reaccion': self.pupila_od_reaccion,
             'cristalino_od': self.cristalino_od,
-            # OJO IZQUIERDO
             'parpados_oi': self.parpados_oi,
             'conjuntiva_oi': self.conjuntiva_oi,
             'cornea_oi': self.cornea_oi,

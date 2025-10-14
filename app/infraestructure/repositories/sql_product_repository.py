@@ -1,67 +1,130 @@
-from app.domain.models.products import Product
 from sqlalchemy.orm import Session
-from sqlalchemy import text
-from datetime import datetime
+from app.domain.models.products import Product
+
 
 class SQLProductRepository:
     def __init__(self, db_session: Session):
         self.db = db_session
 
-    def get_all(self, include_deleted=False, only_deleted=False):
-        """Obtiene productos usando SQLAlchemy ORM para más eficiencia."""
+    # ---------- Lectura ----------
+    def get_all(self, include_deleted: bool = False, only_deleted: bool = False):
+        """
+        Obtiene productos usando ORM. No hace commit (solo lectura).
+        """
         query = self.db.query(Product)
         if only_deleted:
-            return query.filter(Product.estado == False).all()
+            return query.filter(Product.estado.is_(False)).all()
         if not include_deleted:
-            return query.filter(Product.estado == True).all()
+            return query.filter(Product.estado.is_(True)).all()
         return query.all()
 
-    def get_by_id(self, product_id: int):
-        return self.db.query(Product).filter(Product.producto_id == product_id).first()
+    def get_by_id(self, product_id: int, for_update: bool = False):
+        """
+        Obtiene un producto por ID. Si for_update=True, bloquea la fila (SELECT ... FOR UPDATE).
+        Útil para operaciones de stock en transacciones concurrentes.
+        """
+        q = self.db.query(Product).filter(Product.producto_id == product_id)
+        if for_update:
+            q = q.with_for_update()  # requiere transacción activa (BEGIN implícito)
+        return q.first()
 
-    def save(self, product: Product):
-        """Guarda un producto, ya sea creando uno nuevo o actualizando uno existente."""
+    # ---------- Escritura ----------
+    def save(self, product: Product, *, commit: bool = False):
+        """
+        Guarda un producto (insert/update). Por defecto NO hace commit para
+        permitir transacciones atómicas a nivel de servicio.
+        - commit=False -> solo flush/refresh (deja el commit al servicio)
+        - commit=True  -> commit inmediato (para usos fuera de la venta)
+        """
         try:
-            # Si el objeto ya tiene una sesión, se actualizará; si es nuevo, se añadirá.
             self.db.add(product)
-            self.db.commit()
+            self.db.flush()
             self.db.refresh(product)
+            if commit:
+                self.db.commit()
             return product
-        except Exception as e:
+        except Exception:
             self.db.rollback()
-            raise e
+            raise
 
-    def delete(self, product_id: int):
-        """Intenta eliminar físicamente. Si falla, hace una eliminación lógica."""
-        product = self.get_by_id(product_id)
-        if product:
-            try:
-                # Intento de eliminación física
-                self.db.delete(product)
-                self.db.commit()
-                return True
-            except Exception:
-                # Fallback a eliminación lógica si hay dependencias (ej. ventas)
-                self.db.rollback()
-                product.estado = False
-                self.db.commit()
-                return False
-        return None
+    def delete(self, product_id: int, *, commit: bool = True):
+        """
+        Intenta eliminación física. Si falla (FK, etc.), hace soft-delete.
+        commit=True por compatibilidad en usos administrativos.
+        """
+        product = self.get_by_id(product_id, for_update=True)
+        if not product:
+            return None
 
-    def restore(self, product_id: int):
-        """Restaura un producto que fue eliminado lógicamente."""
-        product = self.get_by_id(product_id)
-        if product and product.estado == False:
+        try:
+            self.db.delete(product)
+            if commit:
+                self.db.commit()
+            else:
+                self.db.flush()
+            return True
+        except Exception:
+            # Soft delete en caso de restricciones
+            self.db.rollback()
+            product = self.get_by_id(product_id, for_update=True)
+            if not product:
+                return None
+            product.estado = False
+            if commit:
+                self.db.commit()
+            else:
+                self.db.flush()
+            return False
+
+    def restore(self, product_id: int, *, commit: bool = True):
+        product = self.get_by_id(product_id, for_update=True)
+        if product and product.estado is False:
             product.estado = True
-            self.db.commit()
+            if commit:
+                self.db.commit()
+            else:
+                self.db.flush()
             return True
         return False
 
-    def update_stock(self, product_id: int, new_stock: int):
-        """Actualiza solo el stock de un producto."""
-        product = self.get_by_id(product_id)
-        if product:
-            product.stock = new_stock
+    def update_stock(self, product_id: int, new_stock: int, *, commit: bool = False):
+        """
+        Actualiza stock a un valor específico. Usa FOR UPDATE.
+        Respeta el CHECK de DB (stock >= 0).
+        Por defecto NO hace commit para integrarse a transacciones atómicas.
+        """
+        product = self.get_by_id(product_id, for_update=True)
+        if not product:
+            return False
+        product.stock = new_stock
+        if commit:
             self.db.commit()
-            return True
-        return False
+        else:
+            self.db.flush()
+        return True
+
+    # ---------- Ayudantes de stock seguros ----------
+    def decrement_stock(self, product_id: int, quantity: int, *, commit: bool = False):
+        """
+        Resta 'quantity' del stock con bloqueo de fila (FOR UPDATE).
+        No hace commit por defecto para permitir una venta atómica.
+        Lanza ValueError si no hay stock suficiente.
+        """
+        if quantity <= 0:
+            return self.get_by_id(product_id)  # no-op
+
+        product = self.get_by_id(product_id, for_update=True)
+        if not product:
+            raise ValueError(f"Producto ID {product_id} no existe.")
+
+        current = product.stock or 0
+        if current < quantity:
+            raise ValueError(f"Stock insuficiente para el producto {product.nombre}.")
+
+        product.stock = current - quantity
+
+        self.db.flush()
+        if commit:
+            self.db.commit()
+
+        return product

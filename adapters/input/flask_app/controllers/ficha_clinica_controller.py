@@ -1,4 +1,11 @@
 from flask import request, jsonify
+
+# app/presentation/controllers/ficha_clinica_controller.py
+# Alias simple para usar la versión correcta del controlador.
+# Ajusta el import si tu árbol de paquetes usa otra ruta.
+
+from app.presentation.controllers.ficha_clinica_controller_nuevo import FichaClinicaController
+
 from app.infraestructure.utils.db import SessionLocal
 from app.domain.models.consulta_medica import FichaClinica
 from app.domain.models.paciente import PacienteMedico

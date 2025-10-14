@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Registrar Nueva Venta</h2>
+        <h2>Registrar Nueva Venta - registrar_venta.html</h2>
     </div>
 
     <!-- Formulario principal que engloba todo el pedido -->
@@ -99,7 +99,8 @@
 
 {% block extra_js %}
 <script>
-    const productosData = JSON.parse('{{ products_json|safe }}');
+    // IMPORTANTE: inyectamos el JSON directo (sin JSON.parse ni comillas)
+    const productosData = {{ products_json|safe }};
     const productosOptions = productosData.map(p => ({
         value: p.producto_id.toString(),
         text: p.nombre
@@ -109,8 +110,19 @@
         if (document.getElementById('pedido-items-container').children.length === 0) {
             agregarFilaProducto();
         }
+
+        // Fuerza refrescar el hidden antes de enviar, y valida carrito vacío
+        document.getElementById('sale-form').addEventListener('submit', function(e) {
+            actualizarPedidoJson();
+            const pedidoJson = document.getElementById('pedido_items_json').value;
+            if (!pedidoJson || pedidoJson === '[]') {
+                e.preventDefault();
+                alert('Debes agregar al menos un producto antes de continuar.');
+                return false;
+            }
+        });
         
-        // --- INICIO CORRECCIÓN: Lógica de confirmación para salir ---
+        // Confirmar navegación si hay pedido en curso
         document.getElementById('dashboard-link').addEventListener('click', function(event) {
             const pedidoJson = document.getElementById('pedido_items_json').value;
             // Verificar si el pedido no está vacío
@@ -126,7 +138,6 @@
                 );
             }
         });
-        // --- FIN CORRECCIÓN ---
     });
     
     function agregarFilaProducto() {
@@ -188,8 +199,6 @@
         calcularTotalGeneral();
     }
 
-    // El resto de tu JavaScript (actualizarFila, calcularTotalGeneral, etc.)
-    // no necesita cambios y funciona correctamente.
     function actualizarFila(element) {
         const row = element.closest('tr');
         const selectInput = row.querySelector('.producto-select');
@@ -214,18 +223,27 @@
         calcularTotalGeneral();
     }
 
+    // Recalcula el total usando los datos (no parsea el texto formateado)
     function calcularTotalGeneral() {
         const container = document.getElementById('pedido-items-container');
         const rows = container.querySelectorAll('tr');
         let totalGeneral = 0;
 
         rows.forEach(row => {
-            const subtotalCell = row.querySelector('.subtotal-cell');
-            const subtotalValue = parseFloat(subtotalCell.textContent.replace(/[$.CLP\s]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
-            totalGeneral += subtotalValue;
+            const selectInput = row.querySelector('.producto-select');
+            const cantidadInput = row.querySelector('.cantidad-input');
+            const productoId = selectInput.tomselect ? selectInput.tomselect.getValue() : null;
+            const producto = productosData.find(p => p.producto_id.toString() === productoId);
+            const cantidad = parseInt(cantidadInput.value) || 0;
+
+            if (producto && cantidad > 0) {
+                totalGeneral += cantidad * parseFloat(producto.precio_unitario);
+            }
         });
         
-        document.getElementById('total-general').textContent = totalGeneral.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
+        document.getElementById('total-general').textContent =
+            totalGeneral.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
+
         actualizarPedidoJson();
     }
     
@@ -269,10 +287,9 @@
         newConfirmButton.addEventListener('click', () => {
             callback();
             confirmModal.hide();
-        }, { once: true }); // Asegura que el evento se dispare solo una vez
+        }, { once: true });
 
         confirmModal.show();
     }
 </script>
 {% endblock %}
-

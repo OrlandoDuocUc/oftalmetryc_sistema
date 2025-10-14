@@ -5,13 +5,13 @@
 {% block extra_css %}
 /* ESTILOS ESPECÍFICOS DEL DASHBOARD MÉDICO */
 
-    /* --- CORRECCIÓN DEFINITIVA: Sidebar ahora es 'fixed' --- */
+    /* Sidebar fijo */
     .medical-sidebar {
-        position: fixed; /* Se fija a la ventana del navegador */
-        top: 56px; /* Se posiciona justo debajo del navbar principal */
+        position: fixed;
+        top: 56px;
         left: 0;
         width: 280px;
-        height: calc(100vh - 56px); /* Ocupa toda la altura visible */
+        height: calc(100vh - 56px);
         background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
         box-shadow: 2px 0 15px rgba(0,0,0,0.2);
         z-index: 1020;
@@ -22,12 +22,7 @@
         padding: 25px 20px;
         background: linear-gradient(135deg, var(--primary-color), var(--dark-bg));
         border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    .sidebar-header h4 {
         color: white;
-        margin: 0;
-        font-weight: bold;
     }
     
     .sidebar-nav {
@@ -55,9 +50,9 @@
         margin-right: 15px;
     }
     
-    /* --- CORRECCIÓN DEFINITIVA: Contenido principal con margen izquierdo --- */
+    /* Contenido principal con margen izquierdo */
     .main-content {
-        margin-left: 280px; /* Dejamos un espacio a la izquierda para el sidebar fijo */
+        margin-left: 280px;
         padding: 20px;
     }
     
@@ -75,24 +70,14 @@
         font-weight: bold;
     }
     
-    .stats-card {
-        background: linear-gradient(135deg, #fff, #f8f9fa);
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        padding: 25px;
-        text-align: center;
-    }
-    
     /* (El resto de los estilos se mantienen igual) */
+    .stats-card { background: linear-gradient(135deg, #fff, #f8f9fa); border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 25px; text-align: center; }
     .stats-icon { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin: 0 auto 15px auto; color: white; }
     .stats-number { font-size: 2.5rem; font-weight: bold; margin: 10px 0; }
     .stats-label { color: #6c757d; font-size: 0.9rem; text-transform: uppercase; }
     .medical-chart { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .chart-container { position: relative; height: 300px; width: 100%; }
     .activity-feed { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-height: 400px; overflow-y: auto; }
-    .activity-item { padding: 12px 0; border-bottom: 1px solid #f1f3f4; }
-    .activity-item:last-child { border-bottom: none; }
-    .activity-icon { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: white; font-size: 14px; }
     
     /* Responsividad */
     @media (max-width: 992px) {
@@ -116,20 +101,10 @@
     </div>
     <nav class="sidebar-nav">
         <ul class="nav flex-column">
+            <!-- --- CORRECCIÓN: SE ELIMINA EL BOTÓN REDUNDANTE "DASHBOARD MÉDICO" --- -->
             <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('medical.dashboard_medico') }}">
-                    <i class="fas fa-chart-line"></i>Dashboard Médico
-                </a>
-            </li>
-            <li class="nav-item">
-                <!-- Enlace corregido a la página de gestión de pacientes -->
                 <a class="nav-link" href="{{ url_for('medical.pacientes') }}">
                     <i class="fas fa-users"></i>Gestión Pacientes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('medical.nuevo_paciente') }}">
-                    <i class="fas fa-user-plus"></i>Nuevo Paciente
                 </a>
             </li>
             <li class="nav-item">
@@ -210,29 +185,6 @@
             <div class="activity-feed">
                 <h5 class="mb-3"><i class="fas fa-history me-2"></i>Actividad Reciente</h5>
                 <div id="actividadReciente"><!-- Los datos se cargarán aquí con JS --></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ACCESOS RÁPIDOS -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="medical-chart">
-                <h5 class="mb-3"><i class="fas fa-bolt me-2"></i>Accesos Rápidos</h5>
-                <div class="row">
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <a href="{{ url_for('medical.nuevo_paciente') }}" class="btn btn-outline-primary btn-lg w-100 p-3"><i class="fas fa-user-plus d-block mb-2"></i>Nuevo Paciente</a>
-                    </div>
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <a href="{{ url_for('medical.ficha_clinica') }}" class="btn btn-outline-success btn-lg w-100 p-3"><i class="fas fa-clipboard-check d-block mb-2"></i>Ficha Clínica</a>
-                    </div>
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <a href="{{ url_for('medical.examen_oftalmologico_nuevo') }}" class="btn btn-outline-warning btn-lg w-100 p-3"><i class="fas fa-eye d-block mb-2"></i>Examen</a>
-                    </div>
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <a href="{{ url_for('medical.consultas') }}" class="btn btn-outline-info btn-lg w-100 p-3"><i class="fas fa-history d-block mb-2"></i>Historial</a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Date, ForeignKey, func, Time
+# app/domain/models/examenes_medicos.py
+from sqlalchemy import Column, Integer, String, Text, DateTime, Date, Time, ForeignKey, func
 from sqlalchemy.orm import relationship
 from app.infraestructure.utils.tables import Base
 
@@ -6,24 +7,24 @@ class FondoOjo(Base):
     __tablename__ = 'fondo_ojo'
 
     fondo_ojo_id = Column(Integer, primary_key=True, autoincrement=True)
-    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id'), nullable=False)
-    
+    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id', ondelete='CASCADE'), nullable=False)
+
     # OJO DERECHO
     disco_optico_od = Column(Text)
     macula_od = Column(Text)
     vasos_od = Column(Text)
     retina_periferica_od = Column(Text)
-    
+
     # OJO IZQUIERDO
     disco_optico_oi = Column(Text)
     macula_oi = Column(Text)
     vasos_oi = Column(Text)
     retina_periferica_oi = Column(Text)
-    
-    observaciones = Column(Text)
-    fecha_examen = Column(DateTime, default=func.now())
 
-    # Relaciones
+    observaciones = Column(Text)
+    fecha_examen = Column(DateTime, default=func.now(), nullable=False)
+
+    # Relación
     ficha = relationship("FichaClinica", foreign_keys=[ficha_id])
 
     def __repr__(self):
@@ -49,15 +50,14 @@ class PresionIntraocular(Base):
     __tablename__ = 'presion_intraocular'
 
     pio_id = Column(Integer, primary_key=True, autoincrement=True)
-    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id'), nullable=False)
+    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id', ondelete='CASCADE'), nullable=False)
     pio_od = Column(String(10))
     pio_oi = Column(String(10))
     metodo_medicion = Column(String(50))
     hora_medicion = Column(Time)
     observaciones = Column(Text)
-    fecha_medicion = Column(DateTime, default=func.now())
+    fecha_medicion = Column(DateTime, default=func.now(), nullable=False)
 
-    # Relaciones
     ficha = relationship("FichaClinica", foreign_keys=[ficha_id])
 
     def __repr__(self):
@@ -79,14 +79,13 @@ class CampoVisual(Base):
     __tablename__ = 'campos_visuales'
 
     campo_visual_id = Column(Integer, primary_key=True, autoincrement=True)
-    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id'), nullable=False)
+    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id', ondelete='CASCADE'), nullable=False)
     tipo_campo = Column(String(50))
     resultado_od = Column(Text)
     resultado_oi = Column(Text)
     interpretacion = Column(Text)
-    fecha_examen = Column(DateTime, default=func.now())
+    fecha_examen = Column(DateTime, default=func.now(), nullable=False)
 
-    # Relaciones
     ficha = relationship("FichaClinica", foreign_keys=[ficha_id])
 
     def __repr__(self):
@@ -107,16 +106,15 @@ class DiagnosticoMedico(Base):
     __tablename__ = 'diagnosticos'
 
     diagnostico_id = Column(Integer, primary_key=True, autoincrement=True)
-    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id'), nullable=False)
+    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id', ondelete='CASCADE'), nullable=False)
     diagnostico_principal = Column(Text, nullable=False)
     diagnosticos_secundarios = Column(Text)
     cie_10_principal = Column(String(10))
     cie_10_secundarios = Column(Text)
     severidad = Column(String(20))
     observaciones = Column(Text)
-    fecha_diagnostico = Column(DateTime, default=func.now())
+    fecha_diagnostico = Column(DateTime, default=func.now(), nullable=False)
 
-    # Relaciones
     ficha = relationship("FichaClinica", foreign_keys=[ficha_id])
 
     def __repr__(self):
@@ -139,16 +137,15 @@ class Tratamiento(Base):
     __tablename__ = 'tratamientos'
 
     tratamiento_id = Column(Integer, primary_key=True, autoincrement=True)
-    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id'), nullable=False)
+    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id', ondelete='CASCADE'), nullable=False)
     medicamentos = Column(Text)
     tratamiento_no_farmacologico = Column(Text)
     recomendaciones = Column(Text)
     plan_seguimiento = Column(Text)
     proxima_cita = Column(Date)
     urgencia_seguimiento = Column(String(20))
-    fecha_tratamiento = Column(DateTime, default=func.now())
+    fecha_tratamiento = Column(DateTime, default=func.now(), nullable=False)
 
-    # Relaciones
     ficha = relationship("FichaClinica", foreign_keys=[ficha_id])
 
     def __repr__(self):

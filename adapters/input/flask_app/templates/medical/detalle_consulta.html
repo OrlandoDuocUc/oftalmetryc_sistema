@@ -4,81 +4,37 @@
 
 {% block extra_css %}
 /* ESTILOS ESPECÍFICOS DE DETALLE DE CONSULTA */
-        .page-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .info-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .section-title {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        
-        .patient-badge {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 15px 25px;
-            border-radius: 50px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: bold;
-        }
-        
-        .estado-badge {
-            border-radius: 20px;
-            padding: 8px 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-        
-        .data-card {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 15px 0;
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .exam-result {
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .eye-section {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 15px 0;
-        }
-        
-        .eye-section.od {
-            border-color: #007bff;
-            background: linear-gradient(45deg, #f0f8ff, #ffffff);
-        }
-        
-        .eye-section.oi {
-            border-color: #28a745;
-            background: linear-gradient(45deg, #f0fff0, #ffffff);
-        }
+.page-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.info-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+.section-title {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+.info-label { font-weight: bold; color: #555; }
+.info-value { color: #333; }
+.eye-section {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+}
+.eye-section h6 { font-weight: bold; }
 {% endblock %}
 
 {% block content %}
@@ -87,346 +43,252 @@
     <div class="page-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h1><i class="fas fa-file-medical me-3"></i>Detalle de Consulta</h1>
+                <h1><i class="fas fa-file-medical-alt me-3"></i>Detalle de Consulta - detalle_consulta.html</h1>
                 <p class="mb-0" id="consultaSubtitle">Revisión completa de la ficha clínica</p>
             </div>
             <div>
-                <a href="/consultas-nuevo" class="btn btn-light btn-lg me-2">
-                    <i class="fas fa-arrow-left me-2"></i>Volver
+                <a href="{{ url_for('medical.consultas') }}" class="btn btn-light me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Volver al Historial
                 </a>
-                <button class="btn btn-outline-light btn-lg" onclick="editarConsulta()" id="btnEditar">
-                    <i class="fas fa-edit me-2"></i>Editar
-                </button>
-                <button class="btn btn-warning btn-lg" onclick="nuevoExamen()" id="btnExamen">
-                    <i class="fas fa-eye me-2"></i>Examen
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- INFORMACIÓN DEL PACIENTE Y CONSULTA -->
-    <div class="info-section">
-        <div class="d-flex justify-content-between align-items-start mb-4">
-            <div>
-                <div class="patient-badge mb-3" id="patientInfo">
-                    <i class="fas fa-user"></i>
-                    <span id="patientName">Cargando...</span>
+                <div class="btn-group">
+                    <button class="btn btn-outline-light" onclick="editarConsulta()">
+                        <i class="fas fa-edit me-2"></i>Editar
+                    </button>
+                    <button class="btn btn-outline-light" onclick="imprimirFicha()">
+                        <i class="fas fa-print me-2"></i>Imprimir Ficha
+                    </button>
+                    <a href="#" id="generateCertificateBtn" class="btn btn-warning">
+                        <i class="fas fa-file-medical me-2"></i>Generar Certificado
+                    </a>
                 </div>
-                <p class="text-muted mb-1">
-                    <i class="fas fa-file-medical me-2"></i>Ficha: <span id="numeroFicha">-</span> | 
-                    <i class="fas fa-calendar me-2"></i>Fecha: <span id="fechaConsulta">-</span>
-                </p>
-                <p class="text-muted mb-0">
-                    <i class="fas fa-user-md me-2"></i>Médico: <span id="nombreMedico">-</span> | 
-                    <i class="fas fa-clock me-2"></i>Hora: <span id="horaConsulta">-</span>
-                </p>
-            </div>
-            <div>
-                <span class="badge estado-badge" id="estadoConsulta">-</span>
             </div>
         </div>
     </div>
 
-    <!-- MOTIVO DE CONSULTA E HISTORIA ACTUAL -->
-    <div class="info-section">
-        <h4 class="section-title">
-            <i class="fas fa-notes-medical me-2"></i>Motivo de Consulta e Historia Actual
-        </h4>
-        
-        <div class="data-card">
-            <h6><i class="fas fa-comment-medical me-2"></i>Motivo de Consulta</h6>
-            <p class="mb-0" id="motivoConsulta">Cargando información...</p>
+    <!-- SECCIÓN DE CARGA / ERROR -->
+    <div id="loadingSection" class="text-center py-5">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Cargando...</span>
         </div>
-        
-        <div class="data-card">
-            <h6><i class="fas fa-file-alt me-2"></i>Historia Actual</h6>
-            <p class="mb-0" id="historiaActual">Cargando información...</p>
-        </div>
+        <p class="text-muted mt-3">Cargando información de la consulta...</p>
     </div>
 
-    <!-- EXAMEN OFTALMOLÓGICO -->
-    <div class="info-section">
-        <h4 class="section-title">
-            <i class="fas fa-eye me-2"></i>Examen Oftalmológico
-        </h4>
-        
-        <!-- AGUDEZA VISUAL -->
-        <div class="exam-result">
-            <h6><i class="fas fa-search me-2"></i>Agudeza Visual</h6>
+    <div id="errorSection" class="alert alert-danger text-center" style="display:none;">
+        <span id="errorMessage"></span>
+    </div>
+
+    <!-- CONTENIDO DE LA CONSULTA -->
+    <div id="consultaContent" style="display:none;">
+        <!-- INFORMACIÓN GENERAL -->
+        <div class="info-section">
+            <div class="row">
+                <div class="col-md-8">
+                    <h5 class="section-title">Información General</h5>
+                    <p><strong class="info-label">Paciente:</strong> <span id="patientName" class="info-value"></span></p>
+                    <p><strong class="info-label">Médico:</strong> <span id="nombreMedico" class="info-value"></span></p>
+                    <p><strong class="info-label">Motivo de Consulta:</strong> <span id="motivoConsulta" class="info-value"></span></p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <p><strong class="info-label">N° Ficha:</strong> <span id="numeroFicha" class="info-value"></span></p>
+                    <p><strong class="info-label">Fecha:</strong> <span id="fechaConsulta" class="info-value"></span></p>
+                    <p><strong class="info-label">Hora:</strong> <span id="horaConsulta" class="info-value"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXAMEN VISUAL -->
+        <div class="info-section">
+            <h5 class="section-title">Examen Visual</h5>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="eye-section od">
-                        <h6 class="text-primary"><i class="fas fa-eye me-2"></i>Ojo Derecho (OD)</h6>
-                        <div class="row">
-                            <div class="col-6">
-                                <small class="text-muted">Sin Corrección:</small>
-                                <p class="mb-1" id="avOdSc">-</p>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted">Con Corrección:</small>
-                                <p class="mb-1" id="avOdCc">-</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <small class="text-muted">Pinhole:</small>
-                                <p class="mb-1" id="avOdPh">-</p>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted">Cerca:</small>
-                                <p class="mb-1" id="avOdCerca">-</p>
-                            </div>
-                        </div>
+                    <div class="eye-section">
+                        <h6><i class="fas fa-eye me-2 text-primary"></i>Agudeza Visual (Ojo Derecho)</h6>
+                        <p><strong>Sin Corrección:</strong> <span id="avOdSc">-</span></p>
+                        <p><strong>Con Corrección:</strong> <span id="avOdCc">-</span></p>
+                        <p><strong>Pinhole:</strong> <span id="avOdPh">-</span></p>
+                        <p class="mb-0"><strong>Visión de Cerca:</strong> <span id="avOdCerca">-</span></p>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="eye-section oi">
-                        <h6 class="text-success"><i class="fas fa-eye me-2"></i>Ojo Izquierdo (OI)</h6>
-                        <div class="row">
-                            <div class="col-6">
-                                <small class="text-muted">Sin Corrección:</small>
-                                <p class="mb-1" id="avOiSc">-</p>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted">Con Corrección:</small>
-                                <p class="mb-1" id="avOiCc">-</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <small class="text-muted">Pinhole:</small>
-                                <p class="mb-1" id="avOiPh">-</p>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted">Cerca:</small>
-                                <p class="mb-1" id="avOiCerca">-</p>
-                            </div>
-                        </div>
+                    <div class="eye-section">
+                        <h6><i class="fas fa-eye me-2 text-success"></i>Agudeza Visual (Ojo Izquierdo)</h6>
+                        <p><strong>Sin Corrección:</strong> <span id="avOiSc">-</span></p>
+                        <p><strong>Con Corrección:</strong> <span id="avOiCc">-</span></p>
+                        <p><strong>Pinhole:</strong> <span id="avOiPh">-</span></p>
+                        <p class="mb-0"><strong>Visión de Cerca:</strong> <span id="avOiCerca">-</span></p>
                     </div>
                 </div>
             </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="eye-section">
+                        <h6><i class="fas fa-glasses me-2 text-primary"></i>Refracción Final (Ojo Derecho)</h6>
+                        <p><strong>Esfera:</strong> <span id="esferaOd">-</span> | <strong>Cilindro:</strong> <span id="cilindroOd">-</span> | <strong>Eje:</strong> <span id="ejeOd">-</span></p>
+                        <p class="mb-0"><strong>Adición:</strong> <span id="adicionOd">-</span></p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="eye-section">
+                        <h6><i class="fas a-glasses me-2 text-success"></i>Refracción Final (Ojo Izquierdo)</h6>
+                        <p><strong>Esfera:</strong> <span id="esferaOi">-</span> | <strong>Cilindro:</strong> <span id="cilindroOi">-</span> | <strong>Eje:</strong> <span id="ejeOi">-</span></p>
+                        <p class="mb-0"><strong>Adición:</strong> <span id="adicionOi">-</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-12"><p><strong>Distancia Pupilar:</strong> <span id="distanciaPupilar">-</span></p></div>
+            </div>
         </div>
 
-        <!-- REFRACCIÓN -->
-        <div class="exam-result">
-            <h6><i class="fas fa-glasses me-2"></i>Refracción</h6>
+        <!-- CONCLUSIÓN -->
+        <div class="info-section">
+            <h5 class="section-title">Conclusión Clínica</h5>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="eye-section od">
-                        <h6 class="text-primary"><i class="fas fa-eye me-2"></i>Ojo Derecho (OD)</h6>
-                        <div class="row">
-                            <div class="col-3">
-                                <small class="text-muted">Esfera:</small>
-                                <p class="mb-1" id="esferaOd">-</p>
-                            </div>
-                            <div class="col-3">
-                                <small class="text-muted">Cilindro:</small>
-                                <p class="mb-1" id="cilindroOd">-</p>
-                            </div>
-                            <div class="col-3">
-                                <small class="text-muted">Eje:</small>
-                                <p class="mb-1" id="ejeOd">-</p>
-                            </div>
-                            <div class="col-3">
-                                <small class="text-muted">Adición:</small>
-                                <p class="mb-1" id="adicionOd">-</p>
-                            </div>
-                        </div>
-                    </div>
+                    <h6><i class="fas fa-diagnoses me-2"></i>Diagnóstico</h6>
+                    <p id="diagnostico">-</p>
                 </div>
                 <div class="col-md-6">
-                    <div class="eye-section oi">
-                        <h6 class="text-success"><i class="fas fa-eye me-2"></i>Ojo Izquierdo (OI)</h6>
-                        <div class="row">
-                            <div class="col-3">
-                                <small class="text-muted">Esfera:</small>
-                                <p class="mb-1" id="esferaOi">-</p>
-                            </div>
-                            <div class="col-3">
-                                <small class="text-muted">Cilindro:</small>
-                                <p class="mb-1" id="cilindroOi">-</p>
-                            </div>
-                            <div class="col-3">
-                                <small class="text-muted">Eje:</small>
-                                <p class="mb-1" id="ejeOi">-</p>
-                            </div>
-                            <div class="col-3">
-                                <small class="text-muted">Adición:</small>
-                                <p class="mb-1" id="adicionOi">-</p>
-                            </div>
-                        </div>
-                    </div>
+                    <h6><i class="fas fa-pills me-2"></i>Tratamiento y Recomendaciones</h6>
+                    <p id="tratamiento">-</p>
                 </div>
             </div>
-        </div>
-
-        <!-- INFORMACIÓN ADICIONAL -->
-        <div class="exam-result">
-            <h6><i class="fas fa-ruler me-2"></i>Información Adicional</h6>
-            <div class="row">
-                <div class="col-md-4">
-                    <small class="text-muted">Distancia Pupilar:</small>
-                    <p class="mb-1" id="distanciaPupilar">-</p>
-                </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Tipo de Lente:</small>
-                    <p class="mb-1" id="tipoLente">-</p>
-                </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Número de Consulta:</small>
-                    <p class="mb-1" id="numeroConsulta">-</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MENSAJE DE CARGA -->
-    <div class="info-section" id="loadingSection">
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="text-muted mt-3">Cargando información de la consulta...</p>
-        </div>
-    </div>
-
-    <!-- MENSAJE DE ERROR -->
-    <div class="info-section d-none" id="errorSection">
-        <div class="text-center py-5">
-            <i class="fas fa-exclamation-triangle fa-3x text-warning"></i>
-            <h5 class="text-warning mt-3">Error al cargar</h5>
-            <p class="text-muted" id="errorMessage">No se pudo cargar la información de la consulta</p>
-            <button class="btn btn-primary" onclick="cargarConsulta()">Reintentar</button>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-    // Variables globales
-    let consultaId = window.location.pathname.split('/')[2];
-    let consultaData = {};
+    // ID recibido desde la URL por Jinja
+    const consultaId = {{ consulta_id|tojson }};
 
-    // Cargar información al iniciar
-    document.addEventListener('DOMContentLoaded', function() {
+    // Endpoints generados con url_for para evitar hardcodear rutas y respetar el blueprint/prefijos
+    const API_GET_BY_ID_TEMPLATE = "{{ url_for('medical.api_get_ficha_clinica_by_id', ficha_id=0) }}";
+    const API_GET_BY_ID_URL = API_GET_BY_ID_TEMPLATE.replace('/0', '/' + consultaId);
+
+    const EDIT_URL_TEMPLATE = "{{ url_for('medical.editar_consulta', consulta_id=0) }}";
+    const CERT_URL_TEMPLATE = "{{ url_for('medical.certificado_consulta', consulta_id=0) }}";
+
+    document.addEventListener('DOMContentLoaded', () => {
         if (consultaId) {
             cargarConsulta();
         } else {
-            mostrarError('ID de consulta no válido');
+            mostrarError('ID de consulta no válido.');
         }
     });
 
-    // Cargar información de la consulta
+    // Helpers para lectura segura
+    function getByPath(obj, path) {
+        return path.split('.').reduce((o, k) =>
+            (o && o[k] !== undefined && o[k] !== null && o[k] !== '') ? o[k] : undefined, obj);
+    }
+    function pick(obj, paths, fallback='-') {
+        for (const p of paths) {
+            const v = getByPath(obj, p);
+            if (v !== undefined) return v;
+        }
+        return fallback;
+    }
+
     async function cargarConsulta() {
         try {
-            mostrarCarga();
-            
-            const response = await fetch(`/api/fichas-clinicas/${consultaId}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                consultaData = data.ficha_clinica;
-                mostrarInformacion(consultaData);
-                ocultarCarga();
+            document.getElementById('loadingSection').style.display = 'block';
+            document.getElementById('errorSection').style.display = 'none';
+            document.getElementById('consultaContent').style.display = 'none';
+
+            const response = await fetch(API_GET_BY_ID_URL, { headers: { 'Accept': 'application/json' } });
+            if (!response.ok) throw new Error(`Error en la respuesta de la API: ${response.status} ${response.statusText}`);
+
+            const payload = await response.json();
+            // Aceptar 'data' o 'ficha_clinica'
+            const consulta = (payload && payload.data) ? payload.data
+                            : (payload && payload.ficha_clinica) ? payload.ficha_clinica
+                            : null;
+
+            if (payload && payload.success && consulta) {
+                mostrarInformacion(consulta);
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('consultaContent').style.display = 'block';
             } else {
-                mostrarError('Consulta no encontrada');
+                mostrarError((payload && (payload.error || payload.message)) || 'No se pudo cargar la consulta.');
             }
         } catch (error) {
             console.error('Error:', error);
-            mostrarError('Error de conexión al cargar consulta');
+            mostrarError('Error de conexión al cargar la consulta.');
         }
     }
 
-    // Mostrar información en el template
     function mostrarInformacion(consulta) {
-        // Información del paciente
-        if (consulta.cliente) {
-            const nombreCompleto = `${consulta.cliente.nombres} ${consulta.cliente.ap_pat || ''} ${consulta.cliente.ap_mat || ''}`;
-            document.getElementById('patientName').textContent = nombreCompleto;
-            document.getElementById('consultaSubtitle').textContent = `Consulta de ${consulta.cliente.nombres}`;
+        // Paciente
+        const nombres = pick(consulta, ['cliente.nombres','paciente_medico.cliente.nombres'], '-');
+        const apPat   = pick(consulta, ['cliente.ap_pat','paciente_medico.cliente.ap_pat'], '');
+        document.getElementById('patientName').textContent = `${nombres} ${apPat}`.trim() || '-';
+
+        // Fecha/hora
+        const fechaIso = consulta.fecha_consulta;
+        const fecha = fechaIso ? new Date(fechaIso) : null;
+        document.getElementById('consultaSubtitle').textContent = fecha ? `Consulta del ${fecha.toLocaleDateString('es-CL')}` : 'Consulta';
+        document.getElementById('numeroFicha').textContent = pick(consulta, ['paciente_medico.numero_ficha'], '-');
+        document.getElementById('fechaConsulta').textContent = fecha ? fecha.toLocaleDateString('es-CL') : '-';
+        document.getElementById('horaConsulta').textContent  = fecha ? fecha.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }) : '-';
+
+        // Usuario
+        document.getElementById('nombreMedico').textContent = pick(consulta, ['usuario.nombre'], '-');
+
+        // Motivo
+        document.getElementById('motivoConsulta').textContent = pick(consulta, ['motivo_consulta'], '-');
+
+        // AV
+        document.getElementById('avOdSc').textContent    = pick(consulta, ['av_od_sc']);
+        document.getElementById('avOdCc').textContent    = pick(consulta, ['av_od_cc']);
+        document.getElementById('avOdPh').textContent    = pick(consulta, ['av_od_ph']);
+        document.getElementById('avOdCerca').textContent = pick(consulta, ['av_od_cerca']);
+        document.getElementById('avOiSc').textContent    = pick(consulta, ['av_oi_sc']);
+        document.getElementById('avOiCc').textContent    = pick(consulta, ['av_oi_cc']);
+        document.getElementById('avOiPh').textContent    = pick(consulta, ['av_oi_ph']);
+        document.getElementById('avOiCerca').textContent = pick(consulta, ['av_oi_cerca']);
+
+        // Rx
+        document.getElementById('esferaOd').textContent   = pick(consulta, ['esfera_od']);
+        document.getElementById('cilindroOd').textContent = pick(consulta, ['cilindro_od']);
+        document.getElementById('ejeOd').textContent      = pick(consulta, ['eje_od']);
+        document.getElementById('adicionOd').textContent  = pick(consulta, ['adicion_od']);
+        document.getElementById('esferaOi').textContent   = pick(consulta, ['esfera_oi']);
+        document.getElementById('cilindroOi').textContent = pick(consulta, ['cilindro_oi']);
+        document.getElementById('ejeOi').textContent      = pick(consulta, ['eje_oi']);
+        document.getElementById('adicionOi').textContent  = pick(consulta, ['adicion_oi']);
+        document.getElementById('distanciaPupilar').textContent = pick(consulta, ['distancia_pupilar']);
+
+        // Conclusión
+        document.getElementById('diagnostico').textContent = pick(consulta, ['diagnostico']);
+        document.getElementById('tratamiento').textContent = pick(consulta, ['tratamiento']);
+
+        // Botón de certificado (ruta real via url_for)
+        const fichaId = pick(consulta, ['ficha_id'], null);
+        const btn = document.getElementById('generateCertificateBtn');
+        if (fichaId) {
+            btn.href = CERT_URL_TEMPLATE.replace('/0', '/' + fichaId);
+            btn.classList.remove('disabled');
+        } else {
+            btn.href = '#';
+            btn.classList.add('disabled');
         }
-        
-        // Información básica
-        document.getElementById('numeroFicha').textContent = consulta.paciente_medico?.numero_ficha || 'N/A';
-        document.getElementById('fechaConsulta').textContent = 
-            new Date(consulta.fecha_consulta).toLocaleDateString();
-        document.getElementById('horaConsulta').textContent = 
-            new Date(consulta.fecha_consulta).toLocaleTimeString();
-        document.getElementById('nombreMedico').textContent = 
-            consulta.usuario?.nombre || 'No especificado';
-        
-        // Estado
-        const estadoBadge = document.getElementById('estadoConsulta');
-        estadoBadge.textContent = consulta.estado || 'En Proceso';
-        estadoBadge.className = `badge estado-badge bg-${getEstadoColor(consulta.estado)}`;
-        
-        // Motivo e historia
-        document.getElementById('motivoConsulta').textContent = 
-            consulta.motivo_consulta || 'No especificado';
-        document.getElementById('historiaActual').textContent = 
-            consulta.historia_actual || 'No registrada';
-        
-        // Agudeza Visual - OD
-        document.getElementById('avOdSc').textContent = consulta.av_od_sc || '-';
-        document.getElementById('avOdCc').textContent = consulta.av_od_cc || '-';
-        document.getElementById('avOdPh').textContent = consulta.av_od_ph || '-';
-        document.getElementById('avOdCerca').textContent = consulta.av_od_cerca || '-';
-        
-        // Agudeza Visual - OI
-        document.getElementById('avOiSc').textContent = consulta.av_oi_sc || '-';
-        document.getElementById('avOiCc').textContent = consulta.av_oi_cc || '-';
-        document.getElementById('avOiPh').textContent = consulta.av_oi_ph || '-';
-        document.getElementById('avOiCerca').textContent = consulta.av_oi_cerca || '-';
-        
-        // Refracción - OD
-        document.getElementById('esferaOd').textContent = consulta.esfera_od || '-';
-        document.getElementById('cilindroOd').textContent = consulta.cilindro_od || '-';
-        document.getElementById('ejeOd').textContent = consulta.eje_od || '-';
-        document.getElementById('adicionOd').textContent = consulta.adicion_od || '-';
-        
-        // Refracción - OI
-        document.getElementById('esferaOi').textContent = consulta.esfera_oi || '-';
-        document.getElementById('cilindroOi').textContent = consulta.cilindro_oi || '-';
-        document.getElementById('ejeOi').textContent = consulta.eje_oi || '-';
-        document.getElementById('adicionOi').textContent = consulta.adicion_oi || '-';
-        
-        // Información adicional
-        document.getElementById('distanciaPupilar').textContent = consulta.distancia_pupilar || '-';
-        document.getElementById('tipoLente').textContent = consulta.tipo_lente || '-';
-        document.getElementById('numeroConsulta').textContent = consulta.numero_consulta || '-';
-    }
-
-    // Funciones de estado
-    function getEstadoColor(estado) {
-        switch (estado) {
-            case 'Completada': return 'success';
-            case 'En Proceso': return 'warning';
-            case 'Pendiente': return 'secondary';
-            default: return 'info';
-        }
-    }
-
-    function mostrarCarga() {
-        document.getElementById('loadingSection').classList.remove('d-none');
-        document.getElementById('errorSection').classList.add('d-none');
-    }
-
-    function ocultarCarga() {
-        document.getElementById('loadingSection').classList.add('d-none');
     }
 
     function mostrarError(mensaje) {
-        document.getElementById('loadingSection').classList.add('d-none');
-        document.getElementById('errorSection').classList.remove('d-none');
-        document.getElementById('errorMessage').textContent = mensaje;
+        document.getElementById('loadingSection').style.display = 'none';
+        document.getElementById('consultaContent').style.display = 'none';
+        document.getElementById('errorSection').style.display = 'block';
+        document.getElementById('errorMessage').textContent = mensaje || 'Ocurrió un error.';
     }
 
-    // Funciones de navegación
+    // Navegación
     function editarConsulta() {
-        window.location.href = `/consultas/${consultaId}/editar`;
+        window.location.href = EDIT_URL_TEMPLATE.replace('/0', '/' + consultaId);
     }
-
-    function nuevoExamen() {
-        window.location.href = `/consultas/${consultaId}/examen`;
-    }
+    function imprimirFicha() { window.print(); }
 </script>
 {% endblock %}

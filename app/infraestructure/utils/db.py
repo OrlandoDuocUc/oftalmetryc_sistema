@@ -5,10 +5,9 @@ import os
 from urllib.parse import quote_plus
 
 # --- PASO 2: Crear la instancia 'db' que tu aplicación necesita ---
-# Esta es la línea clave que soluciona el error.
 db = SQLAlchemy()
 
-# --- El resto de tu código de configuración se mantiene, está perfecto ---
+# --- El resto de tu código de configuración se mantiene ---
 
 # CONFIGURACIÓN CORREGIDA PARA RENDER
 # Priorizar DATABASE_URL completa de Render
@@ -47,7 +46,13 @@ engine = create_engine(
     }
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=True, bind=engine)
+# Clave para evitar sorpresas post-commit y flushes implícitos
+SessionLocal = sessionmaker(
+    bind=engine,
+    autocommit=False,
+    autoflush=False,
+    expire_on_commit=False,
+)
 
 def get_connection():
     """Obtiene una conexión directa a la base de datos"""
@@ -62,4 +67,3 @@ def get_connection():
 def get_session():
     """Obtiene una sesión de SQLAlchemy"""
     return SessionLocal()
-

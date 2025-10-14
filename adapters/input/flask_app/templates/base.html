@@ -6,11 +6,7 @@
     <title>{% block title %}Oftalmetryc{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- ===== INICIO CÓDIGO AÑADIDO (Librería para selectores con búsqueda) ===== -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
-    <!-- ===== FIN CÓDIGO AÑADIDO ===== -->
-
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -28,7 +24,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        /* NAVBAR AZUL CONSISTENTE */
         .navbar {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -75,59 +70,55 @@
             </a>
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    {% if session['rol'] == 'Administrador' %}
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.dashboard' %}active{% endif %}" href="/">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.productos' %}active{% endif %}" href="/productos">Productos</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.inventario' %}active{% endif %}" href="/inventario"><i class="fas fa-boxes me-1"></i>Inventario</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'proveedores.lista_proveedores' %}active{% endif %}" href="/proveedores"><i class="fas fa-truck me-1"></i>Proveedores</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.registrar_venta' %}active{% endif %}" href="/registrar-venta">Registrar Venta</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.historial_ventas' %}active{% endif %}" href="/historial-ventas">Historial Ventas</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.usuarios' %}active{% endif %}" href="/usuarios">Usuarios</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-eye me-1"></i>Módulo Médico
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
-                            <li><a class="dropdown-item" href="/pacientes-medicos"><i class="fas fa-users me-2"></i>Pacientes</a></li>
-                            <li><a class="dropdown-item" href="/consultas-nuevo"><i class="fas fa-calendar-check me-2"></i>Historial Consultas</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/ficha-clinica-nuevo"><i class="fas fa-clipboard-check me-2"></i>Ficha Clínica</a></li>
-                        </ul>
-                    </li>
+                    {% if session.get('rol') == 'Administrador' %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('product_html.dashboard') }}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('product_html.productos') }}">Productos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('routes.inventario') }}"><i class="fas fa-boxes me-1"></i>Inventario</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('proveedores.lista_proveedores') }}"><i class="fas fa-truck me-1"></i>Proveedores</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('sale_html.registrar_venta_page') }}">Registrar Venta</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('sale_html.historial_ventas_page') }}">Historial Ventas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('user_html.usuarios') }}">Usuarios</a></li>
+                        
+                        <!-- ===== INICIO DE LA CORRECCIÓN ===== -->
+                        <!-- Se elimina la clase 'dropdown' del <li> y las clases y atributos del <a> -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('medical.dashboard_medico') }}">
+                                <i class="fas fa-stethoscope me-1"></i>Módulo Médico
+                            </a>
+                        </li>
+                        <!-- ===== FIN DE LA CORRECCIÓN (Se elimina el <ul> del dropdown) ===== -->
+
                     {% else %}
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.dashboard' %}active{% endif %}" href="/">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.inventario' %}active{% endif %}" href="/inventario"><i class="fas fa-boxes me-1"></i>Inventario</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.registrar_venta' %}active{% endif %}" href="/registrar-venta">Registrar Venta</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'routes.historial_ventas' %}active{% endif %}" href="/historial-ventas">Historial Ventas</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-eye me-1"></i>Módulo Médico
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/dashboard-medico"><i class="fas fa-chart-line me-2"></i>Dashboard Médico</a></li>
-                            <li><a class="dropdown-item" href="/pacientes-nuevo"><i class="fas fa-users me-2"></i>Pacientes</a></li>
-                            <li><a class="dropdown-item" href="/consultas-nuevo"><i class="fas fa-calendar-check me-2"></i>Historial Consultas</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/ficha-clinica-nuevo"><i class="fas fa-clipboard-check me-2"></i>Ficha Clínica</a></li>
-                        </ul>
-                    </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('product_html.dashboard') }}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('routes.inventario') }}"><i class="fas fa-boxes me-1"></i>Inventario</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('sale_html.registrar_venta_page') }}">Registrar Venta</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('sale_html.historial_ventas_page') }}">Historial Ventas</a></li>
+
+                        <!-- ===== INICIO DE LA CORRECCIÓN (Versión para Vendedor) ===== -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('medical.dashboard_medico') }}">
+                                <i class="fas fa-stethoscope me-1"></i>Módulo Médico
+                            </a>
+                        </li>
+                        <!-- ===== FIN DE LA CORRECCIÓN ===== -->
                     {% endif %}
                 </ul>
-                <a class="nav-link text-danger" href="/logout">Cerrar sesión</a>
+                {% if session.get('user_id') %}
+                <a class="nav-link text-danger" href="{{ url_for('user_html.logout') }}">Cerrar sesión</a>
+                {% endif %}
             </div>
         </div>
     </nav>
 
     <!-- CONTENIDO ESPECÍFICO DE CADA PÁGINA -->
-    {% block content %}{% endblock %}
+    <main class="py-4">
+        {% block content %}{% endblock %}
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- ===== INICIO CÓDIGO AÑADIDO (Librería para selectores con búsqueda) ===== -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-    <!-- ===== FIN CÓDIGO AÑADIDO ===== -->
-
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+

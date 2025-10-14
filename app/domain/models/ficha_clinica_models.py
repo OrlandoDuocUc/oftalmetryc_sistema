@@ -1,25 +1,35 @@
 # ===============================================================================
-# MODELOS SQLALCHEMY - MÓDULO FICHA CLÍNICA DIGITAL
-# Sistema: Oftalmetryc - Ficha Clínica Completa
-# Autor: Orlando Rodriguez
-# Fecha: 2 de octubre de 2025
+# MODELOS SQLALCHEMY - MÓDULO FICHA CLÍNICA DIGITAL (V2 - AISLADO, SIN CONFLICTOS)
+# Sistema: Oftalmetryc - Ficha Clínica Completa (prototipo V2 estacionado)
+# Autor original: Orlando Rodriguez
+# Ajustes de seguridad: evitar colisiones con los modelos productivos
+# Fecha: 2 de octubre de 2025 (revisado)
 # ===============================================================================
 
 from sqlalchemy import Column, Integer, String, Text, Date, DateTime, Boolean, ForeignKey, BigInteger
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.sql import func
 from datetime import datetime
 
-Base = declarative_base()
+# Base privada para que NO se mezcle con la Base productiva
+ArchiveBase = declarative_base()
+
+# Export controlado: evita que import * arrastre estos modelos por accidente
+__all__ = [
+    "PacienteV2",
+    "FichaClinicaV2",
+    "ExamenOftalmologicoCompletoV2",
+    "create_v2_tables",
+    "describe_v2_tables",
+]
 
 # ===============================================================================
 # MODELO: PACIENTE V2 (EVOLUCIONADO)
 # ===============================================================================
 
-class PacienteV2(Base):
+class PacienteV2(ArchiveBase):
     """
-    Modelo evolucionado de Paciente con campos adicionales para Ecuador
+    Modelo evolucionado de Paciente (V2, aislado).
     """
     __tablename__ = 'pacientes_v2'
     
@@ -44,7 +54,7 @@ class PacienteV2(Base):
     fecha_actualizacion = Column(DateTime, default=func.current_timestamp(), onupdate=func.current_timestamp())
     
     # Relaciones
-    fichas_clinicas = relationship("FichaClinica", back_populates="paciente", cascade="all, delete-orphan")
+    fichas_clinicas = relationship("FichaClinicaV2", back_populates="paciente", cascade="all, delete-orphan")
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -68,14 +78,14 @@ class PacienteV2(Base):
         return f"<PacienteV2(id={self.id}, ci='{self.ci}', nombre='{self.nombre_completo}')>"
 
 # ===============================================================================
-# MODELO: FICHA CLÍNICA
+# MODELO: FICHA CLÍNICA V2
 # ===============================================================================
 
-class FichaClinica(Base):
+class FichaClinicaV2(ArchiveBase):
     """
-    Modelo para registrar cada consulta/visita del paciente
+    Prototipo V2 de ficha clínica (tabla V2 separada para no colisionar).
     """
-    __tablename__ = 'fichas_clinicas'
+    __tablename__ = 'fichas_clinicas_v2'
     
     # Campos principales
     id = Column(BigInteger, primary_key=True, autoincrement=True)
@@ -97,26 +107,31 @@ class FichaClinica(Base):
     
     # Relaciones
     paciente = relationship("PacienteV2", back_populates="fichas_clinicas")
-    examen_oftalmologico = relationship("ExamenOftalmologicoCompleto", back_populates="ficha_clinica", 
-                                      uselist=False, cascade="all, delete-orphan")
+    examen_oftalmologico = relationship(
+        "ExamenOftalmologicoCompletoV2", back_populates="ficha_clinica",
+        uselist=False, cascade="all, delete-orphan"
+    )
     
     def __repr__(self):
-        return f"<FichaClinica(id={self.id}, paciente_id={self.paciente_id}, fecha='{self.fecha_consulta}')>"
+        return f"<FichaClinicaV2(id={self.id}, paciente_id={self.paciente_id}, fecha='{self.fecha_consulta}')>"
 
 # ===============================================================================
-# MODELO: EXAMEN OFTALMOLÓGICO COMPLETO
+# MODELO: EXAMEN OFTALMOLÓGICO COMPLETO V2
 # ===============================================================================
 
-class ExamenOftalmologicoCompleto(Base):
+class ExamenOftalmologicoCompletoV2(ArchiveBase):
     """
-    Modelo completo para todos los exámenes oftalmológicos detallados
+    Modelo completo para todos los exámenes oftalmológicos detallados (V2).
     """
-    __tablename__ = 'examenes_oftalmologicos_completos'
+    __tablename__ = 'examenes_oftalmologicos_completos_v2'
     
     # Campo principal
     id = Column(BigInteger, primary_key=True, autoincrement=True)
-    ficha_clinica_id = Column(BigInteger, ForeignKey('fichas_clinicas.id', ondelete='CASCADE'), 
-                             unique=True, nullable=False)
+    ficha_clinica_id = Column(
+        BigInteger,
+        ForeignKey('fichas_clinicas_v2.id', ondelete='CASCADE'),
+        unique=True, nullable=False
+    )
     
     # ===== SECCIÓN 1: AGUDEZA VISUAL =====
     av_distancia_od = Column(String(10))
@@ -305,36 +320,36 @@ class ExamenOftalmologicoCompleto(Base):
     fecha_creacion = Column(DateTime, default=func.current_timestamp())
     
     # Relación
-    ficha_clinica = relationship("FichaClinica", back_populates="examen_oftalmologico")
+    ficha_clinica = relationship("FichaClinicaV2", back_populates="examen_oftalmologico")
     
     def __repr__(self):
-        return f"<ExamenOftalmologicoCompleto(id={self.id}, ficha_clinica_id={self.ficha_clinica_id})>"
+        return f"<ExamenOftalmologicoCompletoV2(id={self.id}, ficha_clinica_id={self.ficha_clinica_id})>"
 
 # ===============================================================================
-# FUNCIONES AUXILIARES
+# FUNCIONES AUXILIARES (opcionales para prototipo V2)
 # ===============================================================================
 
-def crear_todas_las_tablas(engine):
+def create_v2_tables(engine):
     """
-    Crea todas las tablas en la base de datos
+    Crea SOLO las tablas V2 si decides usarlas explícitamente.
     """
-    Base.metadata.create_all(engine)
+    ArchiveBase.metadata.create_all(engine)
 
-def obtener_estructura_tablas():
+def describe_v2_tables():
     """
-    Retorna información sobre la estructura de las tablas
+    Retorna la estructura de las tablas V2 (solo informativo).
     """
     return {
         'pacientes_v2': {
             'campos': len(PacienteV2.__table__.columns),
             'relaciones': ['fichas_clinicas']
         },
-        'fichas_clinicas': {
-            'campos': len(FichaClinica.__table__.columns),
+        'fichas_clinicas_v2': {
+            'campos': len(FichaClinicaV2.__table__.columns),
             'relaciones': ['paciente', 'examen_oftalmologico']
         },
-        'examenes_oftalmologicos_completos': {
-            'campos': len(ExamenOftalmologicoCompleto.__table__.columns),
+        'examenes_oftalmologicos_completos_v2': {
+            'campos': len(ExamenOftalmologicoCompletoV2.__table__.columns),
             'relaciones': ['ficha_clinica']
         }
     }
