@@ -53,7 +53,7 @@
                 <h1><i class="fas fa-file-medical me-3"></i>Ficha Clínica Oftalmológica</h1>
                 <p class="mb-0">Registro de consulta médica especializada</p>
             </div>
-            <a href="{{ url_for('medical.consultas') }}" class="btn btn-light btn-lg">
+            <a href="{{ url_for('medical_bp.consultas') }}" class="btn btn-light btn-lg">
                 <i class="fas fa-list me-2"></i>Ver Historial
             </a>
         </div>
@@ -238,7 +238,7 @@
         <div class="btn-group-custom">
             <div class="d-flex justify-content-between">
                 <div>
-                    <a href="{{ url_for('medical.dashboard_medico') }}" class="btn btn-outline-secondary me-2">
+                    <a href="{{ url_for('medical_bp.dashboard_medico') }}" class="btn btn-outline-secondary me-2">
                         <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
                     </a>
                     <button type="button" class="btn btn-outline-info me-2" onclick="imprimirFicha()">
@@ -287,11 +287,10 @@
 
 {% block extra_js %}
 <script>
-// URLs generadas por Jinja (evitamos hardcodear rutas) ----------------------
-// 🛠 FIX redirección: usamos las rutas reales del blueprint "medical"
-const URL_CONSULTAS = "{{ url_for('medical.consultas') }}";
-const URL_DETALLE_TEMPLATE = "{{ url_for('medical.detalle_consulta', consulta_id='__ID__') }}";
-// --------------------------------------------------------------------------
+// URLs generadas por Jinja (evitamos hardcodear rutas)
+// -> Usamos el blueprint real: medical_bp
+const URL_CONSULTAS = "{{ url_for('medical_bp.consultas') }}";
+const URL_DETALLE_TEMPLATE = "{{ url_for('medical_bp.detalle_consulta', consulta_id='__ID__') }}";
 
 let tomSelectInstance;
 let pacientesMap = new Map();
@@ -322,8 +321,8 @@ function generarNumeroConsulta() {
     const y = String(d.getFullYear()).slice(-2);
     const m = String(d.getMonth() + 1).padStart(2,'0');
     const day = String(d.getDate()).padStart(2,'0');
-    const rand = Math.floor(1000 + Math.random()*9000); // 4 dígitos
-    const num = `CONS-${y}${m}${day}-${rand}`; // longitud 16
+    const rand = Math.floor(1000 + Math.random()*9000);
+    const num = `CONS-${y}${m}${day}-${rand}`;
     document.getElementById('numeroConsulta').value = num;
 }
 
@@ -353,7 +352,6 @@ async function cargarPacientesMedicos() {
             placeholder: 'Buscar...'
         });
 
-        // Si ya venía en la URL y aún no estaba instanciado
         const params = new URLSearchParams(window.location.search);
         const pid = params.get('paciente_id') || params.get('paciente_medico_id');
         if (pid) {
@@ -423,15 +421,12 @@ document.getElementById('fichaClinicaForm').addEventListener('submit', async fun
 
         const result = await response.json().catch(()=>({}));
         if (response.ok) {
-            // Guarda ID si llegó
             const fichaId = String(result.id || result.ficha_id || result.consulta_id || '');
             if (fichaId) sessionStorage.setItem('ultima_ficha_id', fichaId);
 
-            // 🛠 FIX redirección: preparamos URLs reales
             const urlHistorial = URL_CONSULTAS;
             const urlDetalle = fichaId ? URL_DETALLE_TEMPLATE.replace('__ID__', encodeURIComponent(fichaId)) : null;
 
-            // Modal
             const modalEl = document.getElementById('fichaGuardadaModal');
             const modal = new bootstrap.Modal(modalEl);
             const btnHist = document.getElementById('btnVerHistorial');
@@ -442,23 +437,14 @@ document.getElementById('fichaClinicaForm').addEventListener('submit', async fun
                 if (urlDetalle) {
                     window.location.href = urlDetalle;
                 } else {
-                    // Si no hay ID, cae al historial
                     window.location.href = urlHistorial;
                 }
             };
 
             modal.show();
 
-            // Redirección automática suave al historial (fallback) tras 1.5s
             setTimeout(() => {
-                if (urlDetalle) {
-                    // Si quieres que automáticamente vaya al detalle, descomenta:
-                    // window.location.href = urlDetalle;
-                    // Por defecto, mantenemos historial como fallback:
-                    window.location.href = urlHistorial;
-                } else {
-                    window.location.href = urlHistorial;
-                }
+                window.location.href = urlHistorial;
             }, 1500);
 
         } else {
