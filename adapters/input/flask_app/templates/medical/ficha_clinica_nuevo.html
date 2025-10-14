@@ -270,11 +270,14 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        La ficha clínica se guardó correctamente. Te redirigiré al historial para verla al inicio de la lista.
+        La ficha clínica se guardó correctamente. Puedes ir al historial o abrir el detalle ahora mismo.
       </div>
       <div class="modal-footer">
-        <button type="button" id="btnVerHistorial" class="btn btn-primary">
-          <i class="fas fa-list me-2"></i>Ir al Historial Clínico
+        <button type="button" id="btnVerHistorial" class="btn btn-secondary">
+          <i class="fas fa-list me-2"></i>Ver Historial
+        </button>
+        <button type="button" id="btnVerDetalle" class="btn btn-primary">
+          <i class="fas fa-eye me-2"></i>Ver esta Ficha
         </button>
       </div>
     </div>
@@ -284,6 +287,12 @@
 
 {% block extra_js %}
 <script>
+// URLs generadas por Jinja (evitamos hardcodear rutas) ----------------------
+// 🛠 FIX redirección: usamos las rutas reales del blueprint "medical"
+const URL_CONSULTAS = "{{ url_for('medical.consultas') }}";
+const URL_DETALLE_TEMPLATE = "{{ url_for('medical.detalle_consulta', consulta_id='__ID__') }}";
+// --------------------------------------------------------------------------
+
 let tomSelectInstance;
 let pacientesMap = new Map();
 
@@ -391,7 +400,6 @@ document.getElementById('fichaClinicaForm').addEventListener('submit', async fun
         return;
     }
 
-    // Datos mínimos + conclusión (los que van a certificado)
     const fichaData = {
         paciente_medico_id: parseInt(pacienteId,10),
         numero_consulta: numero,
@@ -403,10 +411,7 @@ document.getElementById('fichaClinicaForm').addEventListener('submit', async fun
         observacion: document.getElementById('observacion').value?.trim() || null,
         tratamiento: document.getElementById('tratamiento').value?.trim() || null,
         nombre_examinador: document.getElementById('nombre_examinador').value?.trim() || null,
-        conformidad_evaluado: document.getElementById('conformidad_evaluado').value?.trim() || null,
-
-        // (Opcional) empaquetar examen si tu backend lo guarda como JSON
-        // examen: {...}
+        conformidad_evaluado: document.getElementById('conformidad_evaluado').value?.trim() || null
     };
 
     try {
@@ -418,18 +423,44 @@ document.getElementById('fichaClinicaForm').addEventListener('submit', async fun
 
         const result = await response.json().catch(()=>({}));
         if (response.ok) {
-            // Guarda ID (si viene) para posibles usos
-            if (result.id || result.ficha_id) {
-                sessionStorage.setItem('ultima_ficha_id', String(result.id || result.ficha_id));
-            }
-            // Modal de éxito -> redirigir a historial del mismo paciente
+            // Guarda ID si llegó
+            const fichaId = String(result.id || result.ficha_id || result.consulta_id || '');
+            if (fichaId) sessionStorage.setItem('ultima_ficha_id', fichaId);
+
+            // 🛠 FIX redirección: preparamos URLs reales
+            const urlHistorial = URL_CONSULTAS;
+            const urlDetalle = fichaId ? URL_DETALLE_TEMPLATE.replace('__ID__', encodeURIComponent(fichaId)) : null;
+
+            // Modal
             const modalEl = document.getElementById('fichaGuardadaModal');
             const modal = new bootstrap.Modal(modalEl);
             const btnHist = document.getElementById('btnVerHistorial');
-            const destino = `/historial-paciente?paciente_id=${encodeURIComponent(pacienteId)}`;
-            btnHist.onclick = () => { window.location.href = destino; };
+            const btnDetalle = document.getElementById('btnVerDetalle');
+
+            btnHist.onclick = () => { window.location.href = urlHistorial; };
+            btnDetalle.onclick = () => {
+                if (urlDetalle) {
+                    window.location.href = urlDetalle;
+                } else {
+                    // Si no hay ID, cae al historial
+                    window.location.href = urlHistorial;
+                }
+            };
+
             modal.show();
-            setTimeout(() => { window.location.href = destino; }, 1500);
+
+            // Redirección automática suave al historial (fallback) tras 1.5s
+            setTimeout(() => {
+                if (urlDetalle) {
+                    // Si quieres que automáticamente vaya al detalle, descomenta:
+                    // window.location.href = urlDetalle;
+                    // Por defecto, mantenemos historial como fallback:
+                    window.location.href = urlHistorial;
+                } else {
+                    window.location.href = urlHistorial;
+                }
+            }, 1500);
+
         } else {
             mostrarAlerta(`Error al guardar: ${result.error || result.message || 'Error desconocido'}`, 'danger');
             btn.disabled = false;
