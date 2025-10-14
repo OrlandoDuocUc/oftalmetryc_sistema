@@ -15,6 +15,7 @@ class ProductUseCases:
             try:
                 repo = SQLProductRepository(db_session)
                 result = operation(repo)
+                db_session.commit()  # asegura que insert/update no se deshaga
                 return result
             except SQLAlchemyError as e:
                 db_session.rollback()
