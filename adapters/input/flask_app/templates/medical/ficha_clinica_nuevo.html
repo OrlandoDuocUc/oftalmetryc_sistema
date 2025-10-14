@@ -290,7 +290,7 @@
 // URLs generadas por Jinja (evitamos hardcodear rutas)
 // -> Rutas del blueprint registrado como 'medical'
 const URL_CONSULTAS = "{{ url_for('medical.consultas') }}";
-const URL_DETALLE_TEMPLATE = "{{ url_for('medical.ver_consulta', consulta_id='__ID__') }}";
+const URL_DETALLE_TEMPLATE = "{{ url_for('medical.ver_consulta', consulta_id=0) }}".replace('/0', '/__ID__');
 
 let tomSelectInstance;
 let pacientesMap = new Map();
