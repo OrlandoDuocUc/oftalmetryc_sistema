@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿﻿{% extends "base.html" %}
 
 {% block title %}Dashboard Médico - Oftalmetryc{% endblock %}
 
@@ -14,7 +14,7 @@
         height: calc(100vh - 56px);
         background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
         box-shadow: 2px 0 15px rgba(0,0,0,0.2);
-        z-index: 1020;
+        z-index: 1000;
         overflow-y: auto;
     }
     
@@ -101,7 +101,7 @@
     </div>
     <nav class="sidebar-nav">
         <ul class="nav flex-column">
-            <!-- --- CORRECCIÓN: SE ELIMINA EL BOTÓN REDUNDANTE "DASHBOARD MÉDICO" --- -->
+            <!-- CORRECCIÓN: SE ELIMINA EL BOTÓN REDUNDANTE "DASHBOARD MÉDICO"  -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('medical.pacientes') }}">
                     <i class="fas fa-users"></i>Gestión Pacientes
@@ -114,12 +114,12 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('medical.ficha_clinica') }}">
-                    <i class="fas fa-clipboard-check"></i>Ficha Clínica
+                    <i class="fas fa-clipboard-check"></i>Ficha Optométrica <!-- Ficha Clínica -->
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('medical.examen_oftalmologico_nuevo') }}">
-                    <i class="fas fa-eye-dropper"></i>Examen Oftalmológico
+                <a class="nav-link" href="{{ url_for('medical.biomicroscopia_nuevo') }}">
+                    <i class="fas fa-microscope"></i>Examen Oftalmol&oacute;gico Nuevo
                 </a>
             </li>
             <li class="nav-item mt-3">
@@ -136,7 +136,7 @@
     <!-- HEADER DE LA PÁGINA -->
     <div class="page-header">
         <h1><i class="fas fa-chart-line me-3"></i>Dashboard Médico</h1>
-        <p>Panel de control del módulo médico - Vista general de actividades y estadísticas</p>
+        <p>Panel de control del módulo médico - Vista general de actividades y ESTADÍSTICAS</p>
     </div>
 
     <!-- TARJETAS DE ESTADÍSTICAS -->
@@ -195,7 +195,13 @@
 <!-- El JavaScript no necesita cambios para esta corrección -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Tu código JS para cargar estadísticas y gráficos se mantiene igual
+    // Tu código JS para cargar ESTADÍSTICAS y GRÁFICOS se mantiene igual
 </script>
 {% endblock %}
+
+
+
+
+
+
 

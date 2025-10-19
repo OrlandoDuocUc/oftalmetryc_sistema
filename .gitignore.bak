@@ -184,14 +184,3 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-
-# Variables de entorno
-.env
-
-# Archivos del sistema (Windows/macOS)
-Thumbs.db
-Desktop.ini
-.DS_Store
-
-# VS Code (ignorar configuración local)
-.vscode/

@@ -3,7 +3,7 @@
 {% block title %}Gestión de Pacientes/Clientes - Oftalmetryc{% endblock %}
 
 {% block extra_css %}
-/* ESTILOS ESPECÍFICOS DE PACIENTES */
+/* ESTILOS ESPECFICOS DE PACIENTES */
 .page-header {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
@@ -78,13 +78,10 @@
                 <h1><i class="fas fa-users me-3"></i>Gestión de Pacientes/Clientes</h1>
                 <p class="mb-0">Administra pacientes y convierte clientes en pacientes del módulo médico.</p>
             </div>
-            <a href="{{ url_for('medical.nuevo_paciente') }}" class="btn btn-light btn-lg">
-                <i class="fas fa-user-plus me-2"></i>Nuevo Paciente
-            </a>
         </div>
     </div>
 
-    <!-- SECCIÓN DE BÚSQUEDA Y FILTROS -->
+    <!-- SECCIN DE BSQUEDA Y FILTROS -->
     <div class="search-section">
         <div class="row g-3 align-items-end">
             <div class="col-md-5">
@@ -126,7 +123,7 @@
         </div>
         
         <div id="personasList">
-            <!-- Las personas se cargarán aquí dinámicamente -->
+            <!-- Las personas se cargarn aqu dinmicamente -->
             <div class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Cargando...</span>
@@ -182,7 +179,7 @@
             }
         } catch (error) {
             console.error('Error:', error);
-            mostrarError('Error de conexión al cargar personas');
+            mostrarError('Error de conexin al cargar personas');
         }
     }
 
@@ -240,7 +237,7 @@
                                 <i class="fas fa-eye"></i> Ver
                             </button>
                             <a href="/pacientes-medicos/${it.paciente_medico_id}/historial" class="btn btn-outline-primary btn-action">
-                                <i class="fas fa-history"></i> Historial Clínico
+                                <i class="fas fa-history"></i> Historial Clnico
                             </a>
                             <a href="/pacientes-medicos/${it.paciente_medico_id}/editar" class="btn btn-outline-secondary btn-action">
                                 <i class="fas fa-edit"></i> Editar
@@ -249,7 +246,7 @@
                     </div>
                 </div>`;
             } else {
-                // Cliente sin ficha aún
+                // Cliente sin ficha an
                 return `
                 <div class="patient-card" data-tipo="cliente" data-nombre="${(nombre).toLowerCase()}"
                      data-id="${(cliente.rut || '').toLowerCase()}" data-estado="${it.estado}">
@@ -342,8 +339,8 @@
                         <p><strong>Número de Ficha:</strong> ${paciente.numero_ficha}</p>
                     </div>
                     <div class="col-md-6">
-                        <h6><i class="fas fa-notes-medical me-2 text-primary"></i>Información Médica</h6>
-                        <p><strong>Antecedentes Médicos:</strong> ${paciente.antecedentes_medicos || 'Ninguno'}</p>
+                        <h6><i class="fas fa-notes-medical me-2 text-primary"></i>Información Mdica</h6>
+                        <p><strong>Antecedentes Mdicos:</strong> ${paciente.antecedentes_medicos || 'Ninguno'}</p>
                         <p><strong>Antecedentes Oculares:</strong> ${paciente.antecedentes_oculares || 'Ninguno'}</p>
                         <p><strong>Alergias:</strong> ${paciente.alergias || 'Ninguna'}</p>
                         <p><strong>Medicamentos Actuales:</strong> ${paciente.medicamentos_actuales || 'Ninguno'}</p>
@@ -351,12 +348,12 @@
                     <div class="col-12 mt-3">
                         <h6><i class="fas fa-address-book me-2 text-primary"></i>Contacto de Emergencia</h6>
                         <p><strong>Contacto:</strong> ${paciente.contacto_emergencia || 'No registrado'}</p>
-                        <p><strong>Teléfono:</strong> ${paciente.telefono_emergencia || 'No registrado'}</p>
+                        <p><strong>Telfono:</strong> ${paciente.telefono_emergencia || 'No registrado'}</p>
                     </div>
                 </div>`;
         } catch (error) {
             console.error('Error al cargar detalles del paciente:', error);
-            modalContent.innerHTML = '<p class="text-danger">Error de conexión al cargar los detalles.</p>';
+            modalContent.innerHTML = '<p class="text-danger">Error de conexin al cargar los detalles.</p>';
         }
     }
 
@@ -387,9 +384,9 @@
                     </div>
                     <div class="col-md-6">
                         <h6><i class="fas fa-address-card me-2 text-secondary"></i>Contacto</h6>
-                        <p><strong>Teléfono:</strong> ${c.telefono || 'No registrado'}</p>
+                        <p><strong>Telfono:</strong> ${c.telefono || 'No registrado'}</p>
                         <p><strong>Email:</strong> ${c.email || 'No registrado'}</p>
-                        <p><strong>Dirección:</strong> ${c.direccion || 'No registrada'}</p>
+                        <p><strong>Direccin:</strong> ${c.direccion || 'No registrada'}</p>
                     </div>
                 </div>
                 <div class="text-end mt-3">
@@ -399,7 +396,7 @@
                 </div>`;
         } catch (error) {
             console.error('Error al cargar cliente:', error);
-            modalContent.innerHTML = '<p class="text-danger">Error de conexión al cargar el cliente.</p>';
+            modalContent.innerHTML = '<p class="text-danger">Error de conexin al cargar el cliente.</p>';
         }
     }
 

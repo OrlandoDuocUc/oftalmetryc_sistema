@@ -14,14 +14,35 @@ class FondoOjo(Base):
     macula_od = Column(Text)
     vasos_od = Column(Text)
     retina_periferica_od = Column(Text)
+    av_temp_sup_od = Column(Text)
+    av_temp_inf_od = Column(Text)
+    av_nasal_sup_od = Column(Text)
+    av_nasal_inf_od = Column(Text)
+    retina_od = Column(Text)
+    excavacion_od = Column(Text)
+    papila_detalle_od = Column(Text)
+    fijacion_od = Column(Text)
+    color_od = Column(Text)
+    borde_od = Column(Text)
 
     # OJO IZQUIERDO
     disco_optico_oi = Column(Text)
     macula_oi = Column(Text)
     vasos_oi = Column(Text)
     retina_periferica_oi = Column(Text)
+    av_temp_sup_oi = Column(Text)
+    av_temp_inf_oi = Column(Text)
+    av_nasal_sup_oi = Column(Text)
+    av_nasal_inf_oi = Column(Text)
+    retina_oi = Column(Text)
+    excavacion_oi = Column(Text)
+    papila_detalle_oi = Column(Text)
+    fijacion_oi = Column(Text)
+    color_oi = Column(Text)
+    borde_oi = Column(Text)
 
     observaciones = Column(Text)
+    otros_detalles = Column(Text)
     fecha_examen = Column(DateTime, default=func.now(), nullable=False)
 
     # Relación
@@ -38,11 +59,32 @@ class FondoOjo(Base):
             'macula_od': self.macula_od,
             'vasos_od': self.vasos_od,
             'retina_periferica_od': self.retina_periferica_od,
+            'av_temp_sup_od': self.av_temp_sup_od,
+            'av_temp_inf_od': self.av_temp_inf_od,
+            'av_nasal_sup_od': self.av_nasal_sup_od,
+            'av_nasal_inf_od': self.av_nasal_inf_od,
+            'retina_od': self.retina_od,
+            'excavacion_od': self.excavacion_od,
+            'papila_detalle_od': self.papila_detalle_od,
+            'fijacion_od': self.fijacion_od,
+            'color_od': self.color_od,
+            'borde_od': self.borde_od,
             'disco_optico_oi': self.disco_optico_oi,
             'macula_oi': self.macula_oi,
             'vasos_oi': self.vasos_oi,
             'retina_periferica_oi': self.retina_periferica_oi,
+            'av_temp_sup_oi': self.av_temp_sup_oi,
+            'av_temp_inf_oi': self.av_temp_inf_oi,
+            'av_nasal_sup_oi': self.av_nasal_sup_oi,
+            'av_nasal_inf_oi': self.av_nasal_inf_oi,
+            'retina_oi': self.retina_oi,
+            'excavacion_oi': self.excavacion_oi,
+            'papila_detalle_oi': self.papila_detalle_oi,
+            'fijacion_oi': self.fijacion_oi,
+            'color_oi': self.color_oi,
+            'borde_oi': self.borde_oi,
             'observaciones': self.observaciones,
+            'otros_detalles': self.otros_detalles,
             'fecha_examen': self.fecha_examen.isoformat() if self.fecha_examen else None
         }
 
@@ -162,4 +204,74 @@ class Tratamiento(Base):
             'proxima_cita': self.proxima_cita.isoformat() if self.proxima_cita else None,
             'urgencia_seguimiento': self.urgencia_seguimiento,
             'fecha_tratamiento': self.fecha_tratamiento.isoformat() if self.fecha_tratamiento else None
+        }
+
+
+class ReflejosPupilares(Base):
+    __tablename__ = 'reflejos_pupilares'
+
+    reflejo_id = Column(Integer, primary_key=True, autoincrement=True)
+    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id', ondelete='CASCADE'), nullable=False)
+    acomodativo_uno = Column(Text)
+    fotomotor_uno = Column(Text)
+    consensual_uno = Column(Text)
+    acomodativo_dos = Column(Text)
+    fotomotor_dos = Column(Text)
+    consensual_dos = Column(Text)
+    observaciones = Column(Text)
+    fecha_registro = Column(DateTime, default=func.now(), nullable=False)
+
+    ficha = relationship("FichaClinica", foreign_keys=[ficha_id])
+
+    def __repr__(self):
+        return f"<ReflejosPupilares(reflejo_id={self.reflejo_id}, ficha_id={self.ficha_id})>"
+
+    def to_dict(self):
+        return {
+            'reflejo_id': self.reflejo_id,
+            'ficha_id': self.ficha_id,
+            'acomodativo_uno': self.acomodativo_uno,
+            'fotomotor_uno': self.fotomotor_uno,
+            'consensual_uno': self.consensual_uno,
+            'acomodativo_dos': self.acomodativo_dos,
+            'fotomotor_dos': self.fotomotor_dos,
+            'consensual_dos': self.consensual_dos,
+            'observaciones': self.observaciones,
+            'fecha_registro': self.fecha_registro.isoformat() if self.fecha_registro else None
+        }
+
+
+class ParametrosClinicos(Base):
+    __tablename__ = 'parametros_clinicos'
+
+    parametro_id = Column(Integer, primary_key=True, autoincrement=True)
+    ficha_id = Column(Integer, ForeignKey('fichas_clinicas.ficha_id', ondelete='CASCADE'), nullable=False)
+    presion_sistolica = Column(String(10))
+    presion_diastolica = Column(String(10))
+    saturacion_o2 = Column(String(10))
+    glucosa = Column(String(20))
+    trigliceridos = Column(String(20))
+    ttp = Column(String(20))
+    atp = Column(String(20))
+    colesterol = Column(String(20))
+    fecha_registro = Column(DateTime, default=func.now(), nullable=False)
+
+    ficha = relationship("FichaClinica", foreign_keys=[ficha_id])
+
+    def __repr__(self):
+        return f"<ParametrosClinicos(parametro_id={self.parametro_id}, ficha_id={self.ficha_id})>"
+
+    def to_dict(self):
+        return {
+            'parametro_id': self.parametro_id,
+            'ficha_id': self.ficha_id,
+            'presion_sistolica': self.presion_sistolica,
+            'presion_diastolica': self.presion_diastolica,
+            'saturacion_o2': self.saturacion_o2,
+            'glucosa': self.glucosa,
+            'trigliceridos': self.trigliceridos,
+            'ttp': self.ttp,
+            'atp': self.atp,
+            'colesterol': self.colesterol,
+            'fecha_registro': self.fecha_registro.isoformat() if self.fecha_registro else None
         }

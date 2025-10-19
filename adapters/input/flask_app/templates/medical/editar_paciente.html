@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Editar Paciente - Oftalmetryc{% endblock %}
 
 {% block extra_css %}
-/* ESTILOS ESPECÍFICOS DE EDICIÓN DE PACIENTE */
+/* ESTILOS ESPEC&Iacute;FICOS DE EDICI&Oacute;N DE PACIENTE */
         .page-header {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
@@ -54,12 +54,12 @@
 
 {% block content %}
 <div class="container mt-5">
-    <!-- HEADER DE LA PÁGINA -->
+    <!-- HEADER DE LA P&Aacute;GINA -->
     <div class="page-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h1><i class="fas fa-user-edit me-3"></i>Editar Paciente</h1>
-                <p class="mb-0" id="patientSubtitle">Modificar información del paciente médico</p>
+                <p class="mb-0" id="patientSubtitle">Modificar informaciÃ³n del paciente mÃ©dico</p>
             </div>
             <div>
                 <a href="/pacientes-medicos" class="btn btn-light btn-lg me-2">
@@ -72,19 +72,19 @@
         </div>
     </div>
 
-    <!-- FORMULARIO DE EDICIÓN -->
+    <!-- FORMULARIO DE EDICI&Oacute;N -->
     <form id="editarPacienteForm">
-        <!-- INFORMACIÓN PERSONAL -->
+        <!-- INFORMACI&Oacute;N PERSONAL -->
         <div class="form-section">
             <h4 class="section-title">
-                <i class="fas fa-user me-2"></i>Información Personal
+                <i class="fas fa-user me-2"></i>InformaciÃ³n Personal
             </h4>
             
             <div class="text-center mb-4">
                 <div class="patient-avatar" id="patientAvatar">
                     <i class="fas fa-user"></i>
                 </div>
-                <h5 class="text-muted" id="patientNameDisplay">Cargando información...</h5>
+                <h5 class="text-muted" id="patientNameDisplay">Cargando informaciÃ³n...</h5>
             </div>
             
             <div class="row">
@@ -120,7 +120,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label for="telefono" class="form-label">Teléfono</label>
+                        <label for="telefono" class="form-label">TelÃ©fono</label>
                         <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="+56 9 1234 5678">
                     </div>
                 </div>
@@ -141,25 +141,25 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label for="direccion" class="form-label">Dirección</label>
-                        <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Calle, número, comuna">
+                        <label for="direccion" class="form-label">DirecciÃ³n</label>
+                        <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Calle, nÃºmero, comuna">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- INFORMACIÓN MÉDICA -->
+        <!-- INFORMACI&Oacute;N M&Eacute;DICA -->
         <div class="form-section">
             <h4 class="section-title">
-                <i class="fas fa-notes-medical me-2"></i>Información Médica
+                <i class="fas fa-notes-medical me-2"></i>Informaci&oacute;n M&eacute;dica
             </h4>
             
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label for="numero_ficha" class="form-label">Número de Ficha</label>
+                        <label for="numero_ficha" class="form-label">NÃºmero de Ficha</label>
                         <input type="text" class="form-control" id="numero_ficha" name="numero_ficha" readonly>
-                        <small class="form-text text-muted">El número de ficha se genera automáticamente</small>
+                        <small class="form-text text-muted">El nÃºmero de ficha se genera automÃ¡ticamente</small>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -174,15 +174,15 @@
             </div>
             
             <div class="form-group mb-3">
-                <label for="antecedentes_medicos" class="form-label">Antecedentes Médicos</label>
+                <label for="antecedentes_medicos" class="form-label">Antecedentes MÃ©dicos</label>
                 <textarea class="form-control" id="antecedentes_medicos" name="antecedentes_medicos" rows="3" 
-                         placeholder="Describir antecedentes médicos relevantes..."></textarea>
+                         placeholder="Describir antecedentes mÃ©dicos relevantes..."></textarea>
             </div>
             
             <div class="form-group mb-3">
                 <label for="antecedentes_oculares" class="form-label">Antecedentes Oculares</label>
                 <textarea class="form-control" id="antecedentes_oculares" name="antecedentes_oculares" rows="3" 
-                         placeholder="Describir antecedentes oculares específicos..."></textarea>
+                         placeholder="Describir antecedentes oculares especÃ­ficos..."></textarea>
             </div>
             
             <div class="form-group mb-3">
@@ -214,7 +214,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label for="telefono_emergencia" class="form-label">Teléfono de Emergencia</label>
+                        <label for="telefono_emergencia" class="form-label">TelÃ©fono de Emergencia</label>
                         <input type="tel" class="form-control" id="telefono_emergencia" name="telefono_emergencia" 
                                placeholder="+56 9 1234 5678">
                     </div>
@@ -222,7 +222,7 @@
             </div>
         </div>
 
-        <!-- BOTONES DE ACCIÓN -->
+        <!-- BOTONES DE ACCIÃ“N -->
         <div class="btn-group-custom">
             <div class="d-flex justify-content-between">
                 <div>
@@ -249,16 +249,16 @@
     let pacienteOriginal = {};
     let clienteOriginal = {};
 
-    // Cargar información al iniciar
+    // Cargar informaciÃ³n al iniciar
     document.addEventListener('DOMContentLoaded', function() {
         if (pacienteId) {
             cargarInformacionPaciente();
         } else {
-            mostrarError('ID de paciente no válido');
+            mostrarError('ID de paciente no vÃ¡lido');
         }
     });
 
-    // Cargar información del paciente
+    // Cargar informaciÃ³n del paciente
     async function cargarInformacionPaciente() {
         try {
             const response = await fetch(`/api/pacientes-medicos/${pacienteId}`);
@@ -271,11 +271,11 @@
                 poblarFormulario(data);
                 habilitarHistorial();
             } else {
-                mostrarError('Error al cargar información del paciente');
+                mostrarError('Error al cargar informaciÃ³n del paciente');
             }
         } catch (error) {
             console.error('Error:', error);
-            mostrarError('Error de conexión al cargar paciente');
+            mostrarError('Error de conexiÃ³n al cargar paciente');
         }
     }
 
@@ -284,7 +284,7 @@
         const paciente = data.paciente_medico;
         const cliente = data.cliente;
         
-        // Información personal (cliente)
+        // InformaciÃ³n personal (cliente)
         document.getElementById('nombres').value = cliente.nombres || '';
         document.getElementById('apellido_paterno').value = cliente.apellido_paterno || '';
         document.getElementById('apellido_materno').value = cliente.apellido_materno || '';
@@ -295,7 +295,7 @@
             cliente.fecha_nacimiento.split('T')[0] : '';
         document.getElementById('direccion').value = cliente.direccion || '';
         
-        // Información médica (paciente médico)
+        // InformaciÃ³n mÃ©dica (paciente mÃ©dico)
         document.getElementById('numero_ficha').value = paciente.numero_ficha || '';
         document.getElementById('estado').value = paciente.estado ? 'true' : 'false';
         document.getElementById('antecedentes_medicos').value = paciente.antecedentes_medicos || '';
@@ -307,24 +307,24 @@
         document.getElementById('contacto_emergencia').value = paciente.contacto_emergencia || '';
         document.getElementById('telefono_emergencia').value = paciente.telefono_emergencia || '';
         
-        // Actualizar avatar y título
+        // Actualizar avatar y tÃ­tulo
         const nombreCompleto = `${cliente.nombres} ${cliente.apellido_paterno} ${cliente.apellido_materno}`;
         document.getElementById('patientNameDisplay').textContent = nombreCompleto;
-        document.getElementById('patientSubtitle').textContent = `Editar información de ${cliente.nombres}`;
+        document.getElementById('patientSubtitle').textContent = `Editar informaciÃ³n de ${cliente.nombres}`;
         
         // Generar iniciales para avatar
         const iniciales = `${cliente.nombres.charAt(0)}${cliente.apellido_paterno.charAt(0)}`;
         document.getElementById('patientAvatar').textContent = iniciales;
     }
 
-    // Manejar envío del formulario
+    // Manejar envÃ­o del formulario
     document.getElementById('editarPacienteForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
         const data = Object.fromEntries(formData);
         
-        // Separar datos de cliente y paciente médico
+        // Separar datos de cliente y paciente mÃ©dico
         const clienteData = {
             nombres: data.nombres,
             apellido_paterno: data.apellido_paterno,
@@ -370,14 +370,14 @@
             const data = await response.json();
             
             if (data.success) {
-                // Mostrar mensaje de éxito
+                // Mostrar mensaje de Ã©xito
                 Swal.fire({
-                    title: '¡Éxito!',
-                    text: 'Información del paciente actualizada correctamente',
+                    title: 'Â¡Ã‰xito!',
+                    text: 'InformaciÃ³n del paciente actualizada correctamente',
                     icon: 'success',
                     confirmButtonText: 'Continuar'
                 }).then(() => {
-                    // Recargar información
+                    // Recargar informaciÃ³n
                     cargarInformacionPaciente();
                 });
             } else {
@@ -397,18 +397,18 @@
         }
     }
 
-    // Funciones de navegación
+    // Funciones de navegaciÃ³n
     function verHistorial() {
         window.location.href = `/pacientes-medicos/${pacienteId}/historial`;
     }
 
     function cancelarEdicion() {
         Swal.fire({
-            title: '¿Cancelar edición?',
-            text: 'Se perderán los cambios no guardados',
+            title: 'Â¿Cancelar ediciÃ³n?',
+            text: 'Se perderÃ¡n los cambios no guardados',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Sí, cancelar',
+            confirmButtonText: 'SÃ­, cancelar',
             cancelButtonText: 'Continuar editando'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -419,11 +419,11 @@
 
     function resetearFormulario() {
         Swal.fire({
-            title: '¿Restaurar valores originales?',
-            text: 'Se restaurarán todos los campos a su valor original',
+            title: 'Â¿Restaurar valores originales?',
+            text: 'Se restaurarÃ¡n todos los campos a su valor original',
             icon: 'question',
             showCancelButton: true,
-            confirmButtonText: 'Sí, restaurar',
+            confirmButtonText: 'SÃ­, restaurar',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -431,7 +431,7 @@
                     paciente_medico: pacienteOriginal,
                     cliente: clienteOriginal
                 });
-                Swal.fire('¡Restaurado!', 'Formulario restaurado a valores originales', 'success');
+                Swal.fire('Â¡Restaurado!', 'Formulario restaurado a valores originales', 'success');
             }
         });
     }
@@ -460,3 +460,7 @@
     }
 </script>
 {% endblock %}
+
+
+
+

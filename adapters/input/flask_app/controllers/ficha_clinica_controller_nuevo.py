@@ -3,6 +3,14 @@ from flask import request, jsonify
 from app.infraestructure.utils.db import SessionLocal
 from app.domain.models.consulta_medica import FichaClinica
 from app.domain.models.paciente import PacienteMedico
+from app.domain.models.biomicroscopia import Biomicroscopia
+from app.domain.models.examenes_medicos import (
+    FondoOjo,
+    ReflejosPupilares,
+    ParametrosClinicos,
+    DiagnosticoMedico,
+    Tratamiento,
+)
 from sqlalchemy.orm import joinedload
 from datetime import datetime
 
@@ -13,6 +21,82 @@ class FichaClinicaController:
 
     def __init__(self):
         pass
+
+    # ------------------------------------------------------------------
+    # Helpers de resumen para exámenes asociados
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _join_values(*values):
+        return ", ".join([str(v).strip() for v in values if v and str(v).strip()])
+
+    def _resumen_biomicroscopia(self, bio: Biomicroscopia) -> str:
+        od = self._join_values(
+            bio.cornea_od,
+            bio.cristalino_od,
+            bio.pupila_desc_od,
+            bio.conjuntiva_bulbar_od,
+            bio.parpado_superior_od,
+        )
+        oi = self._join_values(
+            bio.cornea_oi,
+            bio.cristalino_oi,
+            bio.pupila_desc_oi,
+            bio.conjuntiva_bulbar_oi,
+            bio.parpado_superior_oi,
+        )
+        partes = []
+        if od:
+            partes.append(f"OD: {od}")
+        if oi:
+            partes.append(f"OI: {oi}")
+        if bio.otros_detalles:
+            partes.append(bio.otros_detalles)
+        elif bio.observaciones_generales:
+            partes.append(bio.observaciones_generales)
+        return ". ".join(partes)
+
+    def _resumen_fondo_ojo(self, fo: FondoOjo) -> str:
+        od = self._join_values(
+            fo.disco_optico_od,
+            fo.macula_od,
+            fo.vasos_od,
+            fo.retina_periferica_od,
+            fo.excavacion_od,
+            fo.color_od,
+        )
+        oi = self._join_values(
+            fo.disco_optico_oi,
+            fo.macula_oi,
+            fo.vasos_oi,
+            fo.retina_periferica_oi,
+            fo.excavacion_oi,
+            fo.color_oi,
+        )
+        partes = []
+        if od:
+            partes.append(f"OD: {od}")
+        if oi:
+            partes.append(f"OI: {oi}")
+        if fo.otros_detalles:
+            partes.append(fo.otros_detalles)
+        elif fo.observaciones:
+            partes.append(fo.observaciones)
+        return ". ".join(partes)
+
+    def _resumen_parametros(self, parametros: ParametrosClinicos) -> str:
+        presion = self._join_values(
+            parametros.presion_sistolica and f"PAS {parametros.presion_sistolica}",
+            parametros.presion_diastolica and f"PAD {parametros.presion_diastolica}",
+        )
+        extras = self._join_values(
+            parametros.saturacion_o2 and f"SatO2 {parametros.saturacion_o2}",
+            parametros.glucosa and f"Glu {parametros.glucosa}",
+            parametros.trigliceridos and f"Trig {parametros.trigliceridos}",
+            parametros.ttp and f"TTP {parametros.ttp}",
+            parametros.atp and f"ATP {parametros.atp}",
+            parametros.colesterol and f"Col {parametros.colesterol}",
+        )
+        return self._join_values(presion, extras)
 
     # ---------------------------------------------------------------------
     # LISTAR TODAS
@@ -57,6 +141,69 @@ class FichaClinicaController:
                             "nombre": ficha.usuario.nombre,
                             "username": ficha.usuario.username,
                         }
+
+                    bio = (
+                        session.query(Biomicroscopia)
+                        .filter(Biomicroscopia.ficha_id == ficha.ficha_id)
+                        .order_by(Biomicroscopia.fecha_examen.desc())
+                        .first()
+                    )
+                    if bio:
+                        data["biomicroscopia"] = {
+                            "biomicroscopia_id": bio.biomicroscopia_id,
+                            "fecha_examen": bio.fecha_examen.isoformat() if bio.fecha_examen else None,
+                            "resumen": self._resumen_biomicroscopia(bio),
+                        }
+
+                    reflejos = (
+                        session.query(ReflejosPupilares)
+                        .filter(ReflejosPupilares.ficha_id == ficha.ficha_id)
+                        .order_by(ReflejosPupilares.fecha_registro.desc())
+                        .first()
+                    )
+                    if reflejos:
+                        data["reflejos_pupilares"] = reflejos.to_dict()
+
+                    fondo = (
+                        session.query(FondoOjo)
+                        .filter(FondoOjo.ficha_id == ficha.ficha_id)
+                        .order_by(FondoOjo.fecha_examen.desc())
+                        .first()
+                    )
+                    if fondo:
+                        resumen_fondo = self._resumen_fondo_ojo(fondo)
+                        info_fondo = fondo.to_dict()
+                        info_fondo["resumen"] = resumen_fondo
+                        data["fondo_ojo_extendido"] = info_fondo
+
+                    parametros = (
+                        session.query(ParametrosClinicos)
+                        .filter(ParametrosClinicos.ficha_id == ficha.ficha_id)
+                        .order_by(ParametrosClinicos.fecha_registro.desc())
+                        .first()
+                    )
+                    if parametros:
+                        info_param = parametros.to_dict()
+                        info_param["resumen"] = self._resumen_parametros(parametros)
+                        data["parametros_clinicos"] = info_param
+
+                    diagnostico = (
+                        session.query(DiagnosticoMedico)
+                        .filter(DiagnosticoMedico.ficha_id == ficha.ficha_id)
+                        .order_by(DiagnosticoMedico.fecha_diagnostico.desc())
+                        .first()
+                    )
+                    if diagnostico:
+                        data["diagnostico"] = diagnostico.to_dict()
+
+                    tratamiento = (
+                        session.query(Tratamiento)
+                        .filter(Tratamiento.ficha_id == ficha.ficha_id)
+                        .order_by(Tratamiento.fecha_tratamiento.desc())
+                        .first()
+                    )
+                    if tratamiento:
+                        data["tratamiento"] = tratamiento.to_dict()
 
                     result.append(data)
 

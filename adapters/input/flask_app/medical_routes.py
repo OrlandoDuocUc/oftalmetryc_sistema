@@ -1,12 +1,12 @@
-# adapters/input/flask_app/medical_routes.py
+﻿# adapters/input/flask_app/medical_routes.py
 # ============================================================================
-# Blueprint de VISTAS (HTML) y endpoints API del módulo médico.
+# Blueprint de VISTAS (HTML) y endpoints API del mÃ³dulo mÃ©dico.
 # - Vistas: dashboard, historial, nueva ficha, detalle consulta, certificado.
-# - API: proxys y endpoints mínimos para exámenes oftalmológicos.
+# - API: proxys y endpoints mÃ­nimos para exÃ¡menes oftalmolÃ³gicos.
 # - EXTENSIONES: /api/personas, /api/clientes/<id>, POST /api/pacientes-medicos flexible
 # ============================================================================
 
-from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify, abort
+from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify, abort, current_app
 from adapters.input.flask_app.controllers.paciente_controller import PacienteMedicoController
 from adapters.input.flask_app.controllers.ficha_clinica_controller_nuevo import FichaClinicaController
 
@@ -15,13 +15,13 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy import or_
 from datetime import datetime
 
-# Modelos núcleo
+# Modelos nÃºcleo
 from app.domain.models.consulta_medica import FichaClinica
 from app.domain.models.paciente import PacienteMedico
 from app.domain.models.cliente import Cliente
 from app.domain.models.user import User
 
-# Modelos de exámenes (alineados con tu BD)
+# Modelos de exÃ¡menes (alineados con tu BD)
 from app.domain.models.biomicroscopia import Biomicroscopia
 from app.domain.models.examenes_medicos import (
     FondoOjo,
@@ -29,7 +29,10 @@ from app.domain.models.examenes_medicos import (
     CampoVisual,
     DiagnosticoMedico,
     Tratamiento,
+    ReflejosPupilares,
+    ParametrosClinicos,
 )
+from app.domain.use_cases.services.biomicroscopia_service import BiomicroscopiaService
 
 from jinja2 import TemplateNotFound
 
@@ -54,7 +57,7 @@ paciente_medico_controller = PacienteMedicoController()
 ficha_clinica_controller = FichaClinicaController()
 
 # ----------------------------------------------------------------------------
-# Autenticación mínima
+# AutenticaciÃ³n mÃ­nima
 # ----------------------------------------------------------------------------
 def login_required(f):
     from functools import wraps
@@ -158,27 +161,42 @@ def ver_consulta(consulta_id):
 def editar_consulta(consulta_id):
     return _render_view('medical/editar_consulta.html', 'editar_consulta.html', consulta_id=consulta_id)
 
-@medical_bp.route('/consultas/<int:consulta_id>/examen')
-@login_required
-def examen_oftalmologico(consulta_id):
-    # Pasamos consulta_id al template por si quieres usarlo como ficha_id en el POST
-    return _render_view('medical/examen_oftalmologico_nuevo.html', 'examen_oftalmologico_nuevo.html', consulta_id=consulta_id)
+# --- RUTA LEGACY DE EXAMEN OFTALMOLÓGICO (INHABILITADA) ---
+# Conservamos la función como referencia histórica, pero sin exponerla.
+# @medical_bp.route('/consultas/<int:consulta_id>/examen')
+# @login_required
+# def examen_oftalmologico(consulta_id):
+#     return _render_view('medical/examen_oftalmologico_nuevo.html', 'examen_oftalmologico_nuevo.html', consulta_id=consulta_id)
 
 @medical_bp.route('/dashboard-medico')
 @login_required
 def dashboard_medico():
     return _render_view('medical/dashboard_medico_final.html', 'dashboard_medico_final.html')
 
-# --- Endpoints con nombre explícito (para url_for desde el dashboard)
+# --- Endpoints con nombre explÃ­cito (para url_for desde el dashboard)
 @medical_bp.route('/ficha-clinica-nuevo', endpoint='ficha_clinica')
 @login_required
 def ficha_clinica_view():
     return _render_view('medical/ficha_clinica_nuevo.html', 'ficha_clinica_nuevo.html')
 
-@medical_bp.route('/examen-oftalmologico-nuevo', endpoint='examen_oftalmologico_nuevo')
+# @medical_bp.route('/examen-oftalmologico-nuevo', endpoint='examen_oftalmologico_nuevo')
+# @login_required
+# def examen_oftalmologico_nuevo_view():
+#     """Ruta deshabilitada: se mantiene como comentario para referencia."""
+#     return _render_view('medical/examen_oftalmologico_nuevo.html', 'examen_oftalmologico_nuevo.html')
+
+
+@medical_bp.route('/biomicroscopia-nuevo', endpoint='biomicroscopia_nuevo')
 @login_required
-def examen_oftalmologico_nuevo_view():
-    return _render_view('medical/examen_oftalmologico_nuevo.html', 'examen_oftalmologico_nuevo.html')
+def biomicroscopia_nuevo_view():
+    consulta_id = request.args.get('consulta_id', type=int)
+    paciente_id = request.args.get('paciente_id')
+    context = {}
+    if consulta_id:
+        context['consulta_id'] = consulta_id
+    if paciente_id:
+        context['paciente_id'] = paciente_id
+    return _render_view('medical/biomicroscopia_nuevo.html', 'biomicroscopia_nuevo.html', **context)
 
 # ============================================================================
 # CERTIFICADO (con datos opcionales si existen)
@@ -229,7 +247,7 @@ def certificado_consulta(consulta_id):
               .first()
         )
         if not consulta:
-            abort(404, description="Ficha clínica no encontrada")
+            abort(404, description="Ficha clÃ­nica no encontrada")
 
         paciente = consulta.paciente_medico
         cliente = paciente.cliente if paciente else None
@@ -238,7 +256,7 @@ def certificado_consulta(consulta_id):
         edad = _calcular_edad(getattr(cliente, "fecha_nacimiento", None), consulta.fecha_consulta)
         fecha_consulta_str = _formatear_fecha_es(consulta.fecha_consulta)
 
-        # Biomicroscopía (resumen)
+        # BiomicroscopÃ­a (resumen)
         biomicroscopia_texto = None
         bio = db.query(Biomicroscopia).filter_by(ficha_id=consulta_id).first()
         if bio:
@@ -268,7 +286,7 @@ def certificado_consulta(consulta_id):
             if obs: partes.append(obs)
             fondo_ojo_texto = ". ".join(partes) if partes else None
 
-        # Diagnóstico (principal/secundario)
+        # DiagnÃ³stico (principal/secundario)
         diagnostico_texto = None
         dx = (
             db.query(DiagnosticoMedico)
@@ -292,7 +310,7 @@ def certificado_consulta(consulta_id):
                 partes.append(secundarios_txt)
             diagnostico_texto = ", ".join([p for p in partes if p])
 
-        # Tratamiento (viñetas)
+        # Tratamiento (viÃ±etas)
         tratamiento_items = []
         tx = (
             db.query(Tratamiento)
@@ -310,7 +328,7 @@ def certificado_consulta(consulta_id):
             for bloque in posibles:
                 if bloque:
                     for linea in str(bloque).splitlines():
-                        l = linea.strip().lstrip("✓").strip()
+                        l = linea.strip().lstrip("âœ“").strip()
                         if l:
                             tratamiento_items.append(l)
 
@@ -321,7 +339,7 @@ def certificado_consulta(consulta_id):
             medico_nombre = " ".join([p for p in partes_nombre if p])
 
         footer_info = {
-            "direccion": "CALLE GARCÍA AVILES 318 entre Av. 9 de OCTUBRE Y VELEZ",
+            "direccion": "CALLE GARCÃA AVILES 318 entre Av. 9 de OCTUBRE Y VELEZ",
             "telefonos": "Telf: 0980632277 / 0998436958 / 0985394814",
             "ciudad": "Guayaquil",
         }
@@ -352,7 +370,7 @@ def api_get_personas():
     """
     Devuelve una lista unificada de:
     - Pacientes con su cliente embebido  -> type='paciente'
-    - Clientes sin ficha médica          -> type='cliente'
+    - Clientes sin ficha mÃ©dica          -> type='cliente'
     Filtros:
       q       : texto (nombre o rut)
       estado  : true/false (aplica al estado del registro correspondiente)
@@ -409,8 +427,8 @@ def api_get_personas():
                 'cliente': _serialize_cliente(c)
             })
 
-        # Para pacientes también respetamos paginación básica (opcional):
-        # Aquí mantenemos items completos; si deseas paginar de verdad, unifica en SQL con UNION.
+        # Para pacientes tambiÃ©n respetamos paginaciÃ³n bÃ¡sica (opcional):
+        # AquÃ­ mantenemos items completos; si deseas paginar de verdad, unifica en SQL con UNION.
 
         return jsonify({'success': True, 'data': items, 'meta': {'count': len(items)}})
     except Exception as e:
@@ -436,7 +454,7 @@ def api_get_cliente(cliente_id):
         db.close()
 
 # ============================================================================
-# API - PACIENTES MÉDICOS (existentes + POST flexible)
+# API - PACIENTES MÃ‰DICOS (existentes + POST flexible)
 # ============================================================================
 @medical_bp.route('/api/pacientes-medicos', methods=['GET'])
 @login_required
@@ -469,11 +487,11 @@ def api_create_paciente_medico():
                 if not cliente_obj:
                     return jsonify({'success': False, 'message': 'Cliente no encontrado'}), 404
             else:
-                # Crear o reutilizar por RUC/Cédula
+                # Crear o reutilizar por RUC/CÃ©dula
                 cdata = payload.get('cliente') or {}
                 rut = (cdata.get('rut') or '').strip()
                 if not rut:
-                    return jsonify({'success': False, 'message': 'El campo rut (Cédula/RUC) es requerido en cliente'}), 400
+                    return jsonify({'success': False, 'message': 'El campo rut (CÃ©dula/RUC) es requerido en cliente'}), 400
                 existente = db.query(Cliente).filter(Cliente.rut == rut).first()
                 if existente:
                     cliente_obj = existente
@@ -534,7 +552,7 @@ def api_get_paciente_medico(paciente_medico_id):
 @login_required
 def api_get_consultas_paciente(paciente_medico_id):
     """
-    Devuelve las fichas clínicas del paciente (por paciente_medico_id).
+    Devuelve las fichas clÃ­nicas del paciente (por paciente_medico_id).
     Fallback si por error se entrega un cliente_id.
     """
     db = SessionLocal()
@@ -547,7 +565,7 @@ def api_get_consultas_paciente(paciente_medico_id):
               .all()
         )
 
-        # 2) Fallback: si no hay fichas, considerar que llegó cliente_id
+        # 2) Fallback: si no hay fichas, considerar que llegÃ³ cliente_id
         if not fichas:
             pm = (
                 db.query(PacienteMedico)
@@ -579,7 +597,7 @@ def api_get_consultas_paciente(paciente_medico_id):
         db.close()
 
 # ============================================================================
-# API - FICHAS CLÍNICAS
+# API - FICHAS CLÃNICAS
 # ============================================================================
 @medical_bp.route('/api/fichas-clinicas', methods=['GET'])
 @login_required
@@ -602,7 +620,7 @@ def api_update_ficha_clinica(ficha_id):
     return ficha_clinica_controller.update_ficha_clinica(ficha_id)
 
 # ---------------------------------------------------------------------------
-# API - RESUMEN DE EXÁMENES POR FICHA (para detalle / historial si se quiere)
+# API - RESUMEN DE EXÃMENES POR FICHA (para detalle / historial si se quiere)
 # ---------------------------------------------------------------------------
 @medical_bp.route('/api/fichas-clinicas/<int:ficha_id>/examenes', methods=['GET'])
 @login_required
@@ -646,7 +664,84 @@ def api_get_examenes_por_ficha(ficha_id):
         db.close()
 
 # ---------------------------------------------------------------------------
-# API - GUARDAR EXAMEN OFTALMOLÓGICO (desde examen_oftalmologico_nuevo.html)
+# API - EXAMEN DE BIOMICROSCOPÍA COMPLETO
+# ---------------------------------------------------------------------------
+@medical_bp.route('/api/biomicroscopia/<int:ficha_id>')
+@login_required
+def api_get_biomicroscopia(ficha_id):
+    service = BiomicroscopiaService()
+    data = service.obtener_examen(ficha_id)
+    return jsonify({'success': True, 'data': data})
+
+
+@medical_bp.route('/api/biomicroscopia', methods=['POST'])
+@login_required
+def api_save_biomicroscopia():
+    payload = request.get_json(silent=True) or {}
+    ficha_id = payload.get('ficha_id')
+
+    if ficha_id is None:
+        return jsonify({'success': False, 'message': 'ficha_id es requerido'}), 400
+
+    try:
+        ficha_id = int(ficha_id)
+    except (TypeError, ValueError):
+        return jsonify({'success': False, 'message': 'ficha_id no es válido'}), 400
+
+    service = BiomicroscopiaService()
+
+    try:
+        resultado = service.guardar_examen(ficha_id, payload)
+
+        diagnostico_txt = (payload.get('diagnostico') or '').strip()
+        tratamiento_txt = (payload.get('tratamiento') or '').strip()
+
+        if diagnostico_txt or tratamiento_txt:
+            db = SessionLocal()
+            try:
+                if diagnostico_txt:
+                    diag = (
+                        db.query(DiagnosticoMedico)
+                        .filter(DiagnosticoMedico.ficha_id == ficha_id)
+                        .order_by(DiagnosticoMedico.fecha_diagnostico.desc())
+                        .first()
+                    )
+                    if not diag:
+                        diag = DiagnosticoMedico(ficha_id=ficha_id)
+                    diag.diagnostico_principal = diagnostico_txt
+                    db.add(diag)
+
+                if tratamiento_txt:
+                    tx = (
+                        db.query(Tratamiento)
+                        .filter(Tratamiento.ficha_id == ficha_id)
+                        .order_by(Tratamiento.fecha_tratamiento.desc())
+                        .first()
+                    )
+                    if not tx:
+                        tx = Tratamiento(ficha_id=ficha_id)
+                    tx.medicamentos = tratamiento_txt
+                    db.add(tx)
+
+                db.commit()
+
+                if diagnostico_txt:
+                    resultado['diagnostico'] = diag.to_dict()
+                if tratamiento_txt:
+                    resultado['tratamiento'] = tx.to_dict()
+            except Exception:
+                db.rollback()
+                raise
+            finally:
+                db.close()
+
+        return jsonify({'success': True, 'data': resultado})
+    except Exception as exc:
+        current_app.logger.exception('Error guardando examen de biomicroscopía')
+        return jsonify({'success': False, 'message': str(exc)}), 500
+
+# ---------------------------------------------------------------------------
+# API - GUARDAR EXAMEN OFTALMOLÃ“GICO (desde examen_oftalmologico_nuevo.html)
 # Guarda en tablas existentes: presion_intraocular y fondo_ojo
 # ---------------------------------------------------------------------------
 @medical_bp.route('/api/examenes-oftalmologicos', methods=['POST'])
@@ -664,7 +759,7 @@ def api_save_examen_oftalmologico():
     db = SessionLocal()
     try:
         if not ficha_id:
-            # Fallback: si viene paciente_rut, buscar su última ficha
+            # Fallback: si viene paciente_rut, buscar su Ãºltima ficha
             rut = (payload.get('paciente_rut') or "").strip()
             if rut:
                 cli = db.query(Cliente).filter(Cliente.rut == rut).first()
@@ -686,7 +781,7 @@ def api_save_examen_oftalmologico():
         # Verificar que la ficha exista
         ficha = db.query(FichaClinica).filter_by(ficha_id=ficha_id).first()
         if not ficha:
-            return jsonify({'success': False, 'message': 'Ficha clínica no encontrada'}), 404
+            return jsonify({'success': False, 'message': 'Ficha clÃ­nica no encontrada'}), 404
 
         guardados = {'fondo_ojo': False, 'presion_intraocular': False}
 
@@ -745,3 +840,4 @@ def api_save_examen_oftalmologico():
         db.close()
 
 __all__ = ['medical_bp']
+

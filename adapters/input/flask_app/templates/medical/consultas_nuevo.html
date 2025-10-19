@@ -134,6 +134,13 @@
     // Helpers para armar URLs con ID conservando prefijo/blueprint:
     const URL_VER_CONSULTA = (id) => "{{ url_for('medical.ver_consulta', consulta_id=0) }}".replace('/0', '/' + id);
     const URL_EDITAR_CONSULTA = (id) => "{{ url_for('medical.editar_consulta', consulta_id=0) }}".replace('/0', '/' + id);
+    const URL_BIOMICROSCOPIA = (fichaId, pacienteId) => {
+        const base = "{{ url_for('medical.biomicroscopia_nuevo') }}";
+        const params = new URLSearchParams();
+        if (fichaId) params.set('consulta_id', fichaId);
+        if (pacienteId) params.set('paciente_id', pacienteId);
+        return `${base}?${params.toString()}`;
+    };
 
     let consultasData = [];
 
@@ -204,6 +211,15 @@
                               : 'bg-secondary';
 
             const id = consulta.ficha_id;
+            const pacienteMedicoId = consulta.paciente_medico ? consulta.paciente_medico.paciente_medico_id : null;
+            const bio = consulta.biomicroscopia || null;
+            const bioResumen = bio?.resumen || 'Biomicroscopía no registrada';
+            const bioFecha = bio?.fecha_examen ? new Date(bio.fecha_examen).toLocaleString('es-CL') : null;
+            const bioLink = URL_BIOMICROSCOPIA(id, pacienteMedicoId);
+
+            const diagnostico = consulta.diagnostico && consulta.diagnostico.diagnostico_principal
+                ? consulta.diagnostico.diagnostico_principal
+                : '';
 
             return `
                 <div class="consulta-card">
@@ -224,6 +240,7 @@
                             <span class="status-badge ${estadoClass} text-white">
                                 ${estadoTexto}
                             </span>
+                            ${diagnostico ? `<p class="small text-muted mt-2 mb-0"><i class="fas fa-notes-medical me-1"></i>${diagnostico}</p>` : ''}
                         </div>
                         <div class="col-md-3 text-end">
                             <button class="btn btn-outline-primary btn-sm me-2" onclick="verDetalles(${id})">
@@ -232,6 +249,19 @@
                             <button class="btn btn-outline-info btn-sm" onclick="editarConsulta(${id})">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
+                        </div>
+                    </div>
+                    <div class="row mt-3 align-items-center g-2">
+                        <div class="col-md-8">
+                            <small class="d-block ${bio ? 'text-success' : 'text-muted'}">
+                                <i class="fas fa-microscope me-2"></i>
+                                ${bio ? `${bioFecha ? bioFecha + ' · ' : ''}${bioResumen}` : bioResumen}
+                            </small>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a class="btn btn-sm ${bio ? 'btn-outline-primary' : 'btn-primary'}" href="${bioLink}">
+                                <i class="fas fa-microscope me-1"></i>${bio ? 'Ver / editar examen' : 'Registrar examen'}
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -256,7 +286,13 @@
                     : '';
                 const rut = consulta.cliente && consulta.cliente.rut ? consulta.cliente.rut.toLowerCase() : '';
                 const numeroConsulta = (consulta.numero_consulta || '').toLowerCase();
-                return nombreCompleto.includes(searchTerm) || rut.includes(searchTerm) || numeroConsulta.includes(searchTerm);
+                const bioResumen = consulta.biomicroscopia && consulta.biomicroscopia.resumen
+                    ? consulta.biomicroscopia.resumen.toLowerCase()
+                    : '';
+                return nombreCompleto.includes(searchTerm)
+                    || rut.includes(searchTerm)
+                    || numeroConsulta.includes(searchTerm)
+                    || bioResumen.includes(searchTerm);
             });
         }
 

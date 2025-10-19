@@ -1,8 +1,9 @@
+﻿<!-- LEGACY: vista no utilizada, se mantiene como referencia -->
 {% extends "base.html" %}
-{% block title %}Examen Oftalmológico - Oftalmetryc{% endblock %}
+{% block title %}Examen OftalmolÃ³gico - Oftalmetryc{% endblock %}
 
 {% block extra_css %}
-/* ESTILOS ESPECÍFICOS DE EXAMEN OFTALMOLÓGICO */
+/* ESTILOS ESPECÃFICOS DE EXAMEN OFTALMOLÃ“GICO */
 .page-header {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white; padding: 30px; border-radius: 15px; margin-bottom: 30px;
@@ -21,8 +22,8 @@
 <div class="container mt-5">
   <div class="page-header d-flex justify-content-between align-items-center">
     <div>
-      <h1><i class="fas fa-eye-dropper me-3"></i>Examen Oftalmológico</h1>
-      <p class="mb-0">Evaluación visual y hallazgos clínicos</p>
+      <h1><i class="fas fa-eye-dropper me-3"></i>Examen OftalmolÃ³gico</h1>
+      <p class="mb-0">EvaluaciÃ³n visual y hallazgos clÃ­nicos</p>
     </div>
     <div class="d-flex gap-2">
       <a id="btnNuevaFicha" href="/ficha-clinica-nuevo" class="btn btn-light btn-lg">
@@ -38,18 +39,18 @@
   <input type="hidden" id="fichaIdHidden" value="{{ consulta_id if consulta_id is defined else '' }}">
 
   <form id="examenOftalmologicoForm">
-    <!-- SELECCIÓN / INFORMACIÓN DEL PACIENTE -->
+    <!-- SELECCIÃ“N / INFORMACIÃ“N DEL PACIENTE -->
     <div class="exam-section">
       <h4 class="section-title"><i class="fas fa-user me-2"></i>Paciente</h4>
 
       <div class="row g-3">
         <div class="col-md-6">
-          <label for="pacienteMedicoId" class="form-label">Buscar paciente por nombre o Cédula/RUC <span class="text-danger">*</span></label>
-          <input id="pacienteMedicoId" placeholder="Escribe nombre, cédula o RUC…" required>
-          <div class="small-hint mt-1">Sugerencias muestran <strong>Nombre — Cédula/RUC</strong>. Usa números para buscar por documento.</div>
+          <label for="pacienteMedicoId" class="form-label">Buscar paciente por nombre o CÃ©dula/RUC <span class="text-danger">*</span></label>
+          <input id="pacienteMedicoId" placeholder="Escribe nombre, cÃ©dula o RUCâ€¦" required>
+          <div class="small-hint mt-1">Sugerencias muestran <strong>Nombre â€” CÃ©dula/RUC</strong>. Usa nÃºmeros para buscar por documento.</div>
         </div>
         <div class="col-md-3">
-          <label for="pacienteDoc" class="form-label">Cédula/RUC</label>
+          <label for="pacienteDoc" class="form-label">CÃ©dula/RUC</label>
           <input type="text" id="pacienteDoc" class="form-control" readonly>
         </div>
         <div class="col-md-3">
@@ -64,7 +65,7 @@
           <input type="datetime-local" class="form-control" id="fechaExamen">
         </div>
         <div class="col-md-9 d-flex align-items-end">
-          <div class="small-hint">Al seleccionar un paciente se actualizará el botón <em>Historial</em> para ir a su historial específico.</div>
+          <div class="small-hint">Al seleccionar un paciente se actualizarÃ¡ el botÃ³n <em>Historial</em> para ir a su historial especÃ­fico.</div>
         </div>
       </div>
     </div>
@@ -87,7 +88,7 @@
               </div>
             </div>
             <div class="mt-3">
-              <label for="av_od_cc" class="form-label">Con corrección</label>
+              <label for="av_od_cc" class="form-label">Con correcciÃ³n</label>
               <input type="text" class="form-control" id="av_od_cc" placeholder="20/20">
             </div>
           </div>
@@ -106,7 +107,7 @@
               </div>
             </div>
             <div class="mt-3">
-              <label for="av_oi_cc" class="form-label">Con corrección</label>
+              <label for="av_oi_cc" class="form-label">Con correcciÃ³n</label>
               <input type="text" class="form-control" id="av_oi_cc" placeholder="20/20">
             </div>
           </div>
@@ -116,7 +117,7 @@
       <div class="row mt-3">
         <div class="col-md-12">
           <div class="measurement-card">
-            <h6 class="text-info">Visión Binocular (AO)</h6>
+            <h6 class="text-info">VisiÃ³n Binocular (AO)</h6>
             <div class="row g-2">
               <div class="col-md-4">
                 <label for="av_ao" class="form-label">AO</label>
@@ -132,25 +133,25 @@
       </div>
     </div>
 
-    <!-- REFRACCIÓN -->
+    <!-- REFRACCIÃ“N -->
     <div class="exam-section">
-      <h4 class="section-title"><i class="fas fa-glasses me-2"></i>Refracción</h4>
+      <h4 class="section-title"><i class="fas fa-glasses me-2"></i>RefracciÃ³n</h4>
       <div class="row">
         <div class="col-md-6">
           <div class="measurement-card">
             <h6 class="text-primary">Ojo Derecho (OD)</h6>
             <div class="row g-2">
               <div class="col-4">
-                <label for="rx_od_esf" class="form-label">Esférico</label>
+                <label for="rx_od_esf" class="form-label">EsfÃ©rico</label>
                 <input type="text" class="form-control" id="rx_od_esf" placeholder="-2.50">
               </div>
               <div class="col-4">
-                <label for="rx_od_cyl" class="form-label">Cilíndrico</label>
+                <label for="rx_od_cyl" class="form-label">CilÃ­ndrico</label>
                 <input type="text" class="form-control" id="rx_od_cyl" placeholder="-1.00">
               </div>
               <div class="col-4">
                 <label for="rx_od_eje" class="form-label">Eje</label>
-                <input type="text" class="form-control" id="rx_od_eje" placeholder="90°">
+                <input type="text" class="form-control" id="rx_od_eje" placeholder="90Â°">
               </div>
             </div>
           </div>
@@ -160,16 +161,16 @@
             <h6 class="text-primary">Ojo Izquierdo (OI)</h6>
             <div class="row g-2">
               <div class="col-4">
-                <label for="rx_oi_esf" class="form-label">Esférico</label>
+                <label for="rx_oi_esf" class="form-label">EsfÃ©rico</label>
                 <input type="text" class="form-control" id="rx_oi_esf" placeholder="-2.50">
               </div>
               <div class="col-4">
-                <label for="rx_oi_cyl" class="form-label">Cilíndrico</label>
+                <label for="rx_oi_cyl" class="form-label">CilÃ­ndrico</label>
                 <input type="text" class="form-control" id="rx_oi_cyl" placeholder="-1.00">
               </div>
               <div class="col-4">
                 <label for="rx_oi_eje" class="form-label">Eje</label>
-                <input type="text" class="form-control" id="rx_oi_eje" placeholder="90°">
+                <input type="text" class="form-control" id="rx_oi_eje" placeholder="90Â°">
               </div>
             </div>
           </div>
@@ -178,7 +179,7 @@
 
       <div class="row g-3 mt-1">
         <div class="col-md-6">
-          <label for="rx_add" class="form-label">Adición (Lectura)</label>
+          <label for="rx_add" class="form-label">AdiciÃ³n (Lectura)</label>
           <input type="text" class="form-control" id="rx_add" placeholder="+2.00">
         </div>
         <div class="col-md-6">
@@ -188,9 +189,9 @@
       </div>
     </div>
 
-    <!-- PRESIÓN INTRAOCULAR -->
+    <!-- PRESIÃ“N INTRAOCULAR -->
     <div class="exam-section">
-      <h4 class="section-title"><i class="fas fa-tachometer-alt me-2"></i>Presión Intraocular (PIO)</h4>
+      <h4 class="section-title"><i class="fas fa-tachometer-alt me-2"></i>PresiÃ³n Intraocular (PIO)</h4>
       <div class="row g-3">
         <div class="col-md-3">
           <div class="measurement-card">
@@ -207,12 +208,12 @@
           </div>
         </div>
         <div class="col-md-3">
-          <label for="pio_metodo" class="form-label">Método</label>
+          <label for="pio_metodo" class="form-label">MÃ©todo</label>
           <select class="form-select" id="pio_metodo">
             <option value="">Seleccionar</option>
             <option value="goldman">Goldman</option>
             <option value="aire">Por aire</option>
-            <option value="palpacion">Palpación</option>
+            <option value="palpacion">PalpaciÃ³n</option>
           </select>
         </div>
         <div class="col-md-3">
@@ -227,8 +228,8 @@
       <h4 class="section-title"><i class="fas fa-search me-2"></i>Examen Externo</h4>
       <div class="row g-3">
         <div class="col-md-6">
-          <label for="ext_parpados" class="form-label">Párpados</label>
-          <textarea class="form-control" id="ext_parpados" rows="3" placeholder="Posición, movimiento, lesiones..."></textarea>
+          <label for="ext_parpados" class="form-label">PÃ¡rpados</label>
+          <textarea class="form-control" id="ext_parpados" rows="3" placeholder="PosiciÃ³n, movimiento, lesiones..."></textarea>
         </div>
         <div class="col-md-6">
           <label for="ext_conjuntiva" class="form-label">Conjuntiva</label>
@@ -237,32 +238,38 @@
       </div>
       <div class="row g-3 mt-1">
         <div class="col-md-6">
-          <label for="ext_cornea" class="form-label">Córnea</label>
+          <label for="ext_cornea" class="form-label">CÃ³rnea</label>
           <textarea class="form-control" id="ext_cornea" rows="3" placeholder="Transparencia, superficie, lesiones..."></textarea>
         </div>
         <div class="col-md-6">
           <label for="ext_pupilas" class="form-label">Pupilas</label>
-          <textarea class="form-control" id="ext_pupilas" rows="3" placeholder="Tamaño, forma, reactividad..."></textarea>
+          <textarea class="form-control" id="ext_pupilas" rows="3" placeholder="TamaÃ±o, forma, reactividad..."></textarea>
+        </div>
+      </div>
+      <div class="row g-3 mt-1">
+        <div class="col-md-12">
+          <label for="ext_otros" class="form-label">Otros</label>
+          <textarea class="form-control" id="ext_otros" rows="3" placeholder="Observaciones adicionales del examen externo..."></textarea>
         </div>
       </div>
     </div>
 
     <!-- FONDO DE OJO -->
     <div class="exam-section">
-      <h4 class="section-title"><i class="fas fa-circle me-2"></i>Fondo de Ojo (Oftalmoscopía)</h4>
+      <h4 class="section-title"><i class="fas fa-circle me-2"></i>Fondo de Ojo (OftalmoscopÃ­a)</h4>
       <div class="row">
         <div class="col-md-6">
           <div class="eye-diagram">
             <h6 class="text-primary">Ojo Derecho</h6>
             <i class="fas fa-eye fa-3x text-muted mb-3"></i>
-            <textarea class="form-control" id="fondo_od" rows="4" placeholder="Disco óptico, mácula, vasos, retina..."></textarea>
+            <textarea class="form-control" id="fondo_od" rows="4" placeholder="Disco Ã³ptico, mÃ¡cula, vasos, retina..."></textarea>
           </div>
         </div>
         <div class="col-md-6">
           <div class="eye-diagram">
             <h6 class="text-primary">Ojo Izquierdo</h6>
             <i class="fas fa-eye fa-3x text-muted mb-3"></i>
-            <textarea class="form-control" id="fondo_oi" rows="4" placeholder="Disco óptico, mácula, vasos, retina..."></textarea>
+            <textarea class="form-control" id="fondo_oi" rows="4" placeholder="Disco Ã³ptico, mÃ¡cula, vasos, retina..."></textarea>
           </div>
         </div>
       </div>
@@ -281,7 +288,7 @@
           <textarea class="form-control" id="recomendaciones" rows="3" placeholder="Seguimiento, tratamiento, derivaciones..."></textarea>
         </div>
         <div class="col-md-6">
-          <label for="proximo_control" class="form-label">Próximo Control</label>
+          <label for="proximo_control" class="form-label">PrÃ³ximo Control</label>
           <input type="date" class="form-control" id="proximo_control">
           <small class="form-text text-muted">Fecha sugerida para el siguiente examen</small>
         </div>
@@ -293,7 +300,7 @@
       <div class="d-flex justify-content-between">
         <div>
           <a href="/dashboard-medico" class="btn btn-outline-secondary me-2">
-            <i class="fas fa-arrow-left me-2"></i>Dashboard Médico
+            <i class="fas fa-arrow-left me-2"></i>Dashboard MÃ©dico
           </a>
           <a id="btnHistorialInferior" href="/consultas-nuevo" class="btn btn-outline-info">
             <i class="fas fa-list me-2"></i>Historial
@@ -321,7 +328,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        El examen oftalmológico fue registrado correctamente.
+        El examen oftalmolÃ³gico fue registrado correctamente.
       </div>
       <div class="modal-footer">
         <button type="button" id="irHistorialBtn" class="btn btn-primary">
@@ -415,7 +422,7 @@ async function cargarPacientesMedicos() {
       const c = p.cliente || p.Cliente || {};
       const doc = c.rut || c.cedula || c.ci || p.rut || p.cedula || p.ci || '';
       const nombre = [c.nombres || p.nombres || '', c.ap_pat || p.ap_pat || '', c.ap_mat || p.ap_mat || ''].filter(Boolean).join(' ').trim();
-      const text = `${nombre || 'Sin nombre'} — ${doc ? 'Cédula/RUC: '+doc : 'Sin doc.'}`;
+      const text = `${nombre || 'Sin nombre'} â€” ${doc ? 'CÃ©dula/RUC: '+doc : 'Sin doc.'}`;
       pacientesMap.set(id, { ...p, _doc: doc, _nombre: nombre, _cliente_id: c.cliente_id ?? null });
       return { value: id, text, doc, nombre };
     });
@@ -426,7 +433,7 @@ async function cargarPacientesMedicos() {
       options,
       searchField: ['text', 'doc', 'nombre'],
       sortField: { field: 'text', direction: 'asc' },
-      placeholder: 'Escribe para buscar…',
+      placeholder: 'Escribe para buscarâ€¦',
       onChange: handleSeleccionPaciente
     });
   } catch (e) {
@@ -501,7 +508,7 @@ document.getElementById('examenOftalmologicoForm').addEventListener('submit', as
     av_ao: document.getElementById('av_ao').value || null,
     av_observaciones: document.getElementById('av_observaciones').value || null,
 
-    // Refracción
+    // RefracciÃ³n
     rx_od_esf: document.getElementById('rx_od_esf').value || null,
     rx_od_cyl: document.getElementById('rx_od_cyl').value || null,
     rx_od_eje: document.getElementById('rx_od_eje').value || null,
@@ -533,7 +540,7 @@ document.getElementById('examenOftalmologicoForm').addEventListener('submit', as
     proximo_control: document.getElementById('proximo_control').value || null,
   };
 
-  // id de relación (prioridad: paciente_medico_id -> paciente_id -> cliente_id -> paciente_rut)
+  // id de relaciÃ³n (prioridad: paciente_medico_id -> paciente_id -> cliente_id -> paciente_rut)
   const variantes = [];
   variantes.push({
     ...(ficha_id ? { consulta_id: parseInt(ficha_id, 10) } : {}),
@@ -568,7 +575,7 @@ document.getElementById('examenOftalmologicoForm').addEventListener('submit', as
     try {
       const intento = await postExam(variantes[i]);
       if (intento.ok) {
-        // Éxito -> modal + redirección al historial válido
+        // Ã‰xito -> modal + redirecciÃ³n al historial vÃ¡lido
         const modalEl = document.getElementById('examenGuardadoModal');
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
@@ -593,8 +600,10 @@ document.getElementById('examenOftalmologicoForm').addEventListener('submit', as
   submitBtn.disabled = false;
   const msg = (ultimoError && (ultimoError.body?.message || ultimoError.body?.error)) ?
               ultimoError.body.message || ultimoError.body.error :
-              'Respuesta no válida';
+              'Respuesta no vÃ¡lida';
   alerta(`Error al guardar el examen: ${msg}`, 'danger');
 });
 </script>
 {% endblock %}
+
+
