@@ -356,34 +356,40 @@
 
 <script>
     // Variables globales
-    let consultaId = window.location.pathname.split('/')[2];
+    const consultaIdFromServer = {{ consulta_id|tojson }};
+    const consultaId = consultaIdFromServer ?? (window.location.pathname.split('/')[2] || null);
     let consultaOriginal = {};
 
+    const API_GET_FICHA = (id) => "{{ url_for('medical.api_get_ficha_clinica_by_id', ficha_id=0) }}".replace('/0', '/' + id);
+    const API_UPDATE_FICHA = (id) => "{{ url_for('medical.api_update_ficha_clinica', ficha_id=0) }}".replace('/0', '/' + id);
+    const URL_DETALLE_CONSULTA = (id) => "{{ url_for('medical.ver_consulta', consulta_id=0) }}".replace('/0', '/' + id);
+    const URL_LISTA_CONSULTAS = "{{ url_for('medical.consultas') }}";
+
     // Cargar información al iniciar
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
         if (consultaId) {
             cargarConsulta();
         } else {
-            mostrarError('ID de consulta no válido');
+            mostrarError('ID de consulta invalido');
         }
     });
 
     // Cargar información de la consulta
     async function cargarConsulta() {
         try {
-            const response = await fetch(`/api/fichas-clinicas/${consultaId}`);
+            const response = await fetch(API_GET_FICHA(consultaId));
             const data = await response.json();
             
-            if (data.success) {
-                consultaOriginal = data.ficha_clinica;
+            if (data.success && data.data) {
+                consultaOriginal = JSON.parse(JSON.stringify(data.data));
                 poblarFormulario(consultaOriginal);
                 ocultarCarga();
             } else {
-                mostrarError('Consulta no encontrada');
+                mostrarError(data.error || 'Consulta no encontrada');
             }
         } catch (error) {
             console.error('Error:', error);
-            mostrarError('Error de conexión al cargar consulta');
+            mostrarError('Error al cargar la consulta');
         }
     }
 
@@ -402,7 +408,23 @@
         
         // Campos básicos
         document.getElementById('numero_consulta').value = consulta.numero_consulta || '';
-        document.getElementById('estado').value = consulta.estado || 'En Proceso';
+
+        const estadoSelect = document.getElementById('estado');
+        if (consulta.estado) {
+            const estadoValor = consulta.estado.toString().toLowerCase();
+            if (estadoValor === 'en_proceso') {
+                estadoSelect.value = 'En Proceso';
+            } else if (estadoValor === 'completada') {
+                estadoSelect.value = 'Completada';
+            } else if (estadoValor === 'pendiente') {
+                estadoSelect.value = 'Pendiente';
+            } else {
+                estadoSelect.value = consulta.estado;
+            }
+        } else {
+            estadoSelect.value = 'En Proceso';
+        }
+
         document.getElementById('motivo_consulta').value = consulta.motivo_consulta || '';
         document.getElementById('historia_actual').value = consulta.historia_actual || '';
         
@@ -452,7 +474,7 @@
         btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
         
         try {
-            const response = await fetch(`/api/fichas-clinicas/${consultaId}`, {
+            const response = await fetch(API_UPDATE_FICHA(consultaId), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -464,21 +486,22 @@
             
             if (result.success) {
                 Swal.fire({
-                    title: '¡Éxito!',
+                    title: 'Listo',
                     text: 'Consulta actualizada correctamente',
                     icon: 'success',
                     confirmButtonText: 'Continuar'
                 }).then(() => {
-                    window.location.href = `/consultas/${consultaId}`;
+                    const destino = consultaId ? URL_DETALLE_CONSULTA(consultaId) : URL_LISTA_CONSULTAS;
+                    window.location.href = destino;
                 });
             } else {
-                throw new Error(result.message || 'Error al actualizar');
+                throw new Error(result.message || result.error || 'Error al actualizar');
             }
         } catch (error) {
             console.error('Error:', error);
             Swal.fire({
                 title: 'Error',
-                text: 'Error al guardar los cambios: ' + error.message,
+                text: 'No se pudieron guardar los cambios: ' + error.message,
                 icon: 'error',
                 confirmButtonText: 'Entendido'
             });
@@ -490,40 +513,45 @@
 
     // Funciones de navegación y utilidad
     function volverDetalle() {
-        window.location.href = `/consultas/${consultaId}`;
+        if (consultaId) {
+            window.location.href = URL_DETALLE_CONSULTA(consultaId);
+        } else {
+            window.location.href = URL_LISTA_CONSULTAS;
+        }
     }
 
     function verDetalle() {
-        window.location.href = `/consultas/${consultaId}`;
+        volverDetalle();
     }
 
     function cancelarEdicion() {
         Swal.fire({
-            title: '¿Cancelar edición?',
-            text: 'Se perderán los cambios no guardados',
+            title: 'Cancelar edicion?',
+            text: 'Se perderan los cambios no guardados',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Sí, cancelar',
-            cancelButtonText: 'Continuar editando'
+            confirmButtonText: 'Si, cancelar',
+            cancelButtonText: 'Seguir editando'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = `/consultas/${consultaId}`;
+                volverDetalle();
             }
         });
     }
 
+
     function resetearFormulario() {
         Swal.fire({
-            title: '¿Restaurar valores originales?',
-            text: 'Se restaurarán todos los campos a su valor original',
+            title: 'Restaurar valores originales?',
+            text: 'Se restauraran todos los campos a su valor original',
             icon: 'question',
             showCancelButton: true,
-            confirmButtonText: 'Sí, restaurar',
+            confirmButtonText: 'Si, restaurar',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
                 poblarFormulario(consultaOriginal);
-                Swal.fire('¡Restaurado!', 'Formulario restaurado a valores originales', 'success');
+                Swal.fire('Restaurado', 'Formulario restaurado a valores originales', 'success');
             }
         });
     }
@@ -539,7 +567,7 @@
             icon: 'error',
             confirmButtonText: 'Entendido'
         }).then(() => {
-            window.location.href = '/consultas-nuevo';
+            window.location.href = URL_LISTA_CONSULTAS;
         });
     }
 

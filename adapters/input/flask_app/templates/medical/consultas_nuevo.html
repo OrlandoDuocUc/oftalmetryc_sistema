@@ -49,14 +49,11 @@
 <div class="container mt-5">
     <!-- HEADER DE LA PÁGINA -->
     <div class="page-header">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h1><i class="fas fa-calendar-check me-3"></i>Historial de Consultas</h1>
                 <p class="mb-0">Gestión y seguimiento de consultas médicas oftalmológicas</p>
             </div>
-            <a href="{{ url_for('medical.ficha_clinica') }}" class="btn btn-light btn-lg">
-                <i class="fas fa-plus me-2"></i>Nueva Consulta
-            </a>
         </div>
     </div>
 
@@ -134,12 +131,21 @@
     // Helpers para armar URLs con ID conservando prefijo/blueprint:
     const URL_VER_CONSULTA = (id) => "{{ url_for('medical.ver_consulta', consulta_id=0) }}".replace('/0', '/' + id);
     const URL_EDITAR_CONSULTA = (id) => "{{ url_for('medical.editar_consulta', consulta_id=0) }}".replace('/0', '/' + id);
-    const URL_BIOMICROSCOPIA = (fichaId, pacienteId) => {
+    const BASE_FICHA_CLINICA = "{{ url_for('medical.ficha_clinica') }}";
+    const URL_EXAMEN_OPTOMETRIA = (consultaId, pacienteId) => {
+        const params = new URLSearchParams();
+        if (consultaId) params.set('consulta_id', consultaId);
+        if (pacienteId) params.set('paciente_id', pacienteId);
+        return params.toString() ? `${BASE_FICHA_CLINICA}?${params.toString()}` : BASE_FICHA_CLINICA;
+    };
+
+    const URL_EXAMEN_BIOMICROSCOPIA = (consultaId, pacienteId) => {
         const base = "{{ url_for('medical.biomicroscopia_nuevo') }}";
         const params = new URLSearchParams();
-        if (fichaId) params.set('consulta_id', fichaId);
+        if (consultaId) params.set('consulta_id', consultaId);
         if (pacienteId) params.set('paciente_id', pacienteId);
-        return `${base}?${params.toString()}`;
+        const query = params.toString();
+        return query ? `${base}?${query}` : base;
     };
 
     let consultasData = [];
@@ -215,7 +221,8 @@
             const bio = consulta.biomicroscopia || null;
             const bioResumen = bio?.resumen || 'Biomicroscopía no registrada';
             const bioFecha = bio?.fecha_examen ? new Date(bio.fecha_examen).toLocaleString('es-CL') : null;
-            const bioLink = URL_BIOMICROSCOPIA(id, pacienteMedicoId);
+            const optometriaLink = URL_EXAMEN_OPTOMETRIA(id, pacienteMedicoId);
+            const biomicroscopiaLink = URL_EXAMEN_BIOMICROSCOPIA(id, pacienteMedicoId);
 
             const diagnostico = consulta.diagnostico && consulta.diagnostico.diagnostico_principal
                 ? consulta.diagnostico.diagnostico_principal
@@ -258,10 +265,15 @@
                                 ${bio ? `${bioFecha ? bioFecha + ' · ' : ''}${bioResumen}` : bioResumen}
                             </small>
                         </div>
-                        <div class="col-md-4 text-md-end">
-                            <a class="btn btn-sm ${bio ? 'btn-outline-primary' : 'btn-primary'}" href="${bioLink}">
-                                <i class="fas fa-microscope me-1"></i>${bio ? 'Ver / editar examen' : 'Registrar examen'}
-                            </a>
+                        <div class="col-md-4 d-flex justify-content-md-end">
+                            <div class="d-flex flex-column gap-2 align-items-md-end">
+                                <a class="btn btn-outline-primary btn-sm text-nowrap" href="${optometriaLink}">
+                                    <i class="fas fa-clipboard-list me-1"></i>Examen Optometria
+                                </a>
+                                <a class="btn btn-sm ${bio ? 'btn-outline-primary' : 'btn-primary'} text-nowrap" href="${biomicroscopiaLink}">
+                                    <i class="fas fa-microscope me-1"></i>Examen Biomicroscopia
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
