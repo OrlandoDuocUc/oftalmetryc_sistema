@@ -1,10 +1,11 @@
+"""
 from app.infraestructure.repositories.sql_paciente_repository import SqlPacienteRepository
 from typing import List, Optional, Dict
 
 class PacienteService:
     def __init__(self):
         self.paciente_repository = SqlPacienteRepository()
-    
+'''
     def get_all_pacientes(self) -> List[Dict]:
         """Obtiene todos los pacientes"""
         try:
@@ -76,7 +77,7 @@ class PacienteService:
         except Exception as e:
             print(f"Error al contar pacientes: {str(e)}")
             return 0
-    
+'''
     def validate_rut(self, rut: str) -> bool:
         """Validación simplificada para demo: acepta cédula ecuatoriana (10 dígitos)"""
         try:
@@ -94,3 +95,5 @@ class PacienteService:
             return False
         except:
             return False
+            
+"""

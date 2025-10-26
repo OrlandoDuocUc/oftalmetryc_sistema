@@ -6,6 +6,8 @@
 # Fecha: 2 de octubre de 2025 (revisado)
 # ===============================================================================
 
+"""
+
 from sqlalchemy import Column, Integer, String, Text, Date, DateTime, Boolean, ForeignKey, BigInteger
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.sql import func
@@ -353,3 +355,5 @@ def describe_v2_tables():
             'relaciones': ['ficha_clinica']
         }
     }
+
+"""

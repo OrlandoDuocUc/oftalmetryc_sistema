@@ -5,6 +5,8 @@
 # Fecha: 2 de octubre de 2025
 # ===============================================================================
 
+"""
+
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_, desc, func, extract
@@ -342,3 +344,5 @@ class ExamenOftalmologicoRepository:
             'total_examenes': total_examenes,
             'examenes_mes_actual': examenes_mes_actual
         }
+        
+        """

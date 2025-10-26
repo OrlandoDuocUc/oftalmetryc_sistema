@@ -1,3 +1,4 @@
+"""
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash, jsonify
 from app.domain.use_cases.services.sale_service import SaleService
 from app.domain.use_cases.product_use_cases import ProductUseCases
@@ -129,3 +130,4 @@ def finalizar_venta_definitiva():
         flash(f'Ocurrió un error al procesar la venta: {str(e)}', 'danger')
         return redirect(url_for('sale_html.registrar_venta_page'))
 
+"""

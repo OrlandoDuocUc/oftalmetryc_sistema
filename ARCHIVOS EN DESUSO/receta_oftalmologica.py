@@ -1,3 +1,5 @@
+"""
+
 from sqlalchemy import Column, Integer, String, Text, DateTime, Date, ForeignKey, func, Numeric, BigInteger
 from sqlalchemy.orm import relationship
 from app.infraestructure.utils.tables import Base
@@ -75,3 +77,5 @@ class RecetaOftalmologica(Base):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
+        
+"""        

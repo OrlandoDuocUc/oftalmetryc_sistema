@@ -1,3 +1,5 @@
+
+"""
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from app.domain.models.paciente import Paciente
@@ -104,3 +106,4 @@ class SqlPacienteRepository:
             except SQLAlchemyError as e:
                 print(f"Error al contar pacientes: {str(e)}")
                 return 0
+"""                

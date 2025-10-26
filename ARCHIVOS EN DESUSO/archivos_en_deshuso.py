@@ -1,3 +1,5 @@
+'''
+
 from flask import jsonify, request
 from app.domain.use_cases.services.consulta_medica_service import ConsultaMedicaService
 
@@ -160,4 +162,5 @@ class ConsultaMedicaController:
             return jsonify({
                 'success': False,
                 'error': str(e)
-            }), 500
+            }), 500"# ARCHIVO MOVIDO A archivos_en_deshuso/consulta_medica_controller.py"
+'''

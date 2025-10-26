@@ -1,3 +1,5 @@
+"""
+
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, func, Numeric, Boolean
 from sqlalchemy.orm import relationship
 from app.infraestructure.utils.tables import Base
@@ -210,3 +212,5 @@ class ExamenBasico(Base):
             'observaciones': self.observaciones,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+        
+"""        

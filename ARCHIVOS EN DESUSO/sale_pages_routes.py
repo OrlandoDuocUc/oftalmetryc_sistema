@@ -1,3 +1,4 @@
+"""
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import json
 
@@ -114,3 +115,5 @@ def historial_ventas_page():
     except Exception as e:
         flash(f"Error al cargar el historial de ventas: {e}", "danger")
         return redirect(url_for("sale_html.registrar_venta_page"))
+
+"""

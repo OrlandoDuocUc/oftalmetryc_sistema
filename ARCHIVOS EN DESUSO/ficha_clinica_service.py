@@ -5,6 +5,8 @@
 # Fecha: 2 de octubre de 2025
 # ===============================================================================
 
+"""
+
 from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime, date
 import logging
@@ -367,3 +369,4 @@ class FichaClinicaService:
         except Exception as e:
             logger.error(f"Error en obtener_estadisticas_generales: {str(e)}")
             raise
+            """

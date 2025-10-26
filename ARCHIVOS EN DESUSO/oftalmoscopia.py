@@ -1,3 +1,5 @@
+"""
+
 # app/domain/models/oftalmoscopia.py
 # --------------------------------------------------------------------
 # Compatibilidad: re-exporta el modelo real 'FondoOjo' definido en
@@ -8,3 +10,5 @@
 from app.domain.models.examenes_medicos import FondoOjo
 
 __all__ = ["FondoOjo"]
+
+"""

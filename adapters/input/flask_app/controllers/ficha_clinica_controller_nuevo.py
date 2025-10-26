@@ -1,3 +1,7 @@
+"""Controlador principal del módulo médico activo.
+Gestiona fichas clínicas y todos los exámenes asociados; cualquier cambio aquí impacta en consultas, biomicroscopía, fondo de ojo y parámetros clínicos.
+"""
+
 # adapters/input/flask_app/controllers/ficha_clinica_controller_nuevo.py
 from flask import request, jsonify
 from app.infraestructure.utils.db import SessionLocal
@@ -97,6 +101,29 @@ class FichaClinicaController:
             parametros.colesterol and f"Col {parametros.colesterol}",
         )
         return self._join_values(presion, extras)
+
+    @staticmethod
+    def _normalizar_estado(estado_in):
+        """
+        Normaliza cualquier valor de estado entregado por la interfaz o APIs.
+        Por defecto toda ficha registrada desde la interfaz queda como 'completada'.
+        Si llega un valor explícito se normaliza para aceptar variantes comunes.
+        """
+        if estado_in is None or str(estado_in).strip() == "":
+            return "completada"
+
+        estado_norm = str(estado_in).strip().lower()
+        equivalencias = {
+            "completada": "completada",
+            "completa": "completada",
+            "completado": "completada",
+            "en_proceso": "en_proceso",
+            "en proceso": "en_proceso",
+            "pendiente": "pendiente",
+            "cancelada": "cancelada",
+            "cancelado": "cancelada",
+        }
+        return equivalencias.get(estado_norm, "completada")
 
     # ---------------------------------------------------------------------
     # LISTAR TODAS
@@ -319,7 +346,7 @@ class FichaClinicaController:
                     # Datos generales
                     distancia_pupilar=data.get("distancia_pupilar"),
                     tipo_lente=data.get("tipo_lente"),
-                    estado=data.get("estado", "en_proceso"),
+                    estado=self._normalizar_estado(data.get("estado")),
                 )
 
                 session.add(nueva_ficha)
@@ -353,6 +380,8 @@ class FichaClinicaController:
                     if key == "ficha_id":
                         continue
                     if hasattr(ficha, key):
+                        if key == "estado":
+                            value = self._normalizar_estado(value)
                         # parse suave para fecha_consulta
                         if key == "fecha_consulta" and isinstance(value, str):
                             try:
@@ -418,3 +447,5 @@ class FichaClinicaController:
                 session.close()
         except Exception as e:
             return jsonify({"success": False, "error": str(e)}), 500
+
+
