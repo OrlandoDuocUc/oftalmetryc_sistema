@@ -1,4 +1,4 @@
-﻿﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Dashboard Médico - Oftalmetryc{% endblock %}
 
@@ -15,7 +15,8 @@
         background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
         box-shadow: 2px 0 15px rgba(0,0,0,0.2);
         z-index: 1000;
-        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
     }
     
     .sidebar-header {
@@ -27,6 +28,8 @@
     
     .sidebar-nav {
         padding: 20px 0;
+        flex: 1;
+        overflow-y: auto;
     }
     
     .sidebar-nav .nav-link {
@@ -48,6 +51,23 @@
     .sidebar-nav .nav-link i {
         width: 20px;
         margin-right: 15px;
+    }
+    
+    .sidebar-logo {
+        margin-top: 20px;
+        padding: 10px 0 50px;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .sidebar-logo img {
+        width: 185px;
+        height: 185px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 6px solid rgba(255,255,255,0.45);
+        box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+        background: rgba(255,255,255,0.14);
     }
     
     /* Contenido principal con margen izquierdo */
@@ -86,9 +106,17 @@
             width: 100%;
             height: auto;
             margin-bottom: 20px;
+            display: block;
         }
         .main-content {
             margin-left: 0;
+        }
+        .sidebar-nav {
+            overflow: visible;
+            max-height: none;
+        }
+        .sidebar-logo {
+            padding: 15px 0 20px;
         }
     }
 {% endblock %}
@@ -129,6 +157,9 @@
             </li>
         </ul>
     </nav>
+    <div class="sidebar-logo">
+        <img src="{{ url_for('static', filename='img/logo_oftalmetryc.jpg') }}" alt="Logo Oftalmetryc">
+    </div>
 </div>
 
 <!-- CONTENIDO PRINCIPAL -->

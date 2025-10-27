@@ -19,14 +19,17 @@
             --dark-bg: #34495e;
         }
         
-        body {
+        html, body {
             background-color: var(--light-bg);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
         }
         
         .navbar {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
-            position: relative;
+            position: sticky;
+            top: 0;
             z-index: 1200;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
