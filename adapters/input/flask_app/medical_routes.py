@@ -253,7 +253,33 @@ def certificado_consulta(consulta_id):
         cliente = paciente.cliente if paciente else None
         usuario = consulta.usuario
 
-        edad = _calcular_edad(getattr(cliente, "fecha_nacimiento", None), consulta.fecha_consulta)
+        nombre_partes = []
+        if cliente:
+            for attr in ('nombres', 'ap_pat', 'ap_mat'):
+                val = getattr(cliente, attr, None)
+                if val:
+                    nombre_partes.append(str(val).strip())
+        elif paciente:
+            for attr in ('nombres', 'ap_pat', 'ap_mat'):
+                val = getattr(paciente, attr, None)
+                if val:
+                    nombre_partes.append(str(val).strip())
+        paciente_nombre = " ".join(nombre_partes).strip() if nombre_partes else None
+
+        cliente_doc = None
+        if cliente:
+            for attr in ('rut', 'cedula', 'ci', 'documento', 'doc', 'dni'):
+                val = getattr(cliente, attr, None)
+                if val:
+                    texto = str(val).strip()
+                    if texto:
+                        cliente_doc = texto
+                        break
+
+        fecha_nacimiento = getattr(cliente, "fecha_nacimiento", None)
+        if not fecha_nacimiento and paciente:
+            fecha_nacimiento = getattr(paciente, "fecha_nacimiento", None)
+        edad = _calcular_edad(fecha_nacimiento, consulta.fecha_consulta)
         fecha_consulta_str = _formatear_fecha_es(consulta.fecha_consulta)
 
         # BiomicroscopÃ­a (resumen)
@@ -349,6 +375,8 @@ def certificado_consulta(consulta_id):
             consulta=consulta,
             paciente=paciente,
             cliente=cliente,
+            paciente_nombre=paciente_nombre,
+            cliente_doc=cliente_doc,
             edad=edad,
             fecha_consulta_str=fecha_consulta_str,
             biomicroscopia_texto=biomicroscopia_texto,

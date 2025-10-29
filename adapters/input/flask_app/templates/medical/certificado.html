@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certificado Médico - Oftalmetryc</title>
+    <title>Certificado Medico - Oftalmetryc</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #e9ecef; }
+        body { background-color: #e9ecef; font-family: "Times New Roman", Times, serif; }
         .certificate-container {
             max-width: 800px;
             margin: 40px auto;
-            background: white;
+            background: #ffffff;
             padding: 40px 50px;
             border: 1px solid #dee2e6;
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            font-family: 'Times New Roman', Times, serif;
             position: relative;
         }
         .cert-header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
@@ -30,8 +29,6 @@
         .exam-table th { background-color: #f2f2f2; }
         .cert-footer { margin-top: 60px; text-align: center; }
         .signature-line { border-top: 1px solid #333; width: 250px; margin: 0 auto 5px auto; }
-
-        /* Pie de página fijo para impresión */
         .print-footer {
             width: 100%;
             text-align: center;
@@ -43,23 +40,20 @@
             bottom: 10px;
             left: 0;
             right: 0;
-            background: white;
+            background: #ffffff;
         }
-
-        .action-buttons { text-align: center; margin-top: 30px; margin-bottom: 30px; }
-
+        .action-buttons { text-align: center; margin: 30px 0; }
         @media print {
-            body { background-color: white; }
+            body { background-color: #ffffff; }
             .action-buttons, .navbar { display: none !important; }
             .certificate-container {
                 box-shadow: none;
                 border: none;
                 margin: 0;
                 max-width: 100%;
-                padding-bottom: 60px; /* deja espacio para el pie fijo */
+                padding-bottom: 60px;
             }
             .print-footer { position: fixed; bottom: 0; }
-            .action-buttons { display: none !important; }
         }
     </style>
 </head>
@@ -71,14 +65,13 @@
             <p>{{ footer_info.telefonos }}</p>
         </div>
 
-        <!-- Encabezado con ciudad y fecha formateada -->
         <p class="cert-date">{{ footer_info.ciudad }}, {{ fecha_consulta_str }}</p>
         <h4 class="cert-title">CERTIFICADO</h4>
 
         <p class="cert-body">
-            Por medio del presente certifico haber atendido el día {{ fecha_consulta_str }}
-            al Sr./Sra. <strong>{{ cliente.nombres }} {{ cliente.ap_pat }}</strong>,
-            edad {{ edad if edad is not none else '—' }} años, presentando en su valoración ocular los siguientes resultados.
+            Por medio del presente certifico haber atendido el dia {{ fecha_consulta_str }}
+            al Sr./Sra. <strong>{{ paciente_nombre or 'Paciente sin nombre registrado' }}</strong>{% if cliente_doc %}, cedula: {{ cliente_doc }}{% endif %},
+            edad {{ edad if edad is not none else '---' }} anos, presentando en su valoracion ocular los siguientes resultados.
         </p>
 
         <div class="row">
@@ -99,37 +92,37 @@
                         <td>{{ consulta.av_oi_ph or 'NSPR' }}</td>
                     </tr>
                     <tr>
-                        <td>Próxima OD</td>
+                        <td>Proxima OD</td>
                         <td colspan="3">{{ consulta.av_od_cerca or 'NSPR' }}</td>
                     </tr>
                     <tr>
-                        <td>Próxima OI</td>
+                        <td>Proxima OI</td>
                         <td colspan="3">{{ consulta.av_oi_cerca or 'NSPR' }}</td>
                     </tr>
                 </table>
             </div>
 
             <div class="col-6">
-                <p class="cert-section-title">Refracción Final</p>
+                <p class="cert-section-title">Refraccion Final</p>
                 <table class="exam-table">
                     <tr><th></th><th>Esfera</th><th>Cilindro</th><th>Eje</th></tr>
                     <tr>
                         <td>OD</td>
-                        <td>{{ consulta.esfera_od or '—' }}</td>
-                        <td>{{ consulta.cilindro_od or '—' }}</td>
-                        <td>{{ consulta.eje_od or '—' }}</td>
+                        <td>{{ consulta.esfera_od or '---' }}</td>
+                        <td>{{ consulta.cilindro_od or '---' }}</td>
+                        <td>{{ consulta.eje_od or '---' }}</td>
                     </tr>
                     <tr>
                         <td>OI</td>
-                        <td>{{ consulta.esfera_oi or '—' }}</td>
-                        <td>{{ consulta.cilindro_oi or '—' }}</td>
-                        <td>{{ consulta.eje_oi or '—' }}</td>
+                        <td>{{ consulta.esfera_oi or '---' }}</td>
+                        <td>{{ consulta.cilindro_oi or '---' }}</td>
+                        <td>{{ consulta.eje_oi or '---' }}</td>
                     </tr>
                 </table>
             </div>
         </div>
 
-        <p class="cert-section-title">Biomicroscopía:</p>
+        <p class="cert-section-title">Biomicroscopia:</p>
         <p>{{ biomicroscopia_texto or "Sin observaciones." }}</p>
 
         <p class="cert-section-title">Fondo de Ojo:</p>
@@ -143,11 +136,14 @@
                 {% endfor %}
             </ul>
         {% else %}
-            <p>—</p>
+            <p>---</p>
         {% endif %}
 
-        <p class="cert-section-title">Diagnóstico:</p>
-        <p>{{ diagnostico_texto or "—" }}</p>
+        <p class="cert-section-title">Diagnostico:</p>
+        <p>{{ diagnostico_texto or "---" }}</p>
+
+        <p class="cert-section-title">Observaciones:</p>
+        <p>{{ consulta.observacion or consulta.observaciones or "---" }}</p>
 
         <div class="cert-footer">
             <p>Atentamente</p>
@@ -155,15 +151,14 @@
             <div class="signature-line"></div>
             <p>
                 <strong>{{ medico_nombre or (consulta.usuario.nombre ~ ' ' ~ (consulta.usuario.ap_pat or '')) }}</strong><br>
-                Área de Salud Visual<br>
-                Especialista en Oftalmología
+                Area de Salud Visual<br>
+                Especialista
             </p>
         </div>
     </div>
 
-    <!-- Pie fijo (también visible en pantalla para previsualizar) -->
     <div class="print-footer">
-        {{ footer_info.direccion }} — {{ footer_info.telefonos }}
+        {{ footer_info.direccion }} - {{ footer_info.telefonos }}
     </div>
 
     <div class="action-buttons">
