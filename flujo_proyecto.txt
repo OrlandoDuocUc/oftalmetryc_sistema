@@ -1,0 +1,200 @@
+ANÁLISIS DE FLUJO DEL PROYECTO OFTALMETRYC
+================================================
+
+1. ESTRUCTURA GENERAL DEL PROYECTO
+---------------------------------
+El proyecto sigue una arquitectura hexagonal (también conocida como puertos y adaptadores) con las siguientes capas principales:
+- Adaptadores (interfaz de usuario y API)
+- Dominio (lógica de negocio)
+- Infraestructura (persistencia y servicios externos)
+
+2. FLUJOS PRINCIPALES DEL SISTEMA
+--------------------------------
+
+2.1 FLUJO DE AUTENTICACIÓN
+--------------------------
+Inicio:
+1. El usuario accede a '/login' (templates/login.html)
+2. El formulario de login envía datos a routes.py
+3. user_controller.py verifica las credenciales
+4. Se crea una sesión y redirige al dashboard
+
+2.2 FLUJO DE VENTAS
+-------------------
+Proceso completo de venta:
+
+1. Inicio de Venta:
+   - URL: /registrar_venta
+   - Template: registrar_venta.html
+   - Controlador: sale_pages_routes.py
+   - Muestra formulario de venta con:
+     * Selección de productos
+     * Datos del cliente
+     * Cantidades y precios
+
+2. Confirmación de Venta:
+   - URL: /confirmar_venta
+   - Template: confirmar_venta.html
+   - Controlador: sale_routes.py
+   - Acciones:
+     * Valida stock disponible
+     * Calcula totales
+     * Muestra resumen para confirmación
+
+3. Procesamiento de Venta:
+   - Modelo: sale.py
+   - Repositorio: sql_sale_repository.py
+   - Acciones:
+     * Crea registro de venta
+     * Actualiza inventario
+     * Genera boleta
+
+4. Generación de Boleta:
+   - Template: boleta.html
+   - Utiliza datos de:
+     * Venta registrada
+     * Cliente
+     * Productos vendidos
+
+2.3 GESTIÓN DE INVENTARIO
+-------------------------
+1. Vista de Inventario:
+   - URL: /inventario
+   - Template: inventario.html
+   - Controlador: product_controller.py
+   - Funcionalidades:
+     * Lista productos
+     * Muestra stock
+     * Permite actualizaciones
+
+2. Gestión de Productos:
+   - URL: /productos
+   - Template: productos.html
+   - Controlador: product_controller.py
+   - Repositorio: sql_product_repository.py
+   - Acciones:
+     * CRUD de productos
+     * Actualización de stock
+     * Precios y categorías
+
+2.4 FLUJO DE CONSULTA MÉDICA
+----------------------------
+1. Registro de Paciente:
+   - Modelo: paciente.py
+   - Controlador: paciente_controller.py
+   - Repositorio: sql_cliente_repository.py
+   - Datos capturados:
+     * Información personal
+     * Historia clínica
+
+2. Consulta Médica:
+   - Modelos involucrados:
+     * consulta_medica.py
+     * biomicroscopia.py
+     * diagnostico.py
+     * examenes_medicos.py
+   - Flujo de datos:
+     * Registro de exámenes
+     * Diagnóstico
+     * Prescripciones
+
+3. INTEGRACIÓN ENTRE COMPONENTES
+-------------------------------
+
+3.1 Capa de Presentación (Adaptadores/Input)
+-------------------------------------------
+- Templates HTML:
+  * Todos heredan de base.html
+  * Incluyen navegación común
+  * Manejan formularios y visualización
+
+- Rutas Flask:
+  * Organizadas por módulo (medical_routes.py, sale_routes.py, etc.)
+  * Manejan autenticación y autorización
+  * Procesan formularios y JSON
+
+3.2 Capa de Dominio
+------------------
+- Modelos:
+  * Definen entidades de negocio
+  * Implementan validaciones
+  * Mantienen reglas de negocio
+
+- Casos de Uso:
+  * Coordinan operaciones complejas
+  * Manejan transacciones
+  * Implementan lógica de negocio
+
+3.3 Capa de Infraestructura
+--------------------------
+- Repositorios SQL:
+  * Implementan persistencia
+  * Manejan transacciones
+  * Traducen entre modelos y BD
+
+- Utilidades:
+  * Manejo de fechas (date_utils.py)
+  * Formateo de moneda (currency_utils.py)
+  * Conexión a BD (db.py)
+
+4. PUNTOS DE INTEGRACIÓN CLAVE
+-----------------------------
+1. Ventas → Inventario:
+   - Actualización automática de stock
+   - Validación de disponibilidad
+
+2. Consultas → Pacientes:
+   - Historia clínica integrada
+   - Seguimiento de tratamientos
+
+3. Usuarios → Seguridad:
+   - Control de acceso por rol
+   - Registro de actividades
+
+5. FLUJO DE DATOS
+----------------
+1. Entrada de Datos:
+   - Formularios HTML
+   - Validación en frontend (JavaScript)
+   - Validación en backend (Flask)
+
+2. Procesamiento:
+   - Controladores procesan requests
+   - Casos de uso ejecutan lógica
+   - Modelos validan reglas
+
+3. Persistencia:
+   - Repositorios SQL
+   - Transacciones atómicas
+   - Integridad referencial
+
+6. CONSIDERACIONES DE SEGURIDAD
+------------------------------
+1. Autenticación:
+   - Sesiones Flask
+   - Passwords hasheados
+   - Tokens de recuperación
+
+2. Autorización:
+   - Control por roles
+   - Middleware de verificación
+   - Protección de rutas
+
+7. CONSIDERACIONES TÉCNICAS
+--------------------------
+1. Base de Datos:
+   - PostgreSQL
+   - SQLAlchemy ORM
+   - Migraciones y schemas
+
+2. Frontend:
+   - Templates Jinja2
+   - Bootstrap CSS
+   - JavaScript para interactividad
+
+3. Backend:
+   - Flask framework
+   - Arquitectura hexagonal
+   - Patrones de repositorio
+
+Este documento proporciona una visión general del flujo de trabajo y la interacción entre los diferentes componentes del sistema OFTALMETRYC. Cada sección puede ser expandida para mayor detalle según se requiera.

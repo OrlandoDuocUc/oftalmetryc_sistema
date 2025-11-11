@@ -1,9 +1,0 @@
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('medical.examen_oftalmologico_nuevo') }}">
-                    <i class="fas fa-eye-dropper"></i>Examen Oftalmológico
-                </a>
-            </li>
-            <li class="nav-item mt-3">
-                <a class="nav-link" href="{{ url_for('product_html.dashboard') }}" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                    <i class="fas fa-home"></i>Volver al Sistema

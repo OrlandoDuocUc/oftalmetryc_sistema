@@ -1,0 +1,157 @@
+OFTALMETRYC - Análisis Estructural del Proyecto
+=============================================
+
+📁 ROOT/
+├── 📁 adapters/                      # Capa de adaptadores (interfaces externas)
+│   ├── 📁 input/                     # Adaptadores de entrada (API, UI)
+│   │   └── 📁 flask_app/            # Aplicación Flask
+│   │       ├── 📁 controllers/      # Controladores de la aplicación
+│   │       │   ├── ficha_clinica_controller_nuevo.py  # Control de fichas clínicas
+│   │       │   ├── paciente_controller.py             # Control de pacientes
+│   │       │   ├── product_controller.py              # Control de productos e inventario
+│   │       │   ├── proveedor_controller.py            # Control de proveedores
+│   │       │   ├── sale_pages_routes.py              # Control de páginas de venta
+│   │       │   └── user_controller.py                # Control de usuarios y autenticación
+│   │       ├── 📁 static/          # Archivos estáticos
+│   │       │   └── 📁 img/        # Imágenes
+│   │       ├── 📁 templates/       # Plantillas HTML
+│   │       │   ├── base.html      # Plantilla base
+│   │       │   ├── medical/       # Plantillas módulo médico
+│   │       │   │   ├── dashboard_medico_final.html    # Dashboard principal área médica
+│   │       │   │   ├── ficha_clinica_nuevo.html       # Formulario nueva ficha clínica
+│   │       │   │   ├── pacientes_nuevo.html           # Vista gestión de pacientes
+│   │       │   │   ├── biomicroscopia_nuevo.html      # Formulario examen biomicroscopía
+│   │       │   │   ├── certificado.html               # Generación de certificados médicos
+│   │       │   │   ├── consultas_nuevo.html           # Registro nueva consulta médica
+│   │       │   │   ├── detalle_consulta.html          # Vista detalle de consulta
+│   │       │   │   ├── editar_consulta.html           # Edición de consulta existente
+│   │       │   │   ├── editar_paciente.html           # Edición datos del paciente
+│   │       │   │   ├── historial_paciente.html        # Historial médico del paciente
+│   │       │   │   └── nuevo_paciente_form.html       # Formulario nuevo paciente
+│   │       │   ├── base.html                # Plantilla base con estructura común y navegación
+│   │       │   ├── boleta.html            # Generación y visualización de boletas de venta
+│   │       │   ├── confirmar_venta.html   # Confirmación y resumen final de venta
+│   │       │   ├── dashboard.html         # Panel principal con indicadores y resumen
+│   │       │   ├── historial_ventas.html  # Registro histórico de todas las ventas
+│   │       │   ├── inventario.html        # Gestión y control de inventario
+│   │       │   ├── login.html            # Página de inicio de sesión
+│   │       │   ├── productos.html        # Administración de productos y precios
+│   │       │   ├── proveedores.html      # Gestión de proveedores
+│   │       │   ├── registrar_venta.html  # Formulario para nueva venta
+│   │       │   ├── request_reset.html    # Solicitud de reseteo de contraseña
+│   │       │   ├── reset_password.html   # Formulario de cambio de contraseña
+│   │       │   └── usuarios.html         # Administración de usuarios y roles
+│   │       ├── __init__.py        # Inicialización Flask
+│   │       ├── medical_routes.py   # Rutas médicas
+│   │       ├── product_routes.py   # Rutas productos
+│   │       ├── proveedor_routes.py # Rutas proveedores
+│   │       ├── routes.py          # Rutas principales
+│   │       ├── sale_routes.py     # Rutas ventas
+│   │       └── user_routes.py     # Rutas usuarios
+
+├── 📁 app/                          # Núcleo de la aplicación
+│   ├── 📁 domain/                   # Capa de dominio
+│   │   ├── 📁 models/              # Modelos de dominio
+│   │   │   ├── biomicroscopia.py   # Modelo examen biomicroscopía
+│   │   │   ├── cliente.py         # Modelo cliente
+│   │   │   ├── consulta_medica.py # Modelo consulta médica
+│   │   │   ├── examenes_medicos.py # Modelos exámenes
+│   │   │   ├── paciente.py        # Modelo paciente
+│   │   │   ├── products.py        # Modelo productos
+│   │   │   ├── proveedor.py       # Modelo proveedor
+│   │   │   ├── rol.py            # Modelo roles
+│   │   │   ├── sale.py           # Modelo ventas
+│   │   │   └── user.py           # Modelo usuarios
+│   │   └── 📁 use_cases/          # Casos de uso
+│   │       ├── product_use_cases.py   # Casos de uso relacionados con productos
+│   │       └── 📁 services/       # Servicios de dominio
+│   │           ├── biomicroscopia_service.py  # Servicio para exámenes de biomicroscopía
+│   │           ├── cliente_service.py         # Servicio de gestión de clientes
+│   │           ├── sale_service.py           # Servicio de procesamiento de ventas
+│   │           └── user_service.py           # Servicio de gestión de usuarios
+│   └── 📁 infrastructure/          # Capa de infraestructura
+│       ├── 📁 repositories/        # Repositorios
+│       │   ├── biomicroscopia_repository.py  # Repositorio para exámenes de biomicroscopía
+│       │   ├── proveedor_repository.py       # Repositorio de proveedores
+│       │   ├── sql_cliente_repository.py     # Repositorio de clientes
+│       │   ├── sql_diagnostico_repository.py # Repositorio de diagnósticos médicos
+│       │   ├── sql_product_repository.py     # Repositorio de productos
+│       │   ├── sql_sale_repository.py        # Repositorio de ventas
+│       │   └── sql_user_repository.py        # Repositorio de usuarios
+│       └── 📁 utils/               # Utilidades
+│           ├── currency_utils.py   # Utilidades monetarias
+│           ├── date_utils.py      # Utilidades fechas
+│           ├── db.py             # Configuración BD
+│           ├── db_session.py     # Manejo sesiones
+│           ├── exceptions.py     # Excepciones
+│           ├── init_db.py       # Inicialización BD
+│           └── tables.py        # Definición tablas
+
+├── 📁 config/                       # Configuración
+│   ├── settings.py                 # Configuraciones
+│   └── __init__.py
+
+├── boot.py                         # Archivo arranque
+├── esquema_optica_actual_21_octubre.sql  # Esquema BD
+├── render.yaml                     # Config despliegue
+├── requirements.txt                # Dependencias
+└── README.md                       # Documentación
+
+Detalles Importantes:
+====================
+
+1. Arquitectura
+--------------
+- Diseño hexagonal (puertos y adaptadores)
+- Separación clara de responsabilidades
+- Independencia entre capas
+
+2. Módulos Principales
+---------------------
+a) Ventas
+   - Registro de ventas
+   - Gestión de productos
+   - Boletas
+   - Historial
+
+b) Médico
+   - Fichas clínicas
+   - Exámenes oftalmológicos
+   - Historial médico
+   - Gestión pacientes
+
+c) Administración
+   - Usuarios y roles
+   - Dashboard
+   - Reportes
+
+3. Tecnologías
+-------------
+- Backend: Python/Flask
+- Base de datos: PostgreSQL
+- Frontend: HTML5, Bootstrap, JavaScript
+- ORM: SQLAlchemy
+
+4. Patrones de Diseño
+--------------------
+- Repository Pattern
+- Service Layer
+- MVC (en la capa web)
+- DTO/Serializers
+
+5. Seguridad
+-----------
+- Autenticación por sesiones
+- Roles y permisos
+- Validación de datos
+- Protección contra CSRF
+
+6. Características Destacadas
+---------------------------
+- Gestión completa de ventas
+- Sistema de fichas médicas
+- Exámenes oftalmológicos
+- Gestión de inventario
+- Reportes y estadísticas
+- Multi-usuario
+- Roles diferenciados
