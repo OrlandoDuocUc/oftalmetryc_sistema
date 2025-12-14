@@ -131,3 +131,70 @@ def historial_ventas_page():
             .all()
         )
     return render_template("historial_ventas.html", ventas=ventas)
+
+@sale_html.route("/ventas/exportar-excel", methods=["POST"])
+def exportar_ventas_excel():
+    """Genera un archivo Excel con el historial de ventas"""
+    try:
+        from io import BytesIO
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, Alignment, PatternFill
+        from flask import send_file
+        
+        data = request.get_json()
+        ventas = data.get('ventas', [])
+        
+        # Crear workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Historial Ventas"
+        
+        # Encabezados con estilo
+        headers = ['ID Venta', 'Producto', 'Cantidad', 'Total', 'Cliente', 'Vendedor', 'Fecha']
+        
+        header_fill = PatternFill(start_color="27ae60", end_color="27ae60", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
+        
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num, value=header)
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+        
+        # Agregar datos
+        for row_num, venta in enumerate(ventas, 2):
+            ws.cell(row=row_num, column=1, value=venta['id_venta'])
+            ws.cell(row=row_num, column=2, value=venta['producto'])
+            ws.cell(row=row_num, column=3, value=venta['cantidad'])
+            ws.cell(row=row_num, column=4, value=venta['total'])
+            ws.cell(row=row_num, column=5, value=venta['cliente'])
+            ws.cell(row=row_num, column=6, value=venta['vendedor'])
+            ws.cell(row=row_num, column=7, value=venta['fecha'])
+        
+        # Ajustar ancho de columnas
+        for col in ws.columns:
+            max_length = 0
+            column = col[0].column_letter
+            for cell in col:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(cell.value)
+                except:
+                    pass
+            adjusted_width = min(max_length + 2, 50)
+            ws.column_dimensions[column].width = adjusted_width
+        
+        # Guardar en memoria
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        return send_file(
+            output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=f'ventas_{request.args.get("fecha", "")}.xlsx'
+        )
+    except Exception as e:
+        print(f"Error al exportar ventas: {e}")
+        return {'error': str(e)}, 500

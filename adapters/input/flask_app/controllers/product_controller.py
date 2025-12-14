@@ -133,3 +133,81 @@ def restaurar_producto(product_id):
         print(f"Error al restaurar producto: {e}")
         flash('Ocurrió un error al restaurar el producto.', 'danger')
     return redirect(url_for('product_html.productos_eliminados'))
+
+@product_html.route('/inventario/exportar-excel', methods=['POST'])
+def exportar_inventario_excel():
+    """Genera un archivo Excel con el inventario actual"""
+    try:
+        from io import BytesIO
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, Alignment, PatternFill
+        from flask import send_file
+        
+        data = request.get_json()
+        productos = data.get('productos', [])
+        
+        # Crear workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Inventario"
+        
+        # Encabezados con estilo
+        headers = ['Fecha', 'Nombre', 'Distribuidor', 'Marca', 'Material', 'Tipo Armazón', 
+                  'Código', 'Diámetro 1', 'Diámetro 2', 'Color', 'Cantidad', 
+                  'Costo Unitario', 'Costo Total', 'Venta 1', 'Venta 2', 'Estado']
+        
+        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
+        
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num, value=header)
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+        
+        # Agregar datos
+        for row_num, producto in enumerate(productos, 2):
+            ws.cell(row=row_num, column=1, value=producto['fecha'])
+            ws.cell(row=row_num, column=2, value=producto['nombre'])
+            ws.cell(row=row_num, column=3, value=producto['distribuidor'])
+            ws.cell(row=row_num, column=4, value=producto['marca'])
+            ws.cell(row=row_num, column=5, value=producto['material'])
+            ws.cell(row=row_num, column=6, value=producto['tipo_armazon'])
+            ws.cell(row=row_num, column=7, value=producto['codigo'])
+            ws.cell(row=row_num, column=8, value=producto['diametro_1'])
+            ws.cell(row=row_num, column=9, value=producto['diametro_2'])
+            ws.cell(row=row_num, column=10, value=producto['color'])
+            ws.cell(row=row_num, column=11, value=producto['cantidad'])
+            ws.cell(row=row_num, column=12, value=producto['costo_unitario'])
+            ws.cell(row=row_num, column=13, value=producto['costo_total'])
+            ws.cell(row=row_num, column=14, value=producto['costo_venta_1'])
+            ws.cell(row=row_num, column=15, value=producto['costo_venta_2'])
+            ws.cell(row=row_num, column=16, value=producto['estado'])
+        
+        # Ajustar ancho de columnas
+        for col in ws.columns:
+            max_length = 0
+            column = col[0].column_letter
+            for cell in col:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(cell.value)
+                except:
+                    pass
+            adjusted_width = min(max_length + 2, 50)
+            ws.column_dimensions[column].width = adjusted_width
+        
+        # Guardar en memoria
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        return send_file(
+            output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=f'inventario_{request.args.get("fecha", "")}.xlsx'
+        )
+    except Exception as e:
+        print(f"Error al exportar inventario: {e}")
+        return {'error': str(e)}, 500

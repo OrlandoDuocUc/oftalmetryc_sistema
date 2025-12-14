@@ -6,7 +6,32 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Historial de Ventas</h2>
-        <a href="{{ url_for('sale_html.registrar_venta_page') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Registrar Nueva Venta</a>
+        <div>
+            <button class="btn btn-success me-2" onclick="exportarVentasExcel()">
+                <i class="fas fa-file-excel me-2"></i>Descargar Reporte Excel
+            </button>
+            <a href="{{ url_for('sale_html.registrar_venta_page') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Registrar Nueva Venta</a>
+        </div>
+    </div>
+
+    <!-- Filtros por fecha -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">Fecha Inicio</label>
+                    <input type="date" class="form-control" id="fechaInicio">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Fecha Fin</label>
+                    <input type="date" class="form-control" id="fechaFin">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-primary me-2" onclick="filtrarVentas()"><i class="fas fa-filter"></i> Filtrar</button>
+                    <button class="btn btn-outline-secondary" onclick="limpiarFiltros()"><i class="fas fa-undo"></i> Limpiar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="card shadow-sm">
@@ -54,4 +79,79 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filtrarVentas() {
+    const fechaInicio = document.getElementById('fechaInicio').value;
+    const fechaFin = document.getElementById('fechaFin').value;
+    const rows = document.querySelectorAll('.table tbody tr');
+    
+    rows.forEach(row => {
+        if (row.cells.length < 7) return; // Fila vacía
+        
+        const fechaVenta = row.cells[6].textContent.trim();
+        const [dia, mes, anio] = fechaVenta.split('-')[0].split('/');
+        const fechaVentaISO = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+        
+        let mostrar = true;
+        
+        if (fechaInicio && fechaVentaISO < fechaInicio) mostrar = false;
+        if (fechaFin && fechaVentaISO > fechaFin) mostrar = false;
+        
+        row.style.display = mostrar ? '' : 'none';
+    });
+}
+
+function limpiarFiltros() {
+    document.getElementById('fechaInicio').value = '';
+    document.getElementById('fechaFin').value = '';
+    document.querySelectorAll('.table tbody tr').forEach(row => {
+        row.style.display = '';
+    });
+}
+
+function exportarVentasExcel() {
+    const rows = document.querySelectorAll('.table tbody tr');
+    const data = [];
+    
+    rows.forEach(row => {
+        if (row.style.display !== 'none' && row.cells.length >= 7) {
+            data.push({
+                id_venta: row.cells[0].textContent.trim(),
+                producto: row.cells[1].textContent.trim(),
+                cantidad: row.cells[2].textContent.trim(),
+                total: row.cells[3].textContent.trim(),
+                cliente: row.cells[4].textContent.trim(),
+                vendedor: row.cells[5].textContent.trim(),
+                fecha: row.cells[6].textContent.trim()
+            });
+        }
+    });
+    
+    // Enviar al backend para generar Excel
+    fetch('/ventas/exportar-excel', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ventas: data })
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ventas_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    })
+    .catch(error => {
+        console.error('Error al exportar:', error);
+        alert('Error al generar el reporte. Por favor intente nuevamente.');
+    });
+}
+</script>
 {% endblock %}
