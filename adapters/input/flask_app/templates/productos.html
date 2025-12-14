@@ -47,40 +47,82 @@
             <div class="card-body">
                 <form method="post">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="nombre" class="form-label">Nombre del Producto</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        <div class="col-md-4 mb-3">
+                            <label for="fecha" class="form-label">Fecha <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="fecha" name="fecha" value="{{ now().strftime('%Y-%m-%d') }}" required>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="precio_unitario" class="form-label">Precio Unitario</label>
-                            <input type="number" class="form-control" id="precio_unitario" name="precio_unitario" step="0.01" min="0" required>
+                        <div class="col-md-8 mb-3">
+                            <label for="nombre" class="form-label">Nombre del Producto <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Armazón Metálico Classic" required>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="categoria" class="form-label">Categoría</label>
-                            <input type="text" class="form-control" id="categoria" name="categoria" placeholder="Ej: Lentes, Marcos">
+                        <div class="col-md-6 mb-3">
+                            <label for="distribuidor" class="form-label">Distribuidor</label>
+                            <input type="text" class="form-control" id="distribuidor" name="distribuidor" placeholder="Ej: Óptica Nacional S.A.">
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="marca" class="form-label">Marca</label>
                             <input type="text" class="form-control" id="marca" name="marca" placeholder="Ej: Ray-Ban">
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label for="sku" class="form-label">SKU/Código</label>
-                            <input type="text" class="form-control" id="sku" name="sku" placeholder="Ej: RB3025">
+                            <label for="material" class="form-label">Material</label>
+                            <input type="text" class="form-control" id="material" name="material" placeholder="Ej: Acetato, Metal">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="tipo_armazon" class="form-label">Tipo Armazón</label>
+                            <input type="text" class="form-control" id="tipo_armazon" name="tipo_armazon" placeholder="Ej: Completo, Semi-al-aire">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="codigo" class="form-label">Código</label>
+                            <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Ej: RB3025">
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="stock" class="form-label">Stock</label>
-                            <input type="number" class="form-control" id="stock" name="stock" min="0" required>
+                        <div class="col-md-4 mb-3">
+                            <label for="diametro_1" class="form-label">Diámetro 1</label>
+                            <input type="text" class="form-control" id="diametro_1" name="diametro_1" placeholder="Ej: 52mm">
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="descripcion" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required></textarea>
+                        <div class="col-md-4 mb-3">
+                            <label for="diametro_2" class="form-label">Diámetro 2</label>
+                            <input type="text" class="form-control" id="diametro_2" name="diametro_2" placeholder="Ej: 18mm">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="color" class="form-label">Color</label>
+                            <input type="text" class="form-control" id="color" name="color" placeholder="Ej: Negro, Dorado">
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Crear Producto</button>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="cantidad" class="form-label">Cantidad <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="cantidad" name="cantidad" min="0" value="0" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="costo_unitario" class="form-label">Costo Unitario <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="costo_unitario" name="costo_unitario" step="0.01" min="0" required>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="costo_total" class="form-label">Costo Total</label>
+                            <input type="number" class="form-control" id="costo_total" name="costo_total" step="0.01" min="0" readonly>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="costo_venta_1" class="form-label">Precio Venta 1</label>
+                            <input type="number" class="form-control" id="costo_venta_1" name="costo_venta_1" step="0.01" min="0">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="costo_venta_2" class="form-label">Precio Venta 2</label>
+                            <input type="number" class="form-control" id="costo_venta_2" name="costo_venta_2" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="2" placeholder="Descripción adicional del producto"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-2"></i>Crear Producto</button>
                 </form>
             </div>
         </div>
@@ -91,77 +133,82 @@
                 <h5 class="mb-0">Productos Existentes</h5>
             </div>
             <div class="card-body">
-                <table class="table table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Categoría</th>
-                            <th>Marca</th>
-                            <th>SKU</th>
-                            <th>Descripción</th>
-                            <th>Precio</th>
-                            <th>Stock</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if products|length == 0 %}
-                        <tr>
-                            <td colspan="9" class="text-center">No hay productos activos registrados.</td>
-                        </tr>
-                        {% else %}
-                        {% for p in products %}
-                        <tr>
-                            <td>{{ p.producto_id }}</td>
-                            <td><strong>{{ p.nombre }}</strong></td>
-                            <td>
-                                <span class="badge bg-info">{{ p.categoria or 'Sin categoría' }}</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-secondary">{{ p.marca or 'Sin marca' }}</span>
-                            </td>
-                            <td>
-                                <code>{{ p.sku or 'N/A' }}</code>
-                            </td>
-                            <td>
-                                <small class="text-muted">{{ p.descripcion[:50] }}{% if p.descripcion|length > 50 %}...{% endif %}</small>
-                            </td>
-                            <td><strong>{{ p.precio_unitario|currency }}</strong></td>
-                            <td>
-                                <span class="badge {% if p.stock > 10 %}bg-success{% elif p.stock > 0 %}bg-warning{% else %}bg-danger{% endif %}">
-                                    {{ p.stock }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <button class="btn btn-info btn-sm" onclick="verDetalles({{ p.producto_id }})" title="Ver Detalles">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editarStock({{ p.producto_id }}, {{ p.stock }})" title="Editar Stock">
-                                        <i class="fas fa-boxes"></i>
-                                    </button>
-                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarProducto"
-                                        data-producto-id="{{ p.producto_id }}"
-                                        data-nombre="{{ p.nombre }}"
-                                        data-descripcion="{{ p.descripcion }}"
-                                        data-precio="{{ p.precio_unitario }}"
-                                        data-stock="{{ p.stock }}"
-                                        data-categoria="{{ p.categoria or '' }}"
-                                        data-marca="{{ p.marca or '' }}"
-                                        data-sku="{{ p.sku or '' }}" title="Editar Producto">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminar" data-producto-id="{{ p.producto_id }}" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        {% endif %}
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Nombre</th>
+                                <th>Distribuidor</th>
+                                <th>Marca</th>
+                                <th>Código</th>
+                                <th>Color</th>
+                                <th>Cantidad</th>
+                                <th>Costo Unit.</th>
+                                <th>P. Venta 1</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if products|length == 0 %}
+                            <tr>
+                                <td colspan="11" class="text-center">No hay productos activos registrados.</td>
+                            </tr>
+                            {% else %}
+                            {% for p in products %}
+                            <tr>
+                                <td>{{ p.producto_id }}</td>
+                                <td><small>{{ p.fecha.strftime('%d/%m/%Y') if p.fecha else 'N/A' }}</small></td>
+                                <td><strong>{{ p.nombre }}</strong></td>
+                                <td><small>{{ p.distribuidor or '-' }}</small></td>
+                                <td><span class="badge bg-secondary">{{ p.marca or '-' }}</span></td>
+                                <td><code>{{ p.codigo or '-' }}</code></td>
+                                <td>{{ p.color or '-' }}</td>
+                                <td>
+                                    <span class="badge {% if p.cantidad > 10 %}bg-success{% elif p.cantidad > 0 %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ p.cantidad }}
+                                    </span>
+                                </td>
+                                <td>{{ p.costo_unitario|currency }}</td>
+                                <td><strong>{{ p.costo_venta_1|currency if p.costo_venta_1 else '-' }}</strong></td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-info btn-sm" onclick="verDetalles({{ p.producto_id }})" title="Ver Detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarProducto"
+                                            data-producto-id="{{ p.producto_id }}"
+                                            data-fecha="{{ p.fecha.strftime('%Y-%m-%d') if p.fecha else '' }}"
+                                            data-nombre="{{ p.nombre }}"
+                                            data-distribuidor="{{ p.distribuidor or '' }}"
+                                            data-marca="{{ p.marca or '' }}"
+                                            data-material="{{ p.material or '' }}"
+                                            data-tipo-armazon="{{ p.tipo_armazon or '' }}"
+                                            data-codigo="{{ p.codigo or '' }}"
+                                            data-diametro1="{{ p.diametro_1 or '' }}"
+                                            data-diametro2="{{ p.diametro_2 or '' }}"
+                                            data-color="{{ p.color or '' }}"
+                                            data-cantidad="{{ p.cantidad }}"
+                                            data-costo-unitario="{{ p.costo_unitario }}"
+                                            data-costo-total="{{ p.costo_total or '' }}"
+                                            data-costo-venta1="{{ p.costo_venta_1 or '' }}"
+                                            data-costo-venta2="{{ p.costo_venta_2 or '' }}"
+                                            data-descripcion="{{ p.descripcion or '' }}" 
+                                            title="Editar Producto">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminar" data-producto-id="{{ p.producto_id }}" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -210,7 +257,7 @@
         <!-- Modales para editar y eliminar producto -->
         <!-- Modal Editar Producto -->
         <div class="modal fade" id="modalEditarProducto" tabindex="-1" aria-labelledby="modalEditarProductoLabel" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalEditarProductoLabel">Editar Producto</h5>
@@ -220,43 +267,85 @@
                         <div class="modal-body">
                             <input type="hidden" name="producto_id" id="editarProductoId">
                             <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="editarNombreProducto" class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" id="editarNombreProducto" name="nombre" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="editarPrecioProducto" class="form-label">Precio Unitario</label>
-                                    <input type="number" class="form-control" id="editarPrecioProducto" name="precio_unitario" step="0.01" min="0" required>
-                                </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label for="editarCategoriaProducto" class="form-label">Categoría</label>
-                                    <input type="text" class="form-control" id="editarCategoriaProducto" name="categoria" placeholder="Ej: Lentes, Marcos">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="editarMarcaProducto" class="form-label">Marca</label>
-                                    <input type="text" class="form-control" id="editarMarcaProducto" name="marca" placeholder="Ej: Ray-Ban">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="editarSkuProducto" class="form-label">SKU/Código</label>
-                                    <input type="text" class="form-control" id="editarSkuProducto" name="sku" placeholder="Ej: RB3025">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label for="editarStockProducto" class="form-label">Stock</label>
-                                    <input type="number" class="form-control" id="editarStockProducto" name="stock" min="0" required>
+                                    <label for="editarFecha" class="form-label">Fecha <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="editarFecha" name="fecha" required>
                                 </div>
                                 <div class="col-md-8 mb-3">
+                                    <label for="editarNombreProducto" class="form-label">Nombre <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="editarNombreProducto" name="nombre" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="editarDistribuidor" class="form-label">Distribuidor</label>
+                                    <input type="text" class="form-control" id="editarDistribuidor" name="distribuidor">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="editarMarcaProducto" class="form-label">Marca</label>
+                                    <input type="text" class="form-control" id="editarMarcaProducto" name="marca">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="editarMaterial" class="form-label">Material</label>
+                                    <input type="text" class="form-control" id="editarMaterial" name="material">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="editarTipoArmazon" class="form-label">Tipo Armazón</label>
+                                    <input type="text" class="form-control" id="editarTipoArmazon" name="tipo_armazon">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="editarCodigo" class="form-label">Código</label>
+                                    <input type="text" class="form-control" id="editarCodigo" name="codigo">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="editarDiametro1" class="form-label">Diámetro 1</label>
+                                    <input type="text" class="form-control" id="editarDiametro1" name="diametro_1">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="editarDiametro2" class="form-label">Diámetro 2</label>
+                                    <input type="text" class="form-control" id="editarDiametro2" name="diametro_2">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="editarColor" class="form-label">Color</label>
+                                    <input type="text" class="form-control" id="editarColor" name="color">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="editarCantidad" class="form-label">Cantidad <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="editarCantidad" name="cantidad" min="0" required>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="editarCostoUnitario" class="form-label">Costo Unitario <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="editarCostoUnitario" name="costo_unitario" step="0.01" min="0" required>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="editarCostoTotal" class="form-label">Costo Total</label>
+                                    <input type="number" class="form-control" id="editarCostoTotal" name="costo_total" step="0.01" min="0" readonly>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="editarCostoVenta1" class="form-label">P. Venta 1</label>
+                                    <input type="number" class="form-control" id="editarCostoVenta1" name="costo_venta_1" step="0.01" min="0">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="editarCostoVenta2" class="form-label">P. Venta 2</label>
+                                    <input type="number" class="form-control" id="editarCostoVenta2" name="costo_venta_2" step="0.01" min="0">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
                                     <label for="editarDescripcionProducto" class="form-label">Descripción</label>
-                                    <textarea class="form-control" id="editarDescripcionProducto" name="descripcion" rows="2" required></textarea>
+                                    <textarea class="form-control" id="editarDescripcionProducto" name="descripcion" rows="2"></textarea>
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Guardar Cambios</button>
                         </div>
                     </form>
                 </div>
@@ -286,27 +375,73 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Función para calcular el costo total automáticamente
+        function calcularCostoTotal(cantidadInput, costoUnitarioInput, costoTotalInput) {
+            const cantidad = parseFloat(cantidadInput.value) || 0;
+            const costoUnitario = parseFloat(costoUnitarioInput.value) || 0;
+            const costoTotal = cantidad * costoUnitario;
+            costoTotalInput.value = costoTotal.toFixed(2);
+        }
+
+        // Para formulario de creación
+        const cantidadCreate = document.getElementById('cantidad');
+        const costoUnitarioCreate = document.getElementById('costo_unitario');
+        const costoTotalCreate = document.getElementById('costo_total');
+        
+        if (cantidadCreate && costoUnitarioCreate && costoTotalCreate) {
+            cantidadCreate.addEventListener('input', () => calcularCostoTotal(cantidadCreate, costoUnitarioCreate, costoTotalCreate));
+            costoUnitarioCreate.addEventListener('input', () => calcularCostoTotal(cantidadCreate, costoUnitarioCreate, costoTotalCreate));
+        }
+
+        // Para formulario de edición
+        const cantidadEdit = document.getElementById('editarCantidad');
+        const costoUnitarioEdit = document.getElementById('editarCostoUnitario');
+        const costoTotalEdit = document.getElementById('editarCostoTotal');
+        
+        if (cantidadEdit && costoUnitarioEdit && costoTotalEdit) {
+            cantidadEdit.addEventListener('input', () => calcularCostoTotal(cantidadEdit, costoUnitarioEdit, costoTotalEdit));
+            costoUnitarioEdit.addEventListener('input', () => calcularCostoTotal(cantidadEdit, costoUnitarioEdit, costoTotalEdit));
+        }
+
         var modalEditarProducto = document.getElementById('modalEditarProducto');
         if (modalEditarProducto) {
             modalEditarProducto.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
                 var productoId = button.getAttribute('data-producto-id');
+                var fecha = button.getAttribute('data-fecha');
                 var nombre = button.getAttribute('data-nombre');
-                var descripcion = button.getAttribute('data-descripcion');
-                var precio = button.getAttribute('data-precio');
-                var stock = button.getAttribute('data-stock');
-                var categoria = button.getAttribute('data-categoria');
+                var distribuidor = button.getAttribute('data-distribuidor');
                 var marca = button.getAttribute('data-marca');
-                var sku = button.getAttribute('data-sku');
+                var material = button.getAttribute('data-material');
+                var tipoArmazon = button.getAttribute('data-tipo-armazon');
+                var codigo = button.getAttribute('data-codigo');
+                var diametro1 = button.getAttribute('data-diametro1');
+                var diametro2 = button.getAttribute('data-diametro2');
+                var color = button.getAttribute('data-color');
+                var cantidad = button.getAttribute('data-cantidad');
+                var costoUnitario = button.getAttribute('data-costo-unitario');
+                var costoTotal = button.getAttribute('data-costo-total');
+                var costoVenta1 = button.getAttribute('data-costo-venta1');
+                var costoVenta2 = button.getAttribute('data-costo-venta2');
+                var descripcion = button.getAttribute('data-descripcion');
                 
                 document.getElementById('editarProductoId').value = productoId;
+                document.getElementById('editarFecha').value = fecha;
                 document.getElementById('editarNombreProducto').value = nombre;
-                document.getElementById('editarDescripcionProducto').value = descripcion;
-                document.getElementById('editarPrecioProducto').value = precio;
-                document.getElementById('editarStockProducto').value = stock;
-                document.getElementById('editarCategoriaProducto').value = categoria;
+                document.getElementById('editarDistribuidor').value = distribuidor;
                 document.getElementById('editarMarcaProducto').value = marca;
-                document.getElementById('editarSkuProducto').value = sku;
+                document.getElementById('editarMaterial').value = material;
+                document.getElementById('editarTipoArmazon').value = tipoArmazon;
+                document.getElementById('editarCodigo').value = codigo;
+                document.getElementById('editarDiametro1').value = diametro1;
+                document.getElementById('editarDiametro2').value = diametro2;
+                document.getElementById('editarColor').value = color;
+                document.getElementById('editarCantidad').value = cantidad;
+                document.getElementById('editarCostoUnitario').value = costoUnitario;
+                document.getElementById('editarCostoTotal').value = costoTotal;
+                document.getElementById('editarCostoVenta1').value = costoVenta1;
+                document.getElementById('editarCostoVenta2').value = costoVenta2;
+                document.getElementById('editarDescripcionProducto').value = descripcion;
                 
                 // Establecer action del formulario
                 document.getElementById('formEditarProducto').action = '/productos/editar/' + productoId;

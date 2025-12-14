@@ -1,13 +1,13 @@
 # app/domain/models/products.py
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, Numeric, CheckConstraint
+from sqlalchemy import Column, Integer, String, Date, Boolean, Text, Numeric, CheckConstraint
 from app.infraestructure.utils.tables import Base
-from datetime import datetime
+from datetime import date
 
 class Product(Base):
     __tablename__ = 'productos'
 
     producto_id = Column(Integer, primary_key=True, autoincrement=True)
-    fecha = Column(DateTime, default=datetime.utcnow, nullable=True)
+    fecha = Column(Date, default=date.today, nullable=True)
     nombre = Column(String(200), nullable=False)
     distribuidor = Column(String(200), nullable=True)
     marca = Column(String(100), nullable=True)

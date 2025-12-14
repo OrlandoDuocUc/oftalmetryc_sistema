@@ -55,13 +55,26 @@ def productos():
 
     if request.method == 'POST':
         try:
+            from datetime import datetime
             data = request.form.to_dict()
-            # Tipos correctos
-            data['stock'] = int(data.get('stock', 0))
-            data['precio_unitario'] = float(data.get('precio_unitario', 0.0))
+            
+            # Convertir tipos de datos
+            if 'fecha' in data and data['fecha']:
+                data['fecha'] = datetime.strptime(data['fecha'], '%Y-%m-%d').date()
+            else:
+                data['fecha'] = datetime.now().date()
+            
+            data['cantidad'] = int(data.get('cantidad', 0))
+            data['costo_unitario'] = float(data.get('costo_unitario', 0.0))
+            data['costo_total'] = float(data.get('costo_total', 0.0))
+            
+            # Precios de venta opcionales
+            if data.get('costo_venta_1'):
+                data['costo_venta_1'] = float(data['costo_venta_1'])
+            if data.get('costo_venta_2'):
+                data['costo_venta_2'] = float(data['costo_venta_2'])
 
             product_use_cases.create_product(data)
-            # Con el teardown ahora se hace commit automático si no hay excepción
             flash('Producto creado exitosamente.', 'success')
         except Exception as e:
             print(f"Error al crear producto: {e}")
@@ -91,14 +104,27 @@ def productos_eliminados():
         flash('Ocurrió un error al cargar los productos eliminados.', 'danger')
         return render_template('productos.html', products=[], deleted_products=[])
 
-@product_html.route('/productos/edit/<int:product_id>', methods=['POST'])
+@product_html.route('/productos/editar/<int:product_id>', methods=['POST'])
 def editar_producto(product_id):
     if session.get('rol', '').lower() != 'administrador':
         return redirect(url_for('user_html.login'))
     try:
+        from datetime import datetime
         data = request.form.to_dict()
-        data['stock'] = int(data.get('stock', 0))
-        data['precio_unitario'] = float(data.get('precio_unitario', 0.0))
+        
+        # Convertir tipos de datos
+        if 'fecha' in data and data['fecha']:
+            data['fecha'] = datetime.strptime(data['fecha'], '%Y-%m-%d').date()
+        
+        data['cantidad'] = int(data.get('cantidad', 0))
+        data['costo_unitario'] = float(data.get('costo_unitario', 0.0))
+        data['costo_total'] = float(data.get('costo_total', 0.0))
+        
+@product_html.route('/productos/eliminar/<int:product_id>', methods=['POST'])
+def eliminar_producto(product_id):'):
+            data['costo_venta_1'] = float(data['costo_venta_1'])
+        if data.get('costo_venta_2'):
+            data['costo_venta_2'] = float(data['costo_venta_2'])
 
         product_use_cases.update_product(product_id, data)
         flash('Producto actualizado correctamente.', 'success')

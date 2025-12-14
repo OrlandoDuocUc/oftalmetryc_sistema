@@ -43,8 +43,9 @@ class SQLProductRepository:
             if commit:
                 self.db.commit()
             return product
-        except Exception:
+        except Exception as e:
             self.db.rollback()
+            print(f"Error al guardar producto: {e}")
             raise
 
     def delete(self, product_id: int, *, commit: bool = True):
@@ -89,14 +90,14 @@ class SQLProductRepository:
 
     def update_stock(self, product_id: int, new_stock: int, *, commit: bool = False):
         """
-        Actualiza stock a un valor específico. Usa FOR UPDATE.
-        Respeta el CHECK de DB (stock >= 0).
+        Actualiza stock/cantidad a un valor específico. Usa FOR UPDATE.
+        Respeta el CHECK de DB (cantidad >= 0).
         Por defecto NO hace commit para integrarse a transacciones atómicas.
         """
         product = self.get_by_id(product_id, for_update=True)
         if not product:
             return False
-        product.stock = new_stock
+        product.cantidad = new_stock  # Usa el nuevo campo cantidad
         if commit:
             self.db.commit()
         else:
@@ -106,7 +107,7 @@ class SQLProductRepository:
     # ---------- Ayudantes de stock seguros ----------
     def decrement_stock(self, product_id: int, quantity: int, *, commit: bool = False):
         """
-        Resta 'quantity' del stock con bloqueo de fila (FOR UPDATE).
+        Resta 'quantity' del stock/cantidad con bloqueo de fila (FOR UPDATE).
         No hace commit por defecto para permitir una venta atómica.
         Lanza ValueError si no hay stock suficiente.
         """
@@ -117,11 +118,11 @@ class SQLProductRepository:
         if not product:
             raise ValueError(f"Producto ID {product_id} no existe.")
 
-        current = product.stock or 0
+        current = product.cantidad or 0  # Usa el nuevo campo cantidad
         if current < quantity:
             raise ValueError(f"Stock insuficiente para el producto {product.nombre}.")
 
-        product.stock = current - quantity
+        product.cantidad = current - quantity  # Usa el nuevo campo cantidad
 
         self.db.flush()
         if commit:

@@ -35,23 +35,39 @@ class ProductUseCases:
         return self._execute_with_session(operation)
 
     def create_product(self, data):
-        """Crea un nuevo producto."""
+        """Crea un nuevo producto con la nueva estructura de campos."""
         def operation(repo):
-            # Validaciones de negocio
-            if not data.get('nombre') or data.get('precio_unitario', 0) <= 0 or data.get('stock', -1) < 0:
-                raise ValueError("Nombre, precio positivo y stock no negativo son requeridos.")
+            from datetime import datetime
             
+            # Validaciones de negocio
+            if not data.get('nombre'):
+                raise ValueError("El nombre del producto es requerido.")
+            if data.get('costo_unitario', 0) <= 0:
+                raise ValueError("El costo unitario debe ser mayor a 0.")
+            if data.get('cantidad', -1) < 0:
+                raise ValueError("La cantidad no puede ser negativa.")
+            
+            # Crear producto con todos los nuevos campos
             product = Product(
+                fecha=data.get('fecha', datetime.now().date()),
                 nombre=data['nombre'],
-                descripcion=data.get('descripcion', ''),
-                precio_unitario=data['precio_unitario'],
-                stock=data['stock'],
-                categoria=data.get('categoria'),
+                distribuidor=data.get('distribuidor'),
                 marca=data.get('marca'),
-                sku=data.get('sku'),
+                material=data.get('material'),
+                tipo_armazon=data.get('tipo_armazon'),
+                codigo=data.get('codigo'),
+                diametro_1=data.get('diametro_1'),
+                diametro_2=data.get('diametro_2'),
+                color=data.get('color'),
+                cantidad=data.get('cantidad', 0),
+                costo_unitario=data['costo_unitario'],
+                costo_total=data.get('costo_total'),
+                costo_venta_1=data.get('costo_venta_1'),
+                costo_venta_2=data.get('costo_venta_2'),
+                descripcion=data.get('descripcion'),
                 estado=True
             )
-            return repo.save(product)
+            return repo.save(product, commit=True)
         return self._execute_with_session(operation)
 
     def update_product(self, product_id, data):
