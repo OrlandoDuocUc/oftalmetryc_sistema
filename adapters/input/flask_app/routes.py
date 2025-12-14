@@ -107,11 +107,11 @@ def inventario():
         productos = product_repo.get_all()
         
         total_productos = len(productos)
-        total_stock = sum(p.stock for p in productos if p.stock)
-        stock_bajo = len([p for p in productos if p.stock and p.stock < 10])
-        categorias = len(set(p.categoria for p in productos if p.categoria))
+        total_stock = sum(p.cantidad for p in productos if p.cantidad)
+        stock_bajo = len([p for p in productos if p.cantidad and p.cantidad < 10])
+        categorias = len(set(p.marca for p in productos if p.marca))
         
-        categorias_list = sorted(set(p.categoria for p in productos if p.categoria))
+        marcas_list = sorted(set(p.marca for p in productos if p.marca))
         
         stats = {
             'total_productos': total_productos,
@@ -123,7 +123,7 @@ def inventario():
         return render_template('inventario.html', 
                              productos=productos, 
                              stats=stats, 
-                             categorias=categorias_list)
+                             marcas=marcas_list)
     finally:
         db_session.close()
 
