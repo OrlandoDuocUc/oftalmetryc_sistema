@@ -135,9 +135,6 @@ def editar_producto(product_id):
 
 @product_html.route('/productos/eliminar/<int:product_id>', methods=['POST'])
 def eliminar_producto(product_id):
-
-@product_html.route('/productos/delete/<int:product_id>', methods=['POST'])
-def eliminar_producto(product_id):
     if session.get('rol', '').lower() != 'administrador':
         return redirect(url_for('user_html.login'))
     try:
