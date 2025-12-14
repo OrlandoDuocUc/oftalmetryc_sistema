@@ -120,8 +120,8 @@ def editar_producto(product_id):
         data['costo_unitario'] = float(data.get('costo_unitario', 0.0))
         data['costo_total'] = float(data.get('costo_total', 0.0))
         
-@product_html.route('/productos/eliminar/<int:product_id>', methods=['POST'])
-def eliminar_producto(product_id):'):
+        # Precios de venta opcionales
+        if data.get('costo_venta_1'):
             data['costo_venta_1'] = float(data['costo_venta_1'])
         if data.get('costo_venta_2'):
             data['costo_venta_2'] = float(data['costo_venta_2'])
@@ -132,6 +132,9 @@ def eliminar_producto(product_id):'):
         print(f"Error al editar producto: {e}")
         flash(f'Ocurrió un error al editar el producto: {e}', 'danger')
     return redirect(url_for('product_html.productos'))
+
+@product_html.route('/productos/eliminar/<int:product_id>', methods=['POST'])
+def eliminar_producto(product_id):
 
 @product_html.route('/productos/delete/<int:product_id>', methods=['POST'])
 def eliminar_producto(product_id):
