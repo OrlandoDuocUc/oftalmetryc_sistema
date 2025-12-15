@@ -67,7 +67,8 @@ class ProductUseCases:
                 descripcion=data.get('descripcion'),
                 estado=True
             )
-            return repo.save(product, commit=True)
+            # No hacer commit aquí, lo hace _execute_with_session
+            return repo.save(product, commit=False)
         return self._execute_with_session(operation)
 
     def update_product(self, product_id, data):
