@@ -133,6 +133,14 @@
                 <h5 class="mb-0">Productos Existentes</h5>
             </div>
             <div class="card-body">
+                <!-- Buscador único -->
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" id="buscadorProductos" class="form-control" placeholder="Buscar por código, nombre, distribuidor o marca...">
+                    </div>
+                    <small class="text-muted">El buscador filtra en tiempo real por código, nombre, distribuidor y marca</small>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-sm">
                         <thead class="table-dark">
@@ -417,32 +425,46 @@
             }
         });
 
-        // Función para calcular el costo total automáticamente
-        function calcularCostoTotal(cantidadInput, costoUnitarioInput, costoTotalInput) {
+        // Función para calcular el costo total y precios de venta automáticamente
+        function calcularCostoTotal(cantidadInput, costoUnitarioInput, costoTotalInput, venta1Input, venta2Input) {
             const cantidad = parseFloat(cantidadInput.value) || 0;
             const costoUnitario = parseFloat(costoUnitarioInput.value) || 0;
             const costoTotal = cantidad * costoUnitario;
             costoTotalInput.value = costoTotal.toFixed(2);
+            
+            // Auto-calcular precios de venta si existen los campos
+            if (venta1Input) {
+                const venta1 = costoUnitario * 3;
+                venta1Input.value = venta1.toFixed(2);
+            }
+            if (venta2Input) {
+                const venta2 = costoUnitario * 2;
+                venta2Input.value = venta2.toFixed(2);
+            }
         }
 
         // Para formulario de creación
         const cantidadCreate = document.getElementById('cantidad');
         const costoUnitarioCreate = document.getElementById('costo_unitario');
         const costoTotalCreate = document.getElementById('costo_total');
+        const venta1Create = document.getElementById('costo_venta_1');
+        const venta2Create = document.getElementById('costo_venta_2');
         
         if (cantidadCreate && costoUnitarioCreate && costoTotalCreate) {
-            cantidadCreate.addEventListener('input', () => calcularCostoTotal(cantidadCreate, costoUnitarioCreate, costoTotalCreate));
-            costoUnitarioCreate.addEventListener('input', () => calcularCostoTotal(cantidadCreate, costoUnitarioCreate, costoTotalCreate));
+            cantidadCreate.addEventListener('input', () => calcularCostoTotal(cantidadCreate, costoUnitarioCreate, costoTotalCreate, venta1Create, venta2Create));
+            costoUnitarioCreate.addEventListener('input', () => calcularCostoTotal(cantidadCreate, costoUnitarioCreate, costoTotalCreate, venta1Create, venta2Create));
         }
 
         // Para formulario de edición
         const cantidadEdit = document.getElementById('editarCantidad');
         const costoUnitarioEdit = document.getElementById('editarCostoUnitario');
         const costoTotalEdit = document.getElementById('editarCostoTotal');
+        const venta1Edit = document.getElementById('editarCostoVenta1');
+        const venta2Edit = document.getElementById('editarCostoVenta2');
         
         if (cantidadEdit && costoUnitarioEdit && costoTotalEdit) {
-            cantidadEdit.addEventListener('input', () => calcularCostoTotal(cantidadEdit, costoUnitarioEdit, costoTotalEdit));
-            costoUnitarioEdit.addEventListener('input', () => calcularCostoTotal(cantidadEdit, costoUnitarioEdit, costoTotalEdit));
+            cantidadEdit.addEventListener('input', () => calcularCostoTotal(cantidadEdit, costoUnitarioEdit, costoTotalEdit, venta1Edit, venta2Edit));
+            costoUnitarioEdit.addEventListener('input', () => calcularCostoTotal(cantidadEdit, costoUnitarioEdit, costoTotalEdit, venta1Edit, venta2Edit));
         }
 
         var modalEditarProducto = document.getElementById('modalEditarProducto');
@@ -595,6 +617,32 @@
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
             document.head.appendChild(script);
+        }
+
+        // BUSCADOR ÚNICO - Filtra productos en tiempo real
+        const buscadorInput = document.getElementById('buscadorProductos');
+        if (buscadorInput) {
+            buscadorInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                const tableRows = document.querySelectorAll('tbody tr');
+                
+                tableRows.forEach(row => {
+                    // Obtener texto de las columnas relevantes: nombre, distribuidor, marca, código
+                    const nombre = row.cells[2]?.textContent.toLowerCase() || '';
+                    const distribuidor = row.cells[3]?.textContent.toLowerCase() || '';
+                    const marca = row.cells[4]?.textContent.toLowerCase() || '';
+                    const codigo = row.cells[5]?.textContent.toLowerCase() || '';
+                    
+                    // Buscar coincidencias en cualquiera de estos campos
+                    const matches = nombre.includes(searchTerm) || 
+                                   distribuidor.includes(searchTerm) || 
+                                   marca.includes(searchTerm) || 
+                                   codigo.includes(searchTerm);
+                    
+                    // Mostrar u ocultar la fila según coincidencias
+                    row.style.display = matches ? '' : 'none';
+                });
+            });
         }
                 document.getElementById('formEditarProducto').action = '/productos/edit/' + productoId;
             });

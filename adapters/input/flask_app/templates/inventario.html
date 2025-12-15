@@ -133,7 +133,7 @@
                 </select>
             </div>
             <div class="col-md-4">
-                <input type="text" class="form-control" id="searchProduct" placeholder="Buscar por código o distribuidor...">
+                <input type="text" class="form-control" id="searchProduct" placeholder="Buscar por código, nombre, distribuidor o marca...">
             </div>
             <div class="col-md-2">
                 <button class="btn btn-outline-secondary w-100" onclick="resetFilters()">
@@ -264,8 +264,10 @@
         rows.forEach(row => {
             const prodMarca = row.dataset.marca.toLowerCase();
             const prodCantidad = parseInt(row.dataset.cantidad);
-            const prodCodigo = row.cells[5].textContent.toLowerCase();
-            const prodDistribuidor = row.cells[1].textContent.toLowerCase();
+            const prodNombre = row.cells[1].textContent.toLowerCase();
+            const prodDistribuidor = row.cells[2].textContent.toLowerCase();
+            const prodMarcaCell = row.cells[3].textContent.toLowerCase();
+            const prodCodigo = row.cells[6].textContent.toLowerCase();
             
             let showMarca = !marca || prodMarca.includes(marca);
             let showCantidad = true;
@@ -274,7 +276,12 @@
             else if (cantidad === 'medio') showCantidad = prodCantidad >= 10 && prodCantidad <= 50;
             else if (cantidad === 'alto') showCantidad = prodCantidad > 50;
             
-            let showSearch = !search || prodCodigo.includes(search) || prodDistribuidor.includes(search);
+            // Buscar en código, nombre, distribuidor y marca
+            let showSearch = !search || 
+                            prodCodigo.includes(search) || 
+                            prodNombre.includes(search) || 
+                            prodDistribuidor.includes(search) || 
+                            prodMarcaCell.includes(search);
 
             row.style.display = showMarca && showCantidad && showSearch ? '' : 'none';
         });
