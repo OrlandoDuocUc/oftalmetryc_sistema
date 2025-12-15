@@ -85,16 +85,19 @@ def productos():
             else:
                 data['costo_venta_2'] = None
             
-            if data.get('diametro_1') and data.get('diametro_1').strip():
-                data['diametro_1'] = int(data['diametro_1'])
-            else:
+            # diametro_1 y diametro_2 son strings (pueden contener "54mm", "Medium", etc.)
+            # No convertir a int, dejarlos como están
+            if not data.get('diametro_1') or not data.get('diametro_1').strip():
                 data['diametro_1'] = None
             
-            if data.get('diametro_2') and data.get('diametro_2').strip():
-                data['diametro_2'] = int(data['diametro_2'])
-            else:
+            if not data.get('diametro_2') or not data.get('diametro_2').strip():
                 data['diametro_2'] = None
 
+            # Limpiar campos de texto opcionales (convertir '' a None)
+            for field in ['distribuidor', 'marca', 'material', 'tipo_armazon', 'codigo', 'color', 'descripcion']:
+                if field in data and (not data[field] or not data[field].strip()):
+                    data[field] = None
+            
             product_use_cases.create_product(data)
             print(f"✅ Producto creado exitosamente: {data.get('nombre')}")
             flash('Producto creado exitosamente.', 'success')
@@ -162,15 +165,18 @@ def editar_producto(product_id):
         else:
             data['costo_venta_2'] = None
         
-        if data.get('diametro_1') and data.get('diametro_1').strip():
-            data['diametro_1'] = int(data['diametro_1'])
-        else:
+        # diametro_1 y diametro_2 son strings (pueden contener "54mm", "Medium", etc.)
+        # No convertir a int, dejarlos como están
+        if not data.get('diametro_1') or not data.get('diametro_1').strip():
             data['diametro_1'] = None
         
-        if data.get('diametro_2') and data.get('diametro_2').strip():
-            data['diametro_2'] = int(data['diametro_2'])
-        else:
+        if not data.get('diametro_2') or not data.get('diametro_2').strip():
             data['diametro_2'] = None
+        
+        # Limpiar campos de texto opcionales (convertir '' a None)
+        for field in ['distribuidor', 'marca', 'material', 'tipo_armazon', 'codigo', 'color', 'descripcion']:
+            if field in data and (not data[field] or not data[field].strip()):
+                data[field] = None
 
         product_use_cases.update_product(product_id, data)
         flash('Producto actualizado correctamente.', 'success')
