@@ -80,9 +80,12 @@ def productos():
                 data['costo_venta_2'] = None
 
             product_use_cases.create_product(data)
+            print(f"✅ Producto creado exitosamente: {data.get('nombre')}")
             flash('Producto creado exitosamente.', 'success')
         except Exception as e:
-            print(f"Error al crear producto: {e}")
+            print(f"❌ Error al crear producto: {e}")
+            import traceback
+            traceback.print_exc()
             flash(f'Ocurrió un error al crear el producto: {e}', 'danger')
         return redirect(url_for('product_html.productos'))
 
