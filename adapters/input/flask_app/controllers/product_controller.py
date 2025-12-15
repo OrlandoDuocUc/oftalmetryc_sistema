@@ -64,11 +64,17 @@ def productos():
             else:
                 data['fecha'] = datetime.now().date()
             
+            # Campos requeridos
             data['cantidad'] = int(data.get('cantidad', 0))
             data['costo_unitario'] = float(data.get('costo_unitario', 0.0))
-            data['costo_total'] = float(data.get('costo_total', 0.0))
             
-            # Precios de venta opcionales - validar que no sean cadenas vacías
+            # Costo total: calcular automáticamente si no viene o está vacío
+            if data.get('costo_total') and data.get('costo_total').strip():
+                data['costo_total'] = float(data['costo_total'])
+            else:
+                data['costo_total'] = data['cantidad'] * data['costo_unitario']
+            
+            # Campos numéricos opcionales - validar que no sean cadenas vacías
             if data.get('costo_venta_1') and data.get('costo_venta_1').strip():
                 data['costo_venta_1'] = float(data['costo_venta_1'])
             else:
@@ -78,16 +84,27 @@ def productos():
                 data['costo_venta_2'] = float(data['costo_venta_2'])
             else:
                 data['costo_venta_2'] = None
+            
+            if data.get('diametro_1') and data.get('diametro_1').strip():
+                data['diametro_1'] = int(data['diametro_1'])
+            else:
+                data['diametro_1'] = None
+            
+            if data.get('diametro_2') and data.get('diametro_2').strip():
+                data['diametro_2'] = int(data['diametro_2'])
+            else:
+                data['diametro_2'] = None
 
             product_use_cases.create_product(data)
             print(f"✅ Producto creado exitosamente: {data.get('nombre')}")
             flash('Producto creado exitosamente.', 'success')
+            return redirect(url_for('product_html.productos', created='true'))
         except Exception as e:
             print(f"❌ Error al crear producto: {e}")
             import traceback
             traceback.print_exc()
             flash(f'Ocurrió un error al crear el producto: {e}', 'danger')
-        return redirect(url_for('product_html.productos'))
+            return redirect(url_for('product_html.productos'))
 
     # GET
     try:
@@ -124,11 +141,17 @@ def editar_producto(product_id):
         if 'fecha' in data and data['fecha']:
             data['fecha'] = datetime.strptime(data['fecha'], '%Y-%m-%d').date()
         
+        # Campos requeridos
         data['cantidad'] = int(data.get('cantidad', 0))
         data['costo_unitario'] = float(data.get('costo_unitario', 0.0))
-        data['costo_total'] = float(data.get('costo_total', 0.0))
         
-        # Precios de venta opcionales - validar que no sean cadenas vacías
+        # Costo total: calcular automáticamente si no viene o está vacío
+        if data.get('costo_total') and data.get('costo_total').strip():
+            data['costo_total'] = float(data['costo_total'])
+        else:
+            data['costo_total'] = data['cantidad'] * data['costo_unitario']
+        
+        # Campos numéricos opcionales - validar que no sean cadenas vacías
         if data.get('costo_venta_1') and data.get('costo_venta_1').strip():
             data['costo_venta_1'] = float(data['costo_venta_1'])
         else:
@@ -138,6 +161,16 @@ def editar_producto(product_id):
             data['costo_venta_2'] = float(data['costo_venta_2'])
         else:
             data['costo_venta_2'] = None
+        
+        if data.get('diametro_1') and data.get('diametro_1').strip():
+            data['diametro_1'] = int(data['diametro_1'])
+        else:
+            data['diametro_1'] = None
+        
+        if data.get('diametro_2') and data.get('diametro_2').strip():
+            data['diametro_2'] = int(data['diametro_2'])
+        else:
+            data['diametro_2'] = None
 
         product_use_cases.update_product(product_id, data)
         flash('Producto actualizado correctamente.', 'success')
