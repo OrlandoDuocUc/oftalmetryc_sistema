@@ -68,11 +68,16 @@ def productos():
             data['costo_unitario'] = float(data.get('costo_unitario', 0.0))
             data['costo_total'] = float(data.get('costo_total', 0.0))
             
-            # Precios de venta opcionales
-            if data.get('costo_venta_1'):
+            # Precios de venta opcionales - validar que no sean cadenas vacías
+            if data.get('costo_venta_1') and data.get('costo_venta_1').strip():
                 data['costo_venta_1'] = float(data['costo_venta_1'])
-            if data.get('costo_venta_2'):
+            else:
+                data['costo_venta_1'] = None
+                
+            if data.get('costo_venta_2') and data.get('costo_venta_2').strip():
                 data['costo_venta_2'] = float(data['costo_venta_2'])
+            else:
+                data['costo_venta_2'] = None
 
             product_use_cases.create_product(data)
             flash('Producto creado exitosamente.', 'success')
@@ -120,11 +125,16 @@ def editar_producto(product_id):
         data['costo_unitario'] = float(data.get('costo_unitario', 0.0))
         data['costo_total'] = float(data.get('costo_total', 0.0))
         
-        # Precios de venta opcionales
-        if data.get('costo_venta_1'):
+        # Precios de venta opcionales - validar que no sean cadenas vacías
+        if data.get('costo_venta_1') and data.get('costo_venta_1').strip():
             data['costo_venta_1'] = float(data['costo_venta_1'])
-        if data.get('costo_venta_2'):
+        else:
+            data['costo_venta_1'] = None
+            
+        if data.get('costo_venta_2') and data.get('costo_venta_2').strip():
             data['costo_venta_2'] = float(data['costo_venta_2'])
+        else:
+            data['costo_venta_2'] = None
 
         product_use_cases.update_product(product_id, data)
         flash('Producto actualizado correctamente.', 'success')
