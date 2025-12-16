@@ -461,7 +461,10 @@
             modalEliminar.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
                 var productoId = button.getAttribute('data-producto-id');
-                document.getElementById('formEliminarProducto').action = '/productos/eliminar/' + productoId;
+                var actionUrl = '/productos/eliminar/' + productoId;
+                console.log('🗑️ Configurando eliminación para producto ID:', productoId);
+                console.log('🔗 Action URL:', actionUrl);
+                document.getElementById('formEliminarProducto').action = actionUrl;
             });
         }
 
@@ -588,18 +591,7 @@
                 });
             });
         }
-                document.getElementById('formEditarProducto').action = '/productos/editar/' + productoId;
-            });
-        }
-        var modalEliminar = document.getElementById('modalEliminar');
-        if (modalEliminar) {
-            modalEliminar.addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget;
-                var productoId = button.getAttribute('data-producto-id');
-                var form = document.getElementById('formEliminarProducto');
-                form.action = '/productos/eliminar/' + productoId;
-            });
-        }
+        
         function editarProducto(productoId) {
             var modal = new bootstrap.Modal(document.getElementById('modalEditarProducto'));
             document.getElementById('editarProductoId').value = productoId;

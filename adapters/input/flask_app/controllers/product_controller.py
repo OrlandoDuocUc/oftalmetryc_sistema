@@ -177,16 +177,23 @@ def editar_producto(product_id):
 
 @product_html.route('/productos/eliminar/<int:product_id>', methods=['POST'])
 def eliminar_producto(product_id):
+    print(f"🗑️ Solicitud de eliminación recibida para producto ID: {product_id}")
     if session.get('rol', '').lower() != 'administrador':
+        print(f"⚠️ Usuario no autorizado. Rol actual: {session.get('rol', 'No definido')}")
         return redirect(url_for('user_html.login'))
     try:
+        print(f"🔄 Intentando eliminar producto ID: {product_id}")
         success = product_use_cases.delete_product(product_id)
         if success:
+            print(f"✅ Producto {product_id} eliminado físicamente")
             flash('Producto eliminado físicamente.', 'success')
         else:
+            print(f"⚠️ Producto {product_id} marcado como inactivo (soft delete)")
             flash('El producto no se eliminó físicamente (puede tener ventas asociadas) y fue desactivado.', 'warning')
     except Exception as e:
-        print(f"Error al eliminar producto: {e}")
+        print(f"❌ Error al eliminar producto {product_id}: {e}")
+        import traceback
+        traceback.print_exc()
         flash('Ocurrió un error al eliminar el producto.', 'danger')
     return redirect(url_for('product_html.productos'))
 
