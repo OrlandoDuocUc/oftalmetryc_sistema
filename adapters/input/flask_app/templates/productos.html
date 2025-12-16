@@ -588,7 +588,7 @@
                 });
             });
         }
-                document.getElementById('formEditarProducto').action = '/productos/edit/' + productoId;
+                document.getElementById('formEditarProducto').action = '/productos/editar/' + productoId;
             });
         }
         var modalEliminar = document.getElementById('modalEliminar');
@@ -597,13 +597,13 @@
                 var button = event.relatedTarget;
                 var productoId = button.getAttribute('data-producto-id');
                 var form = document.getElementById('formEliminarProducto');
-                form.action = '/productos/delete/' + productoId;
+                form.action = '/productos/eliminar/' + productoId;
             });
         }
         function editarProducto(productoId) {
             var modal = new bootstrap.Modal(document.getElementById('modalEditarProducto'));
             document.getElementById('editarProductoId').value = productoId;
-            document.getElementById('formEditarProducto').action = '/productos/edit/' + productoId;
+            document.getElementById('formEditarProducto').action = '/productos/editar/' + productoId;
             modal.show();
         }
         // Manejo del formulario de creación con modal de éxito
