@@ -95,11 +95,11 @@ class ProductUseCases:
     def restore_product(self, product_id):
         """Restaura un producto eliminado lógicamente."""
         def operation(repo):
-            return repo.restore(product_id)
+            return repo.restore(product_id, commit=False)  # El commit lo hace _execute_with_session
         return self._execute_with_session(operation)
 
     def delete_product(self, product_id):
         """Elimina (lógica o físicamente) un producto por su ID."""
         def operation(repo):
-            return repo.delete(product_id)
+            return repo.delete(product_id, commit=False)  # El commit lo hace _execute_with_session
         return self._execute_with_session(operation)
