@@ -74,16 +74,11 @@ def productos():
             else:
                 data['costo_total'] = data['cantidad'] * data['costo_unitario']
             
-            # Campos numéricos opcionales - validar que no sean cadenas vacías
-            if data.get('costo_venta_1') and data.get('costo_venta_1').strip():
-                data['costo_venta_1'] = float(data['costo_venta_1'])
-            else:
-                data['costo_venta_1'] = None
-                
-            if data.get('costo_venta_2') and data.get('costo_venta_2').strip():
-                data['costo_venta_2'] = float(data['costo_venta_2'])
-            else:
-                data['costo_venta_2'] = None
+            # Calcular precios de venta automáticamente
+            # Precio Venta 1 = Costo Unitario × 3
+            # Precio Venta 2 = Costo Unitario × 2
+            data['costo_venta_1'] = data['costo_unitario'] * 3
+            data['costo_venta_2'] = data['costo_unitario'] * 2
             
             # diametro_1 y diametro_2 son strings (pueden contener "54mm", "Medium", etc.)
             # No convertir a int, dejarlos como están
@@ -154,16 +149,11 @@ def editar_producto(product_id):
         else:
             data['costo_total'] = data['cantidad'] * data['costo_unitario']
         
-        # Campos numéricos opcionales - validar que no sean cadenas vacías
-        if data.get('costo_venta_1') and data.get('costo_venta_1').strip():
-            data['costo_venta_1'] = float(data['costo_venta_1'])
-        else:
-            data['costo_venta_1'] = None
-            
-        if data.get('costo_venta_2') and data.get('costo_venta_2').strip():
-            data['costo_venta_2'] = float(data['costo_venta_2'])
-        else:
-            data['costo_venta_2'] = None
+        # Calcular precios de venta automáticamente
+        # Precio Venta 1 = Costo Unitario × 3
+        # Precio Venta 2 = Costo Unitario × 2
+        data['costo_venta_1'] = data['costo_unitario'] * 3
+        data['costo_venta_2'] = data['costo_unitario'] * 2
         
         # diametro_1 y diametro_2 son strings (pueden contener "54mm", "Medium", etc.)
         # No convertir a int, dejarlos como están

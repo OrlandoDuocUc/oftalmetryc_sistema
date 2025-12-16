@@ -95,26 +95,27 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="cantidad" class="form-label">Cantidad <span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="cantidad" name="cantidad" min="0" value="0" required>
                         </div>
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="costo_unitario" class="form-label">Costo Unitario <span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="costo_unitario" name="costo_unitario" step="0.01" min="0" required>
                         </div>
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="costo_total" class="form-label">Costo Total</label>
                             <input type="number" class="form-control" id="costo_total" name="costo_total" step="0.01" min="0" readonly>
+                            <small class="text-muted">Cantidad × Costo Unitario</small>
                         </div>
-                        <div class="col-md-2 mb-3">
-                            <label for="costo_venta_1" class="form-label">Precio Venta 1</label>
-                            <input type="number" class="form-control" id="costo_venta_1" name="costo_venta_1" step="0.01" min="0">
-                        </div>
-                        <div class="col-md-2 mb-3">
-                            <label for="costo_venta_2" class="form-label">Precio Venta 2</label>
-                            <input type="number" class="form-control" id="costo_venta_2" name="costo_venta_2" step="0.01" min="0">
-                        </div>
+                    </div>
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Nota:</strong> Los precios de venta se calcularán automáticamente:
+                        <ul class="mb-0 mt-2">
+                            <li><strong>Precio Venta 1:</strong> Costo Unitario × 3</li>
+                            <li><strong>Precio Venta 2:</strong> Costo Unitario × 2</li>
+                        </ul>
                     </div>
                     <div class="row">
                         <div class="col-md-12 mb-3">
@@ -323,26 +324,23 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-3 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="editarCantidad" class="form-label">Cantidad <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control" id="editarCantidad" name="cantidad" min="0" required>
                                 </div>
-                                <div class="col-md-3 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="editarCostoUnitario" class="form-label">Costo Unitario <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control" id="editarCostoUnitario" name="costo_unitario" step="0.01" min="0" required>
                                 </div>
-                                <div class="col-md-2 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="editarCostoTotal" class="form-label">Costo Total</label>
                                     <input type="number" class="form-control" id="editarCostoTotal" name="costo_total" step="0.01" min="0" readonly>
+                                    <small class="text-muted">Cantidad × Costo Unitario</small>
                                 </div>
-                                <div class="col-md-2 mb-3">
-                                    <label for="editarCostoVenta1" class="form-label">P. Venta 1</label>
-                                    <input type="number" class="form-control" id="editarCostoVenta1" name="costo_venta_1" step="0.01" min="0">
-                                </div>
-                                <div class="col-md-2 mb-3">
-                                    <label for="editarCostoVenta2" class="form-label">P. Venta 2</label>
-                                    <input type="number" class="form-control" id="editarCostoVenta2" name="costo_venta_2" step="0.01" min="0">
-                                </div>
+                            </div>
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <small><strong>Los precios de venta se recalcularán automáticamente</strong> al guardar los cambios.</small>
                             </div>
                             <div class="row">
                                 <div class="col-md-12 mb-3">
@@ -425,46 +423,36 @@
             }
         });
 
-        // Función para calcular el costo total y precios de venta automáticamente
-        function calcularCostoTotal(cantidadInput, costoUnitarioInput, costoTotalInput, venta1Input, venta2Input) {
-            const cantidad = parseFloat(cantidadInput.value) || 0;
-            const costoUnitario = parseFloat(costoUnitarioInput.value) || 0;
-            const costoTotal = cantidad * costoUnitario;
-            costoTotalInput.value = costoTotal.toFixed(2);
-            
-            // Auto-calcular precios de venta si existen los campos
-            if (venta1Input) {
-                const venta1 = costoUnitario * 3;
-                venta1Input.value = venta1.toFixed(2);
-            }
-            if (venta2Input) {
-                const venta2 = costoUnitario * 2;
-                venta2Input.value = venta2.toFixed(2);
-            }
-        }
-
         // Para formulario de creación
         const cantidadCreate = document.getElementById('cantidad');
         const costoUnitarioCreate = document.getElementById('costo_unitario');
         const costoTotalCreate = document.getElementById('costo_total');
-        const venta1Create = document.getElementById('costo_venta_1');
-        const venta2Create = document.getElementById('costo_venta_2');
         
         if (cantidadCreate && costoUnitarioCreate && costoTotalCreate) {
-            cantidadCreate.addEventListener('input', () => calcularCostoTotal(cantidadCreate, costoUnitarioCreate, costoTotalCreate, venta1Create, venta2Create));
-            costoUnitarioCreate.addEventListener('input', () => calcularCostoTotal(cantidadCreate, costoUnitarioCreate, costoTotalCreate, venta1Create, venta2Create));
+            // Solo calcular costo total (cantidad × costo unitario)
+            // Los precios de venta se calculan automáticamente en el backend
+            const calcularTotal = () => {
+                const cantidad = parseFloat(cantidadCreate.value) || 0;
+                const costoUnitario = parseFloat(costoUnitarioCreate.value) || 0;
+                costoTotalCreate.value = (cantidad * costoUnitario).toFixed(2);
+            };
+            cantidadCreate.addEventListener('input', calcularTotal);
+            costoUnitarioCreate.addEventListener('input', calcularTotal);
         }
 
         // Para formulario de edición
         const cantidadEdit = document.getElementById('editarCantidad');
         const costoUnitarioEdit = document.getElementById('editarCostoUnitario');
         const costoTotalEdit = document.getElementById('editarCostoTotal');
-        const venta1Edit = document.getElementById('editarCostoVenta1');
-        const venta2Edit = document.getElementById('editarCostoVenta2');
         
         if (cantidadEdit && costoUnitarioEdit && costoTotalEdit) {
-            cantidadEdit.addEventListener('input', () => calcularCostoTotal(cantidadEdit, costoUnitarioEdit, costoTotalEdit, venta1Edit, venta2Edit));
-            costoUnitarioEdit.addEventListener('input', () => calcularCostoTotal(cantidadEdit, costoUnitarioEdit, costoTotalEdit, venta1Edit, venta2Edit));
+            const calcularTotalEdit = () => {
+                const cantidad = parseFloat(cantidadEdit.value) || 0;
+                const costoUnitario = parseFloat(costoUnitarioEdit.value) || 0;
+                costoTotalEdit.value = (cantidad * costoUnitario).toFixed(2);
+            };
+            cantidadEdit.addEventListener('input', calcularTotalEdit);
+            costoUnitarioEdit.addEventListener('input', calcularTotalEdit);
         }
 
         var modalEditarProducto = document.getElementById('modalEditarProducto');
@@ -485,8 +473,6 @@
                 var cantidad = button.getAttribute('data-cantidad');
                 var costoUnitario = button.getAttribute('data-costo-unitario');
                 var costoTotal = button.getAttribute('data-costo-total');
-                var costoVenta1 = button.getAttribute('data-costo-venta1');
-                var costoVenta2 = button.getAttribute('data-costo-venta2');
                 var descripcion = button.getAttribute('data-descripcion');
                 
                 document.getElementById('editarProductoId').value = productoId;
@@ -503,8 +489,6 @@
                 document.getElementById('editarCantidad').value = cantidad;
                 document.getElementById('editarCostoUnitario').value = costoUnitario;
                 document.getElementById('editarCostoTotal').value = costoTotal;
-                document.getElementById('editarCostoVenta1').value = costoVenta1;
-                document.getElementById('editarCostoVenta2').value = costoVenta2;
                 document.getElementById('editarDescripcionProducto').value = descripcion;
                 
                 // Establecer action del formulario
